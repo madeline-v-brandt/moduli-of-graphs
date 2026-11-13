@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="style.css?v=7">
 <link rel="stylesheet" href="lecture.css?v=7">
+<link rel="stylesheet" href="deck.css?v=1">
 </head>
 <body>
 <div class="wrap notes-wrap">
@@ -20,6 +21,10 @@
     <h1>A space whose points are graphs</h1>
     <p class="lede">Take every graph of a given type, put lengths on its edges, and collect all of them together. The result is a geometric space, built out of pieces indexed by graphs, and the pieces are glued by contracting edges. These notes build that space from scratch.</p>
     <p class="lede-2">This page has interactive examples. The <a href="index.html">explorer</a> has the full poset of graphs for many more types (<em class="m">g</em>, <em class="m">n</em>).</p>
+    <div class="mode-switch seg-ctl" role="group" aria-label="View">
+      <button type="button" class="segbtn" id="mode-read" aria-pressed="true">Reading mode</button>
+      <button type="button" class="segbtn" id="mode-present" aria-pressed="false">Presentation mode</button>
+    </div>
   </header>
 
   <div class="notes">
@@ -393,10 +398,477 @@
     <div><a href="index.html">← Back to the explorer</a>, which shows the poset of stable graphs for every type with at most 250 graphs.</div>
   </footer>
 </div>
+
+<!-- ================= PRESENTATION MODE ================= -->
+<div class="deck" id="deck" hidden tabindex="-1" role="region" aria-label="Presentation">
+  <div class="deck-stage">
+    <div class="deck-contents" hidden>
+      <div class="deck-contents-head">
+        <h2>Slides</h2>
+        <button type="button" class="btn-quiet deck-close-contents">Close</button>
+      </div>
+      <p class="deck-keys">→, space or click: next · ←: back · G: this list · F: full screen · Esc: reading mode</p>
+      <div class="deck-contents-grid"></div>
+    </div>
+  </div>
+  <div class="deck-bar">
+    <div class="deck-progress" aria-hidden="true"><i></i></div>
+    <button type="button" class="deck-prev" aria-label="Back">←</button>
+    <button type="button" class="deck-next" aria-label="Next">→</button>
+    <span class="deck-count"></span>
+    <span class="deck-parts" role="group" aria-label="Jump to a part"></span>
+    <span class="deck-title"></span>
+    <button type="button" class="deck-open-contents">Contents</button>
+    <button type="button" class="deck-full">Full screen</button>
+    <button type="button" class="deck-exit">Reading mode</button>
+  </div>
+</div>
+
+<template id="slides">
+
+  <!-- title -->
+  <section class="slide title" data-part="0" data-title="A space whose points are graphs">
+    <div class="eyebrow">Moduli spaces of graphs</div>
+    <h1>A space whose points are graphs</h1>
+    <p class="sub">Put lengths on the edges of every graph of a given type, collect them all, and you get a geometric space, built from pieces indexed by graphs.</p>
+    <p class="hint">Press → or click to begin · G for the list of slides</p>
+  </section>
+
+  <!-- ===== Part 1 ===== -->
+  <section class="slide" data-part="1" data-title="What is a moduli space?">
+    <h2>What is a moduli space?</h2>
+    <ul class="pts">
+      <li class="step">A <b>moduli space</b> is a geometric space whose points are in bijection with the isomorphism classes of some kind of mathematical object.<span class="aside">Think of it as a menu: picking a point picks out one of the objects.</span></li>
+      <li class="step"><b>Moving</b> continuously in the space deforms the object continuously.</li>
+      <li class="step">The <b>boundary</b> of the space holds degenerate versions of the object.</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-part="1" data-title="Warm-up: segments in ℝ²">
+    <h2>Warm-up: segments in ℝ<sup>2</sup></h2>
+    <ul class="pts">
+      <li class="step">A <b>segment</b> is [<em class="m">p</em>, <em class="m">q</em>] = {(1 − <em class="m">t</em>)<em class="m">p</em> + <em class="m">tq</em> : 0 ≤ <em class="m">t</em> ≤ 1} for two distinct points <em class="m">p</em>, <em class="m">q</em> in the plane.</li>
+      <li class="step">Two segments are the same if a rotation followed by a translation carries one onto the other.</li>
+      <li class="step">What does the space of all segments look like?</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-part="1" data-title="The space of segments">
+    <h2>The space of segments</h2>
+    <ul class="pts">
+      <li class="step">Translate <em class="m">p</em> to the origin, then rotate <em class="m">q</em> onto the positive <em class="m">x</em>-axis. Every segment becomes the segment from (0, 0) to (ℓ, 0), with ℓ = |<em class="m">q</em> − <em class="m">p</em>| &gt; 0.</li>
+      <li class="step">Rotations and translations preserve length, so ℓ is the only parameter:</li>
+    </ul>
+    <div class="display step"><span>{segments in ℝ<sup>2</sup>} / (rotations, translations)</span><span>≅</span><span>(0, ∞)</span></div>
+  </section>
+
+  <section class="slide interactive" data-part="1" data-title="Try it: a segment and its length">
+    <h2>Try it: a segment and its length</h2>
+    <p class="prompt">Drag an endpoint, move the segment rigidly, or drop one endpoint onto the other.</p>
+    <div class="slot" data-fig="#w-seg"></div>
+  </section>
+
+  <section class="slide" data-part="1" data-title="Degenerate segments">
+    <h2>Degenerate segments</h2>
+    <ul class="pts">
+      <li class="step">As ℓ → 0 the endpoints collide and the segment collapses to a point: a <b>degenerate</b> segment.</li>
+      <li class="step">It sits at the boundary point 0 of the ray. Adding it closes (0, ∞) up to [0, ∞).</li>
+      <li class="step"><b>Why this example?</b> An edge of a metric graph is a segment. A graph with <em class="m">k</em> edges will give a copy of (0, ∞)<sup><em class="m">k</em></sup>.</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-part="1" data-title="Warm-up: lines through the origin">
+    <h2>Warm-up: lines through the origin</h2>
+    <ul class="pts">
+      <li class="step">A line through 0 in ℝ<sup>2</sup> is determined by its angle θ in [0, π).</li>
+      <li class="step">As θ approaches π the line comes back to the <em class="m">x</em>-axis, so the ends of the interval glue together: the space of lines is a <b>circle</b>.</li>
+      <li class="step">Each line is very simple, but the space of all of them has a hole.</li>
+    </ul>
+  </section>
+
+  <section class="slide interactive" data-part="1" data-title="Try it: the circle of lines">
+    <h2>Try it: the circle of lines</h2>
+    <p class="prompt">Turn the line. The point on the circle sits at angle 2θ.</p>
+    <div class="slot" data-fig="#w-lines"></div>
+  </section>
+
+  <section class="slide" data-part="1" data-title="Three things to remember">
+    <h2>Three things to remember</h2>
+    <ol class="pts num">
+      <li class="step"><b>Points</b> of the space are isomorphism classes of objects.</li>
+      <li class="step"><b>Moving</b> continuously in the space is deforming the object continuously.</li>
+      <li class="step">The <b>boundary</b> holds degenerations, where something shrinks to zero.</li>
+    </ol>
+  </section>
+
+  <!-- ===== Part 2 ===== -->
+  <section class="slide" data-part="2" data-title="Why half-edges?">
+    <h2>Why half-edges?</h2>
+    <p class="lead">A vertex set with a set of two-element subsets cannot handle three things we need:</p>
+    <ul class="pts">
+      <li class="step">loops,</li>
+      <li class="step">several edges between the same two vertices,</li>
+      <li class="step">edges that hang off a vertex and go nowhere.</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-part="2" data-title="Definition: graph">
+    <h2>Graphs, rigorously</h2>
+    <div class="theorem">
+      <div class="eyebrow">Definition · graph</div>
+      <p>A <b>graph</b> <em class="m">G</em> = (<em class="m">V</em>, <em class="m">H</em>, <em class="m">r</em>, ι) consists of</p>
+      <ul>
+        <li class="step">finite sets <em class="m">V</em> of <b>vertices</b> and <em class="m">H</em> of <b>half-edges</b>,</li>
+        <li class="step">a <b>root map</b> <em class="m">r</em> : <em class="m">H</em> → <em class="m">V</em>,</li>
+        <li class="step">an involution ι : <em class="m">H</em> → <em class="m">H</em>, so ι ∘ ι = id.</li>
+      </ul>
+      <p class="step">Orbits {<em class="m">h</em>, ι(<em class="m">h</em>)} of size 2 are <b>edges</b>. Fixed points of ι are <b>legs</b>.</p>
+    </div>
+  </section>
+
+  <section class="slide" data-part="2" data-title="Two decorations">
+    <h2>Two decorations</h2>
+    <ul class="pts">
+      <li class="step"><b>Marked legs:</b> a bijection <em class="m">m</em> from the set <em class="m">L</em> of legs to {1, 2, …, <em class="m">n</em>}.</li>
+      <li class="step"><b>Vertex weights:</b> a function <em class="m">w</em> : <em class="m">V</em> → {0, 1, 2, …}, drawn as a number inside the vertex.</li>
+    </ul>
+  </section>
+
+  <section class="slide interactive" data-part="2" data-title="Example: half-edges">
+    <h2>Example: half-edges</h2>
+    <p class="prompt">Pull the half-edges apart, switch examples, or click an automorphism.</p>
+    <div class="slot" data-fig="#w-anat"></div>
+  </section>
+
+  <section class="slide" data-part="2" data-title="Genus">
+    <h2>Genus</h2>
+    <ul class="pts">
+      <li class="step"><em class="m">r</em><sup>−1</sup>(<em class="m">v</em>) is the set of half-edges at <em class="m">v</em>, and |<em class="m">r</em><sup>−1</sup>(<em class="m">v</em>)| counts them. A loop counts twice, a leg once.</li>
+    </ul>
+    <div class="display step"><span><i>g</i>(<i>G</i>) = |<i>E</i>| − |<i>V</i>| + 1 + <span class="bigop">∑<small>v ∈ V</small></span> <i>w</i>(<i>v</i>)</span></div>
+    <ul class="pts">
+      <li class="step">|<em class="m">E</em>| − |<em class="m">V</em>| + 1 counts independent cycles. The weights count genus hidden at a vertex.</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-part="2" data-title="Stability">
+    <h2>Stability</h2>
+    <p class="lead">A graph is <b>stable</b> if every vertex satisfies</p>
+    <div class="display"><span>2<i>w</i>(<i>v</i>) − 2 + |<i>r</i><sup>−1</sup>(<i>v</i>)| &gt; 0.</span></div>
+    <ul class="pts">
+      <li class="step">Weight 0 needs at least 3 half-edges, weight 1 needs at least 1, and weight 2 or more is always fine.</li>
+      <li class="step">So no unweighted leaves, and no unweighted vertices in the middle of an edge.</li>
+    </ul>
+  </section>
+
+  <section class="slide interactive" data-part="2" data-title="The local picture at a vertex">
+    <h2>The local picture at a vertex</h2>
+    <p class="prompt">Point at a cell to see the vertex.</p>
+    <div class="slot" data-fig="#w-stab"></div>
+  </section>
+
+  <section class="slide" data-part="2" data-title="Isomorphisms and automorphisms">
+    <h2>Isomorphisms and automorphisms</h2>
+    <ul class="pts">
+      <li class="step">An <b>isomorphism</b> <em class="m">G</em> → <em class="m">G</em>′ is a pair of bijections <em class="m">f<sub>V</sub></em>, <em class="m">f<sub>H</sub></em> compatible with <em class="m">r</em>, ι, the weights and the leg labels.</li>
+      <li class="step">The isomorphisms <em class="m">G</em> → <em class="m">G</em> form the group Aut(<em class="m">G</em>).</li>
+      <li class="step">A loop with a leg: swapping the loop's two half-edges is an automorphism, so |Aut(<em class="m">G</em>)| = 2, even though no vertex or edge moves.</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-part="2" data-title="Finiteness">
+    <h2>Finiteness</h2>
+    <div class="theorem">
+      <div class="eyebrow">Proposition</div>
+      <p>For each <em class="m">g</em> and <em class="m">n</em>, there are finitely many connected stable graphs of genus <em class="m">g</em> with <em class="m">n</em> marked legs, up to isomorphism.</p>
+    </div>
+    <ul class="pts">
+      <li class="step">Strategy: show that such a graph has at most 2<em class="m">g</em> − 2 + <em class="m">n</em> vertices and at most 3<em class="m">g</em> − 3 + <em class="m">n</em> edges.</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-part="2" data-title="Proof: a budget of squares">
+    <h2>Proof: a budget of squares</h2>
+    <ul class="pts">
+      <li class="step">Handshake lemma with legs: ∑ |<em class="m">r</em><sup>−1</sup>(<em class="m">v</em>)| = 2|<em class="m">E</em>| + <em class="m">n</em>. So</li>
+    </ul>
+    <div class="display step"><span class="bigop">∑<small>v</small></span><span>(2<i>w</i>(<i>v</i>) − 2 + |<i>r</i><sup>−1</sup>(<i>v</i>)|) = 2<i>g</i> − 2 + <i>n</i>.</span></div>
+    <ul class="pts">
+      <li class="step">Every term on the left is at least 1, so |<em class="m">V</em>| ≤ 2<em class="m">g</em> − 2 + <em class="m">n</em>.</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-part="2" data-title="Proof: edges, and finiteness">
+    <h2>Proof: edges, and finiteness</h2>
+    <div class="display step"><span>|<i>E</i>| = <i>g</i> − ∑<i>w</i> + |<i>V</i>| − 1 ≤ 3<i>g</i> − 3 + <i>n</i></span></div>
+    <ul class="pts">
+      <li class="step">Equality exactly when all weights are 0 and every vertex has 3 half-edges: every vertex is <b>trivalent</b>.</li>
+      <li class="step">With |<em class="m">V</em>|, |<em class="m">E</em>| and the weights bounded, there are finitely many possibilities for (<em class="m">V</em>, <em class="m">H</em>, <em class="m">r</em>, ι, <em class="m">w</em>, <em class="m">m</em>). <span class="qed-s">∎</span></li>
+    </ul>
+  </section>
+
+  <section class="slide" data-part="2" data-title="Edge contraction">
+    <h2>Edge contraction</h2>
+    <p class="lead">For an edge <em class="m">e</em> of <em class="m">G</em>, the contraction <em class="m">G</em>/<em class="m">e</em>:</p>
+    <ul class="pts">
+      <li class="step">If <em class="m">e</em> joins distinct vertices <em class="m">u</em> and <em class="m">v</em>, merge them into one vertex of weight <em class="m">w</em>(<em class="m">u</em>) + <em class="m">w</em>(<em class="m">v</em>).</li>
+      <li class="step">If <em class="m">e</em> is a loop at <em class="m">v</em>, delete it and add 1 to <em class="m">w</em>(<em class="m">v</em>).</li>
+    </ul>
+  </section>
+
+  <section class="slide interactive" data-part="2" data-title="Try it: contract edges">
+    <h2>Try it: contract edges</h2>
+    <p class="prompt">Click an edge. Watch the genus, the legs and the budget squares.</p>
+    <div class="slot" data-fig="#w-contract"></div>
+  </section>
+
+  <section class="slide" data-part="2" data-title="Two key facts">
+    <h2>Two key facts</h2>
+    <ol class="pts num">
+      <li class="step"><b>Contraction preserves genus.</b> A loop trades one cycle for one unit of weight. Any other edge removes one vertex and one edge.</li>
+      <li class="step"><b>Contraction preserves stability.</b> Merging adds the two budgets. Contracting a loop keeps the budget the same.</li>
+    </ol>
+    <p class="lead step">A vertex weight remembers loops that have been contracted.</p>
+  </section>
+
+  <!-- ===== Part 3 ===== -->
+  <section class="slide" data-part="3" data-title="Metric graphs">
+    <h2>Metric graphs</h2>
+    <ul class="pts">
+      <li class="step">A <b>metric stable graph</b> is (<em class="m">G</em>, ℓ): a connected stable graph <em class="m">G</em> of genus <em class="m">g</em> with <em class="m">n</em> marked legs, and lengths ℓ : <em class="m">E</em>(<em class="m">G</em>) → ℝ<sub>&gt;0</sub>.</li>
+      <li class="step">(<em class="m">G</em>, ℓ) ≅ (<em class="m">G</em>′, ℓ′) if some isomorphism <em class="m">G</em> → <em class="m">G</em>′ carries ℓ to ℓ′.</li>
+      <li class="step">We say it has <b>type</b> (<em class="m">g</em>, <em class="m">n</em>). Legs have no length.</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-part="3" data-title="Step 1: one graph at a time">
+    <h2>Step 1: one graph at a time</h2>
+    <ul class="pts">
+      <li class="step">Fix <em class="m">G</em>. Length functions fill the open orthant ℝ<span class="ss"><sup><em class="m">E</em>(<em class="m">G</em>)</sup><sub>&gt;0</sub></span>, one coordinate per edge.</li>
+      <li class="step">Automorphisms of <em class="m">G</em> permute the edges, and give isomorphic metric graphs.</li>
+    </ul>
+    <div class="display step"><span>ℝ<span class="ss"><sup><i>E</i>(<i>G</i>)</sup><sub>&gt;0</sub></span> / Aut(<i>G</i>)</span></div>
+  </section>
+
+  <section class="slide interactive" data-part="3" data-title="Example: two parallel edges">
+    <h2>Example: two parallel edges</h2>
+    <p class="prompt">Identify points by the automorphism, push the point onto an axis, or rescale to total length 1.</p>
+    <div class="slot" data-fig="#w-cone"></div>
+  </section>
+
+  <section class="slide" data-part="3" data-title="Step 2: let lengths go to zero">
+    <h2>Step 2: let lengths go to zero</h2>
+    <ul class="pts">
+      <li class="step">Close up the orthant to ℝ<span class="ss"><sup><em class="m">E</em>(<em class="m">G</em>)</sup><sub>≥0</sub></span>.</li>
+      <li class="step">A point with ℓ(<em class="m">e</em>) = 0 should be the graph <em class="m">G</em>/<em class="m">e</em>.</li>
+      <li class="step">So glue the face {ℓ(<em class="m">e</em>) = 0} of the orthant of <em class="m">G</em> to the orthant of <em class="m">G</em>/<em class="m">e</em>.</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-part="3" data-title="The moduli space of graphs">
+    <h2>The moduli space of graphs</h2>
+    <div class="display"><span><i>M</i><sub><i>g</i>,<i>n</i></sub> = </span><span>( <span class="bigop">⊔<small>G</small></span> ℝ<span class="ss"><sup><i>E</i>(<i>G</i>)</sup><sub>≥0</sub></span> ) / ∼</span></div>
+    <ul class="pts">
+      <li class="step">The union is over stable graphs of type (<em class="m">g</em>, <em class="m">n</em>), one per isomorphism class. ∼ comes from automorphisms and from gluing faces to contractions.</li>
+      <li class="step">Its points are exactly the isomorphism classes of metric stable graphs of type (<em class="m">g</em>, <em class="m">n</em>).</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-part="3" data-title="The shape of the space">
+    <h2>The shape of the space</h2>
+    <ul class="pts">
+      <li class="step">One <b>cone point</b>: the vertex of weight <em class="m">g</em> carrying all <em class="m">n</em> legs.</li>
+      <li class="step">A graph with <em class="m">k</em> edges gives a <em class="m">k</em>-dimensional cone. The largest have dimension 3<em class="m">g</em> − 3 + <em class="m">n</em>.</li>
+      <li class="step">Symmetry folds the space: automorphisms that permute edges fold their cone.</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-part="3" data-title="Small enough to draw">
+    <h2>Small enough to draw</h2>
+    <ul class="pts">
+      <li class="step">Scaling all lengths gives a similar metric graph, so <em class="m">M</em><sub><em class="m">g</em>,<em class="m">n</em></sub> is a cone over</li>
+    </ul>
+    <div class="display step"><span>Δ<sub><i>g</i>,<i>n</i></sub> = { (<i>G</i>, ℓ) : ∑<sub><i>e</i></sub> ℓ(<i>e</i>) = 1 }.</span></div>
+    <ul class="pts">
+      <li class="step">A graph with <em class="m">k</em> edges gives a (<em class="m">k</em> − 1)-simplex, so Δ<sub><em class="m">g</em>,<em class="m">n</em></sub> has dimension 3<em class="m">g</em> − 4 + <em class="m">n</em>.</li>
+    </ul>
+  </section>
+
+  <!-- ===== Part 4 ===== -->
+  <section class="slide" data-part="4" data-title="Genus 0: trees">
+    <h2>Genus 0: trees</h2>
+    <ul class="pts">
+      <li class="step">All weights are 0 and |<em class="m">E</em>| − |<em class="m">V</em>| + 1 = 0: the graphs are trees with <em class="m">n</em> labelled leaves and every vertex of at least 3 half-edges. Biologists call them <b>phylogenetic trees</b>.</li>
+      <li class="step">Every leg is labelled, so there are no nontrivial automorphisms. Nothing folds.</li>
+      <li class="step"><em class="m">M</em><sub>0,3</sub>: the only graph is one vertex with legs 1, 2, 3. A point.</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-part="4" data-title="M₀,₄: three rays">
+    <h2><em class="m">M</em><sub>0,4</sub>: three rays</h2>
+    <ul class="pts">
+      <li class="step">At most one edge. With no edges: one vertex with all four legs, the cone point.</li>
+      <li class="step">With one edge the legs split two and two: 12|34, 13|24, 14|23.</li>
+      <li class="step">Each gives a ray, and the rays meet at the cone point: a star with three infinite edges.</li>
+    </ul>
+  </section>
+
+  <section class="slide interactive" data-part="4" data-title="Explore M₀,₄">
+    <h2>Explore <em class="m">M</em><sub>0,4</sub></h2>
+    <p class="prompt">Drag the point through the cone point to pass from one tree to another.</p>
+    <div class="slot" data-fig='.space[data-space="0,4"]'></div>
+  </section>
+
+  <section class="slide" data-part="4" data-title="M₀,₅: the vertices">
+    <h2><em class="m">M</em><sub>0,5</sub>: the vertices of Δ<sub>0,5</sub></h2>
+    <ul class="pts">
+      <li class="step">dim <em class="m">M</em><sub>0,5</sub> = 2, so Δ<sub>0,5</sub> is 1-dimensional. It is a graph!</li>
+      <li class="step">Its vertices are trees with one edge. The edge splits the legs 2 | 3, so label the tree by its 2-subset {<em class="m">i</em>, <em class="m">j</em>}.</li>
+      <li class="step">There are C(5, 2) = 10 of them.</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-part="4" data-title="M₀,₅: the edges">
+    <h2><em class="m">M</em><sub>0,5</sub>: the edges of Δ<sub>0,5</sub></h2>
+    <ul class="pts">
+      <li class="step">Its edges are trees with two edges, <b>caterpillars</b>: a pair of legs at each end and one in the middle. There are 5 · 3 = 15.</li>
+      <li class="step">The caterpillar with ends {<em class="m">i</em>, <em class="m">j</em>} and {<em class="m">k</em>, <em class="m">l</em>} contracts to the trees {<em class="m">i</em>, <em class="m">j</em>} and {<em class="m">k</em>, <em class="m">l</em>}.</li>
+      <li class="step">Adjacent means disjoint: Δ<sub>0,5</sub> is the Kneser graph <em class="m">K</em>(5, 2), the <b>Petersen graph</b>.</li>
+    </ul>
+  </section>
+
+  <section class="slide interactive" data-part="4" data-title="Your turn: label the Petersen graph">
+    <h2>Your turn: label the Petersen graph</h2>
+    <p class="prompt">Choose a vertex, then a pair, so that adjacent pairs are disjoint.</p>
+    <div class="slot" data-fig="#w-pet"></div>
+  </section>
+
+  <section class="slide interactive" data-part="4" data-title="Walking along Δ₀,₅">
+    <h2>Walking along Δ<sub>0,5</sub></h2>
+    <p class="prompt">Along an edge, one internal edge of the caterpillar shrinks while the other grows.</p>
+    <div class="slot" data-fig='.space[data-space="0,5"]'></div>
+  </section>
+
+  <section class="slide" data-part="4" data-title="Checks">
+    <h2>Checks</h2>
+    <ul class="pts">
+      <li class="step">Each {<em class="m">i</em>, <em class="m">j</em>} has C(3, 2) = 3 disjoint partners: 3-regular, 10 · 3 / 2 = 15 edges.</li>
+      <li class="step"><em class="m">M</em><sub>0,5</sub> is the cone over the Petersen graph: 15 quadrants, glued in threes along 10 rays.</li>
+      <li class="step">Cycle rank 15 − 10 + 1 = 6 = 3!. In general Δ<sub>0,<em class="m">n</em></sub> is homotopy equivalent to a wedge of (<em class="m">n</em> − 2)! spheres of dimension <em class="m">n</em> − 4.</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-part="4" data-title="M₁,₁: a ray">
+    <h2><em class="m">M</em><sub>1,1</sub>: a ray</h2>
+    <ul class="pts">
+      <li class="step">Two graphs: a vertex of weight 1 with the leg, and a weight-0 vertex with a loop and the leg.</li>
+      <li class="step">Aut = ℤ/2 flips the loop, but the loop keeps its length.</li>
+      <li class="step">So <em class="m">M</em><sub>1,1</sub> is a ray, just like the segments. The automorphism leaves no trace.</li>
+    </ul>
+  </section>
+
+  <section class="slide interactive" data-part="4" data-title="Explore M₁,₁">
+    <h2>Explore <em class="m">M</em><sub>1,1</sub></h2>
+    <p class="prompt">At length 0 the loop contracts and leaves weight 1 behind.</p>
+    <div class="slot" data-fig='.space[data-space="1,1"]'></div>
+  </section>
+
+  <section class="slide" data-part="4" data-title="M₁,₂: a segment">
+    <h2><em class="m">M</em><sub>1,2</sub>: a segment</h2>
+    <ul class="pts">
+      <li class="step"><b>A:</b> two parallel edges, with legs on different vertices. Swapping the edges folds its segment in half.</li>
+      <li class="step"><b>B:</b> a loop joined by a bridge to a vertex with both legs. Its segment is not folded.</li>
+      <li class="step">Glued: from D (the loop contracted) through B to C (one loop), then through A to the point where ℓ<sub>1</sub> = ℓ<sub>2</sub>.</li>
+    </ul>
+  </section>
+
+  <section class="slide interactive" data-part="4" data-title="Explore M₁,₂">
+    <h2>Explore <em class="m">M</em><sub>1,2</sub></h2>
+    <p class="prompt">The hollow diamond is the fold, where the two parallel edges have equal length.</p>
+    <div class="slot" data-fig='.space[data-space="1,2"]'></div>
+  </section>
+
+  <section class="slide interactive" data-part="4" data-title="Activity: genus 2, no legs">
+    <h2>Activity: genus 2, no legs</h2>
+    <p class="prompt">List all 7 stable graphs of genus 2 with no legs: at most 2 vertices and at most 3 edges. Then reveal the rows.</p>
+    <div class="slot" data-fig="#w-g2"></div>
+  </section>
+
+  <section class="slide interactive" data-part="4" data-title="Δ₂: two folded triangles">
+    <h2>Δ<sub>2</sub>: two folded triangles</h2>
+    <p class="prompt">The theta triangle is folded to a sixth, the dumbbell triangle in half. They meet along the figure-eights.</p>
+    <div class="slot" data-fig='.space[data-space="2,0"]'></div>
+  </section>
+
+  <!-- ===== Part 5 ===== -->
+  <section class="slide" data-part="5" data-title="The moduli space of curves">
+    <h2>The moduli space of curves</h2>
+    <ul class="pts">
+      <li class="step">ℳ<sub><em class="m">g</em>,<em class="m">n</em></sub>: Riemann surfaces of genus <em class="m">g</em> with <em class="m">n</em> marked points.</li>
+      <li class="step">It has complex dimension 3<em class="m">g</em> − 3 + <em class="m">n</em>, the same as our bound on the number of edges.</li>
+      <li class="step">That is not a coincidence.</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-part="5" data-title="Nodal curves and dual graphs">
+    <h2>Nodal curves and dual graphs</h2>
+    <p class="lead step">When a loop on a surface pinches to a point, the limit is a <b>nodal curve</b>: surfaces glued at points.</p>
+    <table class="dict step">
+      <thead><tr><th>Nodal curve</th><th>Dual graph</th></tr></thead>
+      <tbody>
+        <tr><td>a component</td><td>a vertex</td></tr>
+        <tr><td>its genus</td><td>the weight</td></tr>
+        <tr><td>a node</td><td>an edge</td></tr>
+        <tr><td>a marked point</td><td>a leg</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="slide interactive" data-part="5" data-title="Pinching a surface">
+    <h2>Pinching a surface</h2>
+    <p class="prompt">Slide a curve all the way to pinch it to a node.</p>
+    <div class="slot" data-fig="#w-pinch"></div>
+  </section>
+
+  <section class="slide" data-part="5" data-title="Everything lines up">
+    <h2>Everything lines up</h2>
+    <ul class="pts">
+      <li class="step">A nodal curve is stable exactly when its dual graph is stable.</li>
+      <li class="step">Contracting an edge is smoothing a node. The cones glue like the boundary strata of the compactified moduli space.</li>
+      <li class="step">The length of an edge measures, roughly, how fast its neck pinches.</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-part="5" data-title="What it is good for">
+    <h2>What it is good for</h2>
+    <ul class="pts">
+      <li class="step">Δ<sub><em class="m">g</em>,<em class="m">n</em></sub> is the boundary complex of the Deligne–Mumford compactification (Abramovich, Caporaso and Payne).</li>
+      <li class="step">So its homology computes the top-weight cohomology of ℳ<sub><em class="m">g</em>,<em class="m">n</em></sub>.</li>
+      <li class="step">Chan, Galatius and Payne: <em class="m">H</em><sup>4<em class="m">g</em>−6</sup>(ℳ<sub><em class="m">g</em></sub>; ℚ) is nonzero for <em class="m">g</em> = 3, 5 and all <em class="m">g</em> ≥ 7, and grows at least exponentially.</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-part="5" data-title="Back to M₀,₅">
+    <h2>Back to <em class="m">M</em><sub>0,5</sub></h2>
+    <ul class="pts">
+      <li class="step">The compactified moduli space of 5 points on the sphere is a complex surface with 10 boundary curves, one for each 2-subset.</li>
+      <li class="step">Two of them meet exactly when their 2-subsets are disjoint. The Petersen graph is the picture.</li>
+    </ul>
+    <p class="lead step closing">Trees, cycles, contraction, automorphisms and the Petersen graph all show up in current research on the geometry of surfaces.</p>
+  </section>
+
+  <section class="slide title end" data-part="5" data-title="Questions">
+    <h1>Questions?</h1>
+    <p class="sub">Explore more types (<em class="m">g</em>, <em class="m">n</em>) in the explorer, and find the exercises at the end of the notes.</p>
+    <p class="hint">Esc returns to reading mode</p>
+  </section>
+</template>
+
 <script src="js/core.js?v=7"></script>
 <script src="js/draw.js?v=7"></script>
 <script src="js/spaces.js?v=7"></script>
 <script src="js/spacepic.js?v=7"></script>
 <script src="js/lecture.js?v=7"></script>
+<script src="js/deck.js?v=1"></script>
 </body>
 </html>

@@ -1,0 +1,142 @@
+/* Presentation mode: one full-screen slide at a time above the notes, with a control bar at the
+   bottom. Slides use the notes' tokens and type; sizes scale with the screen. */
+
+/* the switch between reading and presentation, at the top of the notes */
+.mode-switch { justify-self: start; }
+.part-head .present-here { justify-self: start; margin-top: 4px; }
+
+body.presenting { overflow: hidden; }
+.deck {
+  position: fixed; inset: 0; z-index: 50; background: var(--paper); color: var(--ink);
+  display: grid; grid-template-rows: minmax(0, 1fr) auto;
+}
+.deck:focus { outline: none; }
+.deck-stage { position: relative; min-height: 0; overflow: hidden; }
+
+/* a slide */
+.slide {
+  position: absolute; inset: 0; display: none; flex-direction: column; justify-content: center;
+  gap: clamp(14px, 2.6vh, 30px);
+  padding-block: clamp(20px, 5vh, 60px);
+  /* a centred content column 1180px wide; everything inside it is left-aligned */
+  padding-left: max(clamp(20px, 7vw, 120px), calc((100% - 1180px) / 2), env(safe-area-inset-left, 0px));
+  padding-right: max(clamp(20px, 7vw, 120px), calc((100% - 1180px) / 2), env(safe-area-inset-right, 0px));
+  overflow: auto;
+}
+.slide.current { display: flex; }
+.slide > * { margin-inline: 0; }
+.slide > .display { width: 100%; }
+.slide .slide-part { color: var(--muted); font-size: clamp(11px, 0.95vw, 14px); }
+.slide h2 { font-size: clamp(30px, 4.1vw, 62px); line-height: 1.08; }
+.slide em.m { font-size: 1em; }
+.slide b { font-weight: 600; }
+.slide .lead, .slide .pts > li {
+  font-family: var(--display); font-size: clamp(20px, 2.25vw, 35px); line-height: 1.38; max-width: 36em;
+}
+.slide .pts { list-style: none; margin: 0; padding: 0; display: grid; gap: clamp(14px, 2.8vh, 32px); }
+.slide .pts > li { position: relative; padding-left: 1.15em; }
+.slide .pts > li::before {
+  content: ""; position: absolute; left: 0.1em; top: 0.6em; width: 0.38em; height: 0.38em; border-radius: 50%; background: var(--mat);
+}
+.slide .pts.num { counter-reset: n; }
+.slide .pts.num > li { counter-increment: n; padding-left: 1.7em; }
+.slide .pts.num > li::before {
+  content: counter(n); top: 0.12em; left: 0; width: 1.25em; height: 1.25em; display: grid; place-items: center;
+  font: 600 0.62em/1 var(--mono); color: var(--paper); background: var(--atom);
+}
+.slide .aside { display: block; margin-top: 0.35em; font-size: 0.78em; color: var(--muted); }
+.slide .display { font-size: clamp(24px, 2.9vw, 46px); justify-content: center; overflow: visible; }
+.slide .theorem { gap: 14px; padding-left: clamp(16px, 1.6vw, 26px); }
+.slide .theorem p, .slide .theorem li { font-family: var(--display); font-size: clamp(20px, 2.15vw, 33px); line-height: 1.38; max-width: 36em; }
+.slide .theorem ul { margin: 0; padding-left: 1.2em; display: grid; gap: 0.35em; }
+.slide .theorem .eyebrow { font-size: clamp(11px, 0.95vw, 14px); }
+.slide .qed-s { color: var(--muted); }
+.slide .closing { color: var(--mat); }
+.slide table.dict { font-size: clamp(18px, 1.9vw, 30px); min-width: min(100%, 560px); width: auto; }
+.slide table.dict td { font-size: inherit; padding: 0.35em 1.4em 0.35em 0; }
+.slide table.dict th { font-size: clamp(11px, 0.95vw, 14px); }
+
+/* revealing one point at a time */
+.slide .step { opacity: 0; transform: translateY(10px); transition: opacity 0.35s ease, transform 0.35s ease; }
+.slide .step.on { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .slide .step { transition: none; transform: none; } }
+
+/* title and closing slides */
+.slide.title { gap: clamp(16px, 3vh, 34px); }
+.slide.title h1 { font-size: clamp(44px, 7vw, 108px); line-height: 1.02; }
+.slide.title .sub { font-family: var(--display); font-size: clamp(20px, 2.4vw, 36px); line-height: 1.35; color: var(--muted); max-width: 30em; }
+.slide.title .hint { font: clamp(12px, 1vw, 14px) var(--mono); color: var(--muted); }
+
+/* interactive slides: the figure from the notes fills the slide */
+.slide.interactive {
+  justify-content: flex-start; gap: clamp(6px, 1.4vh, 14px); padding-block: clamp(14px, 3vh, 34px) clamp(10px, 2vh, 22px);
+  padding-left: max(clamp(16px, 3.5vw, 56px), calc((100% - 1500px) / 2), env(safe-area-inset-left, 0px));
+  padding-right: max(clamp(16px, 3.5vw, 56px), calc((100% - 1500px) / 2), env(safe-area-inset-right, 0px));
+}
+.slide.interactive h2 { font-size: clamp(24px, 2.8vw, 42px); }
+.slide .prompt { font-size: clamp(14px, 1.25vw, 19px); color: var(--muted); }
+.slide .slot { flex: 1 1 auto; min-height: 0; width: 100%; display: flex; align-items: center; justify-content: center; }
+.slot > .fig, .slot > .space { width: 100%; margin: 0; }
+.slot .fig-cap, .slot .space .pic > .note { display: none; }
+.slot .fig-pair svg, .slot .space .pic svg { max-height: calc(100vh - 300px); }
+.slot #anat-svg, .slot #con-svg svg { max-height: calc(100vh - 360px); }
+.slot .live svg { max-height: calc(100vh - 420px); }
+.slot #pinch-svg { max-height: calc(100vh - 380px); }
+.slot .anat-data, .slot .con-data, .slot .pet-side, .slot .live .note, .slot .stab-read { font-size: 15px; }
+.slot .g2-card { width: clamp(130px, 13vw, 190px); }
+.slot .con-hist button { width: 74px; }
+
+/* bottom bar */
+.deck-bar {
+  position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+  padding: 8px max(16px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  border-top: 1px solid var(--rule); background: var(--panel); font: 12.5px var(--mono); color: var(--muted);
+}
+.deck-progress { position: absolute; left: 0; right: 0; top: -1px; height: 3px; background: transparent; }
+.deck-progress i { display: block; height: 100%; width: 0; background: var(--mat); transition: width 0.3s ease; }
+.deck-bar button {
+  font: 12.5px var(--mono); color: var(--ink); background: transparent; border: 1px solid var(--rule);
+  border-radius: 4px; padding: 4px 10px; cursor: pointer;
+}
+.deck-bar button:hover { border-color: var(--atom); }
+.deck-prev, .deck-next { min-width: 40px; }
+.deck-count { font-variant-numeric: tabular-nums; min-width: 4.5em; }
+.deck-parts { display: inline-flex; gap: 4px; }
+.deck-parts button { padding: 4px 9px; }
+.deck-parts button[aria-current="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.deck-title { flex: 1 1 160px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* list of slides */
+.deck-contents {
+  position: absolute; inset: 0; z-index: 3; overflow: auto; background: var(--paper);
+  padding-block: clamp(20px, 5vh, 56px);
+  padding-left: max(clamp(16px, 6vw, 100px), env(safe-area-inset-left, 0px));
+  padding-right: max(clamp(16px, 6vw, 100px), env(safe-area-inset-right, 0px));
+}
+.deck-contents-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; max-width: 1400px; margin: 0 auto; }
+.deck-contents-head h2 { font-size: clamp(26px, 3vw, 40px); }
+.deck-keys { font: 12.5px var(--mono); color: var(--muted); max-width: 1400px; margin: 8px auto 24px; }
+.deck-contents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 26px 34px; max-width: 1400px; margin: 0 auto; }
+.toc-part { display: grid; gap: 4px; align-content: start; }
+.toc-part h3 { font-size: 19px; margin-bottom: 4px; }
+.toc-part ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; }
+.toc-part button {
+  width: 100%; display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 6px; text-align: left;
+  padding: 5px 8px; border: 0; border-radius: 5px; background: transparent; cursor: pointer; font: 14px/1.35 var(--body); color: var(--ink);
+}
+.toc-part button > span:first-child { font: 12px var(--mono); color: var(--muted); padding-top: 2px; }
+.toc-part button:hover { background: var(--mat-soft); }
+.toc-part button[aria-current="true"] { background: var(--ink); color: var(--paper); }
+.toc-part button[aria-current="true"] > span:first-child { color: var(--paper); }
+.tag-i { font: italic 11px var(--mono); color: var(--mat); }
+.toc-part button[aria-current="true"] .tag-i { color: var(--paper); }
+
+@media (max-width: 760px) {
+  .deck-title { display: none; }
+  .slot .fig-pair svg, .slot .space .pic svg { max-height: none; }
+}
+
+/* on big screens, enlarge the text panels beside the figures so they read from the back of a room */
+@media (min-width: 1200px) and (min-height: 700px) {
+  .slot .anat-data, .slot .con-data, .slot .pet-side, .slot .stab-read, .slot .space .live { zoom: 1.2; }
+}
