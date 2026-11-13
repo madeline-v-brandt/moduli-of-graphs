@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Moduli Spaces of Graphs</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Stable graphs of type (g, n), the poset of edge contractions, their automorphisms, and pictures of the moduli spaces of metric graphs for small g and n.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="style.css?v=6">
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="hero-text">
+      <div class="eyebrow">Website developed by Madeline Brandt</div>
+      <h1>Moduli spaces of graphs</h1>
+      <p class="to-notes"><a href="lecture.html">Read more about the math</a><span>Definitions, the finiteness proof and worked examples, with figures you can move.</span></p>
+      <p class="lede-2">Give every edge of a graph a positive length. As lengths shrink to zero, edges contract and the graph degenerates. The moduli space <em class="m">M<sub>g,n</sub></em> collects all such metric graphs of genus <em class="m">g</em> with <em class="m">n</em> marked legs. It has one cell <em class="m">ℝ<sub>&gt;0</sub><sup>E(G)</sup>/Aut(G)</em> for each stable graph <em class="m">G</em>, and the cells are glued along edge contractions.</p>
+      <p class="lede">Pick a type (<em class="m">g</em>, <em class="m">n</em>) below to see its stable graphs, the poset they form under contraction, their automorphisms, and, when the dimension is small, a picture of the space you can move around in.</p>
+    </div>
+    <figure class="hero-fig">
+      <div class="hero-graph" id="hero-graph" aria-hidden="true"></div>
+      <div class="hero-space" id="hero-space" aria-hidden="true"></div>
+      <figcaption>A point wandering through <em class="m">M<sub>2</sub></em> at total edge length 1. When an edge shrinks to zero it contracts. A contracted loop leaves its genus behind as a vertex weight.</figcaption>
+    </figure>
+  </header>
+
+
+  <div class="control">
+    <div class="pick">
+      <span class="eyebrow">Type (g, n): number of stable graphs</span>
+      <div class="grid-wrap"><table class="picker" id="picker" aria-label="Choose g and n"></table></div>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+
+  <section aria-labelledby="poset-title">
+    <div class="sec-head">
+      <div class="eyebrow">1 · Poset</div>
+      <h2 id="poset-title">Stable graphs under contraction</h2>
+      <p id="poset-text"></p>
+    </div>
+    <div class="board">
+      <div class="board-bar" id="board-bar"></div>
+      <div class="board-body" id="board-body"></div>
+      <div class="tip" id="tip" hidden></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="detail-title">
+    <div class="sec-head">
+      <div class="eyebrow">2 · One graph</div>
+      <h2 id="detail-title">The selected graph</h2>
+      <p>Click an edge in the drawing to contract it. Click an automorphism to watch where it sends each half-edge.</p>
+    </div>
+    <div class="detail" id="detail" aria-live="polite"></div>
+  </section>
+
+  <section aria-labelledby="space-title">
+    <div class="sec-head">
+      <div class="eyebrow">3 · The space</div>
+      <h2 id="space-title">The moduli space</h2>
+      <p id="space-text"></p>
+    </div>
+    <div class="space spc" id="space"></div>
+  </section>
+
+
+  <footer>
+    <div>Graphs are enumerated in your browser by splitting vertices, starting from the single vertex of weight <em class="m">g</em> with <em class="m">n</em> legs, and are identified up to isomorphism by a canonical form.</div>
+    <div><a href="lecture.html">More about the math</a>: what a moduli space is, half-edges, stability and finiteness, and the worked examples.</div>
+  </footer>
+</div>
+<script src="js/core.js?v=6"></script>
+<script src="js/draw.js?v=6"></script>
+<script src="js/spaces.js?v=6"></script>
+<script src="js/spacepic.js?v=6"></script>
+<script src="js/app.js?v=6"></script>
+</body>
+</html>
