@@ -685,7 +685,7 @@
     drag(svg, {
       move: (p) => {
         const q = tf.from(p);
-        const r = SP.nearest(spec, q, pt.ci, 10 / tf.s);
+        const r = SP.nearest(spec, q, pt.ci, 3 / tf.s);
         pt = { ci: r.ci, lam: r.lam };
         update();
       },

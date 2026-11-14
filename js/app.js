@@ -38,9 +38,20 @@
     S.spec = SP.SPACES[g + "," + n] || null;
     S.pt = null;
     S.metric = new MD.MetricView();
+    if (S.d3) { S.d3.destroy(); S.d3 = null; }
     const maxE = 3 * g - 3 + n;
     const top = S.data.graphs.findIndex((G) => G.edges.length === maxE);
     S.sel = top >= 0 ? top : 0;
+    if (g === 0 && n === 6 && window.D06) {
+      // the vertex 56 | 1234, at the centre of the picture
+      const v56 = S.data.graphs.findIndex((G, i) => S.data.rank[i] === 1 && G.legs[4] === G.legs[5] && G.legs.filter((v) => v === G.legs[4]).length === 2);
+      if (v56 >= 0) S.sel = v56;
+    }
+    if (g === 1 && n === 3 && window.D13) {
+      // the 3-cycle, whose triangle zips up into the sphere
+      const c = window.D13.defaultCell(S.data);
+      if (c >= 0) S.sel = c;
+    }
     S.here = -1;
     if (!fromHash) { try { history.replaceState(null, "", "#g" + g + "-n" + n); } catch (e) { /* ignore */ } }
     renderPicker();
@@ -441,12 +452,14 @@
     const spec = S.spec;
     const dimD = 3 * g - 4 + n;
     const fvec = fvecHtml();
+    if (g === 0 && n === 6 && window.D06) { render06(fvec); return; }
+    if (g === 1 && n === 3 && window.D13) { render13(fvec); return; }
     if (!spec) {
       $("#space-text").innerHTML = `The space ${Msub(g, n)} is the cone over ${Dsub(g, n)}, the space of graphs with total edge length 1. Here ${Dsub(g, n)} has dimension ${dimD}, too many to draw. Its cells are still easy to count.`;
       box.innerHTML = `<div class="nopic">
         <h4>Cells of ${Dsub(g, n)} by dimension</h4>${fvec}
         <p class="note">A graph with <em class="m">k</em> edges gives a cell of dimension <em class="m">k</em> − 1 in ${Dsub(g, n)}.</p>
-        <p class="note">Pictures are available for (0, 4), (0, 5), (1, 1), (1, 2) and (2, 0).</p>
+        <p class="note">Pictures are available for (0, 4), (0, 5), (0, 6), (1, 1), (1, 2), (1, 3) and (2, 0).</p>
       </div><div>${staticHere()}</div>`;
       return;
     }
@@ -499,7 +512,7 @@
     };
     const moveTo = (e) => {
       const p = toPic(e);
-      const r = SP.nearest(S.spec, p, S.pt.ci, 10 / S.tf.s);
+      const r = SP.nearest(S.spec, p, S.pt.ci, 3 / S.tf.s);
       S.pt = { ci: r.ci, lam: r.lam };
       updatePoint();
     };
@@ -566,7 +579,37 @@
     highlightSpace();
   }
 
+  /* Δ_{0,6}: 2-dimensional, drawn in space (js/delta06.js) */
+  function render06(fvec) {
+    $("#space-text").innerHTML = `Here ${Dsub(0, 6)} is 2-dimensional: a vertex for each tree with one edge, an edge for each tree with two edges, and a triangle for each trivalent tree. It cannot sit in ℝ<sup>3</sup> without crossing itself, because the <b>link</b> of every vertex (the graph you would see on a tiny sphere around it) is the Petersen graph or K<sub>3,3</sub>, and neither can be drawn in the plane without crossings. Below is a picture of ${Dsub(0, 6)} in space, crossings and all, with the symmetry of a tetrahedron. Turn it, and click a vertex to see its star and its link.`;
+    $("#space").innerHTML = `<div class="pic">
+        <h4>Total edge length 1: ${Dsub(0, 6)} in space</h4>
+        <svg id="d06-svg" class="d06" viewBox="0 0 560 430" role="application" aria-label="Δ0,6 drawn in space. Drag to turn it; click a vertex, edge or triangle."></svg>
+        <div class="d06-ctl"><button type="button" class="btn-quiet" id="d06-spin">Pause</button><button type="button" class="btn-quiet" id="d06-clear">Clear the selection</button><span class="note">Drag to turn it. Click a vertex, an edge or a triangle.</span><span class="note"><span class="key v24"></span>2 | 4 splits <span class="key v33"></span>3 | 3 splits</span></div>
+        <details><summary class="note">Cells by dimension</summary>${fvec}</details>
+      </div>
+      <div class="live" id="d06-live"></div>`;
+    S.d3 = window.D06.mount({ svg: $("#d06-svg"), panel: $("#d06-live"), spin: $("#d06-spin"), clear: $("#d06-clear") }, S.data, { select: (i) => select(i, false), pal });
+    S.d3.highlight(S.sel);
+  }
+
+  /* Δ_{1,3}: 2-dimensional, and it does sit in space (js/delta13.js) */
+  function render13(fvec) {
+    $("#space-text").innerHTML = `Here ${Dsub(1, 3)} is 2-dimensional, with 5 vertices, 10 edges and 7 triangles. Unlike ${Dsub(0, 6)}, it sits in ℝ<sup>3</sup> without crossing itself. One triangle, the cycle of three edges with a leg at each vertex, has all three sides folded in half by swapping two parallel edges, and folding them zips the triangle up into a sphere. The other six triangles form three flat fins outside the sphere, attached along its seams. Turn it, and click a cell to see its graph.`;
+    $("#space").innerHTML = `<div class="pic">
+        <h4>Total edge length 1: ${Dsub(1, 3)} in space</h4>
+        <svg id="d13-svg" class="d06 d13" viewBox="0 0 560 430" role="application" aria-label="Δ1,3 drawn in space. Drag to turn it; click a vertex, edge or triangle."></svg>
+        <div class="d06-ctl"><button type="button" class="btn-quiet" id="d13-spin">Pause</button><button type="button" class="btn-quiet" id="d13-clear">Clear the selection</button><span class="note">Drag to turn it. Click a vertex, an edge or a triangle.</span><span class="note"><span class="key vL"></span>the loop <span class="key vB"></span>weight-one vertex <span class="key fold"></span>fold point</span></div>
+        <p class="note">Dashed sides are folds, where an automorphism maps a triangle to itself. They are not boundaries.</p>
+        <details><summary class="note">Cells by dimension</summary>${fvec}</details>
+      </div>
+      <div class="live" id="d13-live"></div>`;
+    S.d3 = window.D13.mount({ svg: $("#d13-svg"), panel: $("#d13-live"), spin: $("#d13-spin"), clear: $("#d13-clear") }, S.data, { select: (i) => select(i, false), pal });
+    S.d3.highlight(S.sel);
+  }
+
   function highlightSpace() {
+    if (S.d3) { S.d3.highlight(S.sel); return; }
     const svg = $("#space-svg");
     if (!svg) return;
     svg.querySelectorAll("[data-idx]").forEach((el) => el.classList.toggle("sel", +el.dataset.idx === S.sel));

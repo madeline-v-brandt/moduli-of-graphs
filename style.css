@@ -267,3 +267,45 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--rul
   .detail { grid-template-columns: minmax(0, 1fr); }
   table.picker button, table.picker span.cell { width: 42px; }
 }
+
+/* Δ_{0,6} in space */
+.space .pic svg.d06 { cursor: grab; }
+.space .pic svg.d06.dragging { cursor: grabbing; }
+.d06 .tri { fill: var(--mat); fill-opacity: 0.075; stroke: none; }
+.d06.focus .tri { fill-opacity: 0.03; }
+.d06 .tri.star { fill: var(--atom); fill-opacity: 0.3; }
+.d06 .tri.sel { fill: var(--atom); fill-opacity: 0.5; }
+.d06 .ed { stroke: var(--ink); stroke-width: 1; }
+.d06 .ed.spoke { stroke: var(--atom); stroke-width: 1.5; stroke-opacity: 0.75; }
+.d06 .ed.link { stroke: var(--atom); stroke-width: 2.6; }
+.d06 .ed.sel { stroke: var(--atom); stroke-width: 3.5; }
+.d06 .ed-hit { stroke: transparent; stroke-width: 9; }
+.d06 .vx-hit { fill: transparent; cursor: pointer; }
+.d06 .vx { stroke: var(--panel); stroke-width: 1.2; }
+.d06 .vx.on { stroke: var(--ink); stroke-width: 1.6; }
+.d06 .vx.me { stroke: var(--atom); stroke-width: 3; }
+.v24 { fill: var(--mat); }
+.v33 { fill: var(--o1); }
+.d06 .lab, .d06-link .lab { font: 500 11px var(--mono); fill: var(--ink); paint-order: stroke; stroke: var(--panel); stroke-width: 3px; stroke-linejoin: round; }
+.d06-link .lab.sm { font-size: 10px; }
+.d06-ctl { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.d06-link { display: block; width: 100%; max-width: 340px; height: auto; }
+.d06-ctl .key, .live .key { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin: 0 4px 0 2px; vertical-align: 0; }
+.d06-ctl .key.v24, .live .key.v24 { background: var(--mat); }
+.d06-ctl .key.v33, .live .key.v33 { background: var(--o1); }
+/* Δ_{1,3} in space: shaded solid faces (fills set inline), folds dashed */
+.d13 polygon[data-kind="t"] { stroke-width: 0.7; stroke-linejoin: round; }
+.d13 .ed { stroke-opacity: 0.8; }
+.d13 .ed.seam { stroke: var(--ink); stroke-width: 1.5; stroke-opacity: 0.85; }
+.d13 .ed.fold { stroke: var(--nm); stroke-width: 1.6; stroke-dasharray: 5 4; stroke-opacity: 1; }
+.d13 .ed.fold.sel { stroke: var(--atom); stroke-width: 3; }
+.d13 .foldpt, .d06-link .foldpt { fill: var(--panel); stroke: var(--nm); stroke-width: 1.8; cursor: pointer; }
+.d13 .foldpt.sel { fill: var(--atom-soft); stroke: var(--atom); }
+.vL, .lnk-b { fill: var(--ink); }
+.vB { fill: var(--mat); }
+.lnk-f { fill: var(--nm); }
+.d06-ctl .key.vL, .live .key.vL, .live .key.lnk-b { background: var(--ink); }
+.d06-ctl .key.vB, .live .key.vB { background: var(--mat); }
+.live .key.lnk-f { background: var(--nm); }
+.d06-ctl .key.fold { border-radius: 1px; transform: rotate(45deg) scale(0.85); background: var(--panel); border: 1.8px solid var(--nm); }
+.live td.l { text-align: left; font-family: var(--body); font-size: 12.5px; color: var(--muted); }
