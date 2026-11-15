@@ -145,7 +145,7 @@
     if (!contents.hidden) return;
     const s = slides[cur];
     if (!s || s.classList.contains("interactive")) return;
-    if (e.target.closest("a, button, input, select, textarea, summary")) return;
+    if (e.target.closest("a, button, input, select, textarea, summary, .derive [data-k]")) return;
     if (window.getSelection && String(window.getSelection())) return;
     next();
   });

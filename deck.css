@@ -56,6 +56,15 @@ body.presenting { overflow: hidden; }
 .slide table.dict td { font-size: inherit; padding: 0.35em 1.4em 0.35em 0; }
 .slide table.dict th { font-size: clamp(11px, 0.95vw, 14px); }
 
+.slide .derive .rows { font-size: clamp(20px, 2.3vw, 36px); gap: 0.45em 0.5em; }
+.slide .derive .why { font-size: clamp(15px, 1.35vw, 21px); max-width: 48em; }
+.slot #build-svg { max-height: calc(100vh - 330px); }
+.slot #w-mod .mod-top svg { max-height: calc(42vh - 60px); }
+.slot #w-mod .mod-bot svg { max-height: calc(27vh - 50px); }
+.slot #w-mod .mod-top > div, .slot #w-mod .mod-bot > div { padding: 8px 12px; gap: 6px; }
+.slot #w-mod .mod-info { font-size: 13px; }
+.slot .build-data { font-size: 15px; }
+
 /* revealing one point at a time */
 .slide .step { opacity: 0; transform: translateY(10px); transition: opacity 0.35s ease, transform 0.35s ease; }
 .slide .step.on { opacity: 1; transform: none; }
@@ -138,5 +147,5 @@ body.presenting { overflow: hidden; }
 
 /* on big screens, enlarge the text panels beside the figures so they read from the back of a room */
 @media (min-width: 1200px) and (min-height: 700px) {
-  .slot .anat-data, .slot .con-data, .slot .pet-side, .slot .stab-read, .slot .space .live { zoom: 1.2; }
+  .slot .anat-data, .slot .build-data, .slot .con-data, .slot .pet-side, .slot .stab-read, .slot .space .live { zoom: 1.2; }
 }

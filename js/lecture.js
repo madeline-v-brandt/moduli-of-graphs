@@ -194,8 +194,11 @@
     function draw() {
       const t = ((th % Math.PI) + Math.PI) % Math.PI;
       const ux = Math.cos(t), uy = -Math.sin(t);
-      let o = `<circle cx="${C}" cy="${C}" r="128" fill="var(--mat-soft)" stroke="var(--rule)"/>`;
-      o += `<line class="grid-l" x1="${C - 136}" y1="${C}" x2="${C + 136}" y2="${C}"/><line class="grid-l" x1="${C}" y1="${C - 136}" x2="${C}" y2="${C + 136}"/>`;
+      // the plane: faint grid lines and the two axes
+      let o = "";
+      for (let k = -4; k <= 4; k++) if (k) o += `<line class="grid-f" x1="${C + 32 * k}" y1="6" x2="${C + 32 * k}" y2="294"/><line class="grid-f" x1="6" y1="${C + 32 * k}" x2="294" y2="${C + 32 * k}"/>`;
+      o += `<line class="axis-l" x1="6" y1="${C}" x2="294" y2="${C}"/><line class="axis-l" x1="${C}" y1="6" x2="${C}" y2="294"/>`;
+      o += `<text class="lbl" x="288" y="${C - 7}" text-anchor="end">x</text><text class="lbl" x="${C + 8}" y="16">y</text>`;
       const r = 34, large = 0;
       if (t > 0.01) o += `<path d="M${C + r} ${C}A${r} ${r} 0 ${large} 0 ${num(C + r * ux)} ${num(C + r * uy)}" fill="none" stroke="var(--atom)" stroke-width="2"/>`;
       o += `<text class="lbl-m" x="${num(C + 50 * Math.cos(t / 2))}" y="${num(C - 50 * Math.sin(t / 2) + 5)}" text-anchor="middle">θ</text>`;
@@ -216,15 +219,20 @@
       sp.innerHTML = s;
       $("#lines-read").textContent = `θ = ${deg(t)}°, so the point is at angle 2θ = ${deg(2 * t)}°`;
       pl.setAttribute("aria-valuenow", String(deg(t)));
+      sp.setAttribute("aria-valuenow", String(deg(2 * t)));
     }
     drag(pl, { move: (p) => { th = Math.atan2(-(p[1] - C), p[0] - C); draw(); } });
-    pl.addEventListener("keydown", (e) => {
+    // on the circle, the point at angle 2θ is the line at angle θ
+    drag(sp, { move: (p) => { const a = Math.atan2(-(p[1] - C), p[0] - C); th = (a < 0 ? a + 2 * Math.PI : a) / 2; draw(); } });
+    const keys = (step) => (e) => {
       const d = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 }[e.key];
       if (!d) return;
       e.preventDefault();
-      th += (d * 2 * Math.PI) / 180;
+      th += (d * step * Math.PI) / 180;
       draw();
-    });
+    };
+    pl.addEventListener("keydown", keys(2));
+    sp.addEventListener("keydown", keys(1));
     let stop = null;
     $("#lines-spin").addEventListener("click", () => {
       if (stop) stop();
@@ -232,6 +240,138 @@
       stop = tween(2600, (u) => { th = t0 + Math.PI * u; if (u >= 1) th = t0; draw(); });
     });
     draw();
+  }
+
+  /* ================= Part 2: building a graph from the definition ================= */
+  function buildGraph() {
+    const svg = $("#build-svg"), box = $("#build-data"), stepsEl = $("#build-steps"), nextBtn = $("#build-next");
+    if (!svg) return;
+    const VX = [[130, 150], [262, 165], [362, 92]], VNM = ["v₁", "v₂", "v₃"], VLAB = [[126, 122], [252, 192], [384, 112]];
+    const WT = [0, 0, 1];
+    // half-edges a–i: {a, b} a loop at v₁, {c, d} an edge v₁–v₂, {e, f} an edge v₂–v₃, and legs g, h, i at v₁, v₂, v₃
+    const NM = "abcdefghi", ROOT = [0, 0, 0, 1, 1, 2, 0, 1, 2], LEGEND = { 6: [84, 236], 7: [286, 250], 8: [402, 30] };
+    const GROUP = [0, 0, 1, 1, 2, 2, -1, -1, -1]; // which edge each half belongs to, -1 for legs
+    const NP = 13;
+    const lerp2 = (p, q, t) => [p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t];
+    const mid = (a, b) => lerp2(VX[a], VX[b], 0.5);
+    const loop = (() => { const v = VX[0], L = 100, c = Math.PI + 0.32, sp = 0.6; return [v, [v[0] + L * Math.cos(c - sp), v[1] + L * Math.sin(c - sp)], [v[0] + L * Math.cos(c + sp), v[1] + L * Math.sin(c + sp)], v]; })();
+    const bez = (t) => { const u = 1 - t; return [0, 1].map((k) => u * u * u * loop[0][k] + 3 * u * u * t * loop[1][k] + 3 * u * t * t * loop[2][k] + t * t * t * loop[3][k]); };
+    // the finished picture: each half-edge runs from its root outwards
+    const final = (i, t) => {
+      if (i === 0) return bez(t / 2);
+      if (i === 1) return bez(1 - t / 2);
+      if (i === 2) return lerp2(VX[0], mid(0, 1), t);
+      if (i === 3) return lerp2(VX[1], mid(0, 1), t);
+      if (i === 4) return lerp2(VX[1], mid(1, 2), t);
+      if (i === 5) return lerp2(VX[2], mid(1, 2), t);
+      return lerp2(VX[ROOT[i]], LEGEND[i], t);
+    };
+    // before the involution, each half-edge is a short stub of its final curve
+    const STUB = 46;
+    const frac = NM.split("").map((_, i) => { let L = 0, p = final(i, 0); for (let j = 1; j <= 40; j++) { const q = final(i, j / 40); L += Math.hypot(q[0] - p[0], q[1] - p[1]); p = q; } return Math.min(1, STUB / L); });
+    // floating, before the root map
+    const FLOAT = [[52, 52, 25], [150, 48, -40], [222, 70, 75], [300, 38, 10], [404, 190, 100], [330, 252, -20], [196, 238, 40], [62, 262, -60], [34, 160, 85]];
+    const shape = (step, i) => [...Array(NP).keys()].map((j) => {
+      const t = j / (NP - 1);
+      if (step <= 2) { const [x, y, a] = FLOAT[i], r = (a * Math.PI) / 180; return [x + (t - 0.5) * STUB * Math.cos(r), y + (t - 0.5) * STUB * Math.sin(r)]; }
+      if (step === 3) return final(i, t * frac[i]);
+      return final(i, t);
+    });
+    const STEPS = ["Vertices", "Half-edges", "Root map", "Involution", "Edges, loops, legs", "Decorations"];
+    const NEXT = ["Reveal the vertices", "Next: half-edges", "Next: the root map", "Next: the involution", "Next: edges, loops and legs", "Next: the decorations", "Start over"];
+    const TEXT = [
+      "Start with nothing, and add the ingredients of the definition one at a time.",
+      "A finite set <em class=\"m\">V</em> of vertices. So far there is nothing else.",
+      "A finite set <em class=\"m\">H</em> of half-edges. For the moment they float around, attached to nothing.",
+      "The root map <em class=\"m\">r</em> : <em class=\"m\">H</em> → <em class=\"m\">V</em> attaches each half-edge to a vertex.",
+      "The involution ι pairs up some of the half-edges. If ι(<em class=\"m\">h</em>) ≠ <em class=\"m\">h</em>, then <em class=\"m\">h</em> and ι(<em class=\"m\">h</em>) join into one edge. If ι(<em class=\"m\">h</em>) = <em class=\"m\">h</em>, then <em class=\"m\">h</em> stays on its own.",
+      "Now read off the pieces. Each pair {<em class=\"m\">h</em>, ι(<em class=\"m\">h</em>)} is an <b>edge</b>, and an edge whose two halves have the same root is a <b>loop</b>. The half-edges fixed by ι are the <b>legs</b>.",
+      "Finally, the two decorations. The marking <em class=\"m\">m</em> numbers the legs, and the weight <em class=\"m\">w</em> gives each vertex a number. Here <em class=\"m\">v</em><sub>3</sub> has weight 1, drawn inside it, and the others have weight 0.",
+    ];
+    const KIND = (i) => (GROUP[i] < 0 ? "leg" : GROUP[i] === 0 ? "loop" : "edge");
+    let cur = 0, stop = null;
+
+    function draw(from, to, u) {
+      const vis = (st, what) => (what === "v" ? st >= 1 : st >= 2) ? 1 : 0;
+      const op = (what) => num(vis(from, what) + (vis(to, what) - vis(from, what)) * u);
+      const A = (i) => shape(vis(from, "h") ? from : to, i), B = (i) => shape(vis(to, "h") ? to : from, i);
+      let o = "";
+      const hOp = op("h"), vOp = op("v");
+      for (let i = 0; i < 9; i++) {
+        const P = A(i).map((p, j) => lerp2(p, B(i)[j], u));
+        const col = to >= 4 ? (GROUP[i] < 0 ? "var(--muted)" : pal(GROUP[i])) : "var(--ink)";
+        const kindOn = to === 5;
+        o += `<path d="${P.map((p, j) => (j ? "L" : "M") + num(p[0]) + " " + num(p[1])).join("")}" fill="none" stroke="${col}" stroke-width="${kindOn ? 3.6 : 2.8}" stroke-linecap="round" opacity="${hOp}"/>`;
+        if (to >= 4 && GROUP[i] < 0) { const e = P[NP - 1]; o += `<circle cx="${num(e[0])}" cy="${num(e[1])}" r="2.4" fill="var(--muted)" opacity="${num(u)}"/>`; }
+      }
+      // vertices, and their weights once the decorations are in
+      VX.forEach(([x, y], v) => {
+        const wtd = to >= 6 && WT[v] > 0;
+        o += wtd
+          ? `<g opacity="${vOp}"><circle cx="${x}" cy="${y}" r="12" fill="var(--panel)"/><circle cx="${x}" cy="${y}" r="12" fill="var(--gen-soft)" stroke="var(--gen)" stroke-width="1.5"/><text x="${x}" y="${y}" font-size="13" text-anchor="middle" dominant-baseline="central" fill="var(--gen)" font-family="var(--mono)" font-weight="500">${WT[v]}</text></g>`
+          : `<circle cx="${x}" cy="${y}" r="5.5" fill="var(--ink)" opacity="${vOp}"/>`;
+        o += `<text x="${VLAB[v][0]}" y="${VLAB[v][1]}" font-size="17" text-anchor="middle" dominant-baseline="central" fill="var(--atom)" font-family="var(--display)" font-style="italic" opacity="${vOp}">${VNM[v]}</text>`;
+      });
+      // what the pieces are called
+      if (to === 5) {
+        const ann = [["loop", 30, 118, pal(0)], ["edge", 196, 140, pal(1)], ["edge", 330, 150, pal(2)], ["leg", 66, 210, "var(--muted)"], ["leg", 306, 222, "var(--muted)"], ["leg", 350, 34, "var(--muted)"]];
+        ann.forEach(([t, x, y, c]) => { o += `<text class="ann" x="${x}" y="${y}" fill="${c}" opacity="${num(u)}">${t}</text>`; });
+      }
+      // leg numbers
+      if (to >= 6) [6, 7, 8].forEach((i, k) => {
+        const e = LEGEND[i], r = VX[ROOT[i]], dx = e[0] - r[0], dy = e[1] - r[1], L = Math.hypot(dx, dy);
+        o += `<text x="${num(e[0] + (dx / L) * 12)}" y="${num(e[1] + (dy / L) * 12)}" font-size="13" text-anchor="middle" dominant-baseline="central" fill="var(--muted)" font-family="var(--mono)" opacity="${num(u)}">${k + 1}</text>`;
+      });
+      // the letters
+      for (let i = 0; i < 9; i++) {
+        const k = Math.round((NP - 1) * 0.62), p = lerp2(A(i)[k], B(i)[k], u);
+        o += `<g class="hl" opacity="${hOp}"><circle cx="${num(p[0])}" cy="${num(p[1])}" r="9.5"/><text x="${num(p[0])}" y="${num(p[1])}" text-anchor="middle" dominant-baseline="central">${NM[i]}</text></g>`;
+      }
+      svg.innerHTML = o;
+    }
+
+    function panel() {
+      const s = cur, at = (k, html) => (s >= k ? `<div class="${s === k ? "new" : ""}">${html}</div>` : "");
+      const rt = `<div class="rscroll"><table class="rtable"><tr><th>h</th>${NM.split("").map((h) => `<th>${h}</th>`).join("")}</tr><tr><th>r(h)</th>${ROOT.map((v) => `<td class="v">${VNM[v]}</td>`).join("")}</tr></table></div>`;
+      const w = (t, c) => `<b style="color:${c}">${t}</b>`;
+      box.innerHTML = `<p class="note">${TEXT[s]}</p>
+        <dl>
+          ${at(1, `<dt>V</dt><dd>{v₁, v₂, v₃}</dd>`)}
+          ${at(2, `<dt>H</dt><dd>{a, b, c, d, e, f, g, h, i}</dd>`)}
+          ${at(3, `<dt>r</dt><dd>${rt}</dd>`)}
+          ${at(4, `<dt>ι</dt><dd>(a b)(c d)(e f), and fixes g, h, i</dd>`)}
+          ${at(5, `<dt>pieces</dt><dd>${w("loop", pal(0))} {a, b} at v₁ · ${w("edges", pal(1))} {c, d} from v₁ to v₂ and {e, f} from v₂ to v₃ · ${w("legs", "var(--muted)")} g, h, i</dd>`)}
+          ${at(6, `<dt>m</dt><dd>g ↦ 1, h ↦ 2, i ↦ 3</dd><dt>w</dt><dd>v₁ ↦ 0, v₂ ↦ 0, v₃ ↦ 1</dd>`)}
+        </dl>`;
+      stepsEl.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.s === s)));
+      nextBtn.textContent = NEXT[s];
+    }
+    function go(to) {
+      if (stop) stop();
+      const from = cur;
+      cur = to;
+      panel();
+      stop = tween(to > from ? 750 : 350, (u) => draw(from, to, u));
+    }
+    stepsEl.innerHTML = STEPS.map((t, k) => `<button type="button" class="segbtn" data-s="${k + 1}" aria-pressed="false">${k + 1}. ${t}</button>`).join("");
+    stepsEl.addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) go(+b.dataset.s); });
+    nextBtn.addEventListener("click", () => go(cur >= 6 ? 0 : cur + 1));
+    panel();
+    draw(0, 0, 1);
+  }
+
+  /* ================= Part 2: the proof, with the reason for each step ================= */
+  function derivations() {
+    // delegated, so it also works in the copies made for presentation mode
+    const set = (d, k) => {
+      d.querySelectorAll("[data-k]").forEach((x) => x.classList.toggle("on", x.dataset.k === k));
+      const src = k && d.querySelector(`[data-k="${k}"][data-why]`);
+      d.querySelector(".why").innerHTML = src ? src.dataset.why : d.dataset.default;
+    };
+    const on = (e) => { const t = e.target.closest && e.target.closest(".derive [data-k]"); if (t) set(t.closest(".derive"), t.dataset.k); };
+    document.addEventListener("pointerover", on);
+    document.addEventListener("focusin", on);
+    document.addEventListener("click", on);
   }
 
   /* ================= Part 2: half-edge anatomy ================= */
@@ -523,14 +663,10 @@
       const E = G.edges.length, V = G.w.length, n = G.legs.length, g = MG.genus(G);
       fig.innerHTML = MD.graphSvg(G, { w: 400, h: 260, pad: 36, font: 13, dot: 6, strokeW: 2.8, hit: E > 0, label: "A stable graph. Click an edge to contract it." });
       paint(fig, st);
-      const ex = MG.excess(G), val = MG.valence(G), T = 2 * g - 2 + n;
-      let bar = "";
-      G.w.forEach((w, v) => { for (let k = 0; k < ex[v]; k++) bar += `<span class="unit" style="background:${vcol(st.col[v])}"></span>`; if (v < V - 1) bar += `<span class="gap"></span>`; });
-      const legend = G.w.map((w, v) => `<div><i style="background:${vcol(st.col[v])}"></i>2·${w} − 2 + ${val[v]} = ${ex[v]}</div>`).join("");
       box.innerHTML = `
         <div class="tags"><span class="tag s">genus ${g}</span><span class="tag s">${n} ${n === 1 ? "leg" : "legs"}</span><span class="tag">|V| = ${V}</span><span class="tag">|E| = ${E}</span></div>
         <div class="calc">g = (|<i>E</i>| − |<i>V</i>| + 1) + ∑<i>w</i> = (${E} − ${V} + 1) + ${MG.sumW(G)} = ${g}</div>
-        <div class="budget"><h4>Stability budget: ${T} squares</h4><p class="note">2<i>g</i> − 2 + <i>n</i> = ${T}</p><div class="bar">${bar}</div><div class="bar-legend">${legend}</div></div>
+        ${MD.stabilityHtml(G, { name: (v) => (V === 1 ? "v" : "v" + SUB[v + 1]), swatch: (v) => vcol(st.col[v]) })}
         ${st.msg ? `<div class="move">${st.msg}</div>` : `<p class="note">${E ? "Click an edge to contract it." : ""}</p>`}
         ${E === 0 ? `<p class="note">No edges left: this is the single vertex of weight ${g}${n ? ` with all ${n} legs` : ""}, the bottom of the poset.</p>` : ""}`;
       hist.innerHTML = S.steps.map((s, i) => `${i ? `<span class="arrow" aria-hidden="true">→</span>` : ""}<button type="button" data-i="${i}" aria-current="${i === S.cur}" aria-label="Step ${i + 1}">${MD.graphSvg(s.G, { w: 84, h: 60, pad: 9, font: 7.5, dot: 2.6, strokeW: 1.3 })}<span>${i === 0 ? "start" : "step " + i}</span></button>`).join("");
@@ -547,8 +683,8 @@
       G.w.forEach((_, x) => { if (col[vmap[x]] === undefined) col[vmap[x]] = st.col[x]; });
       const sw = (c) => `<i style="display:inline-block;width:10px;height:10px;border-radius:2px;vertical-align:-1px;background:${vcol(c)}"></i>`;
       const msg = u === v
-        ? `Contracted a loop at ${sw(st.col[u])}: its weight went from ${G.w[u]} to ${G.w[u] + 1} and |<i>E</i>| − |<i>V</i>| + 1 dropped by 1. Its budget stays ${ex[u]}: the weight term goes up by 2 and the vertex loses 2 half-edges.`
-        : `Merged ${sw(st.col[u])} and ${sw(st.col[v])}: the weights add to ${G.w[u] + G.w[v]}, |V| and |E| each drop by 1, and the budgets add: ${ex[u]} + ${ex[v]} = ${ex[u] + ex[v]}.`;
+        ? `Contracted a loop at ${sw(st.col[u])}: its weight went from ${G.w[u]} to ${G.w[u] + 1} and |<i>E</i>| − |<i>V</i>| + 1 dropped by 1. Its value of 2<i>w</i> − 2 + |<i>r</i><sup>−1</sup>| stays ${ex[u]}: the weight term goes up by 2 and the vertex loses 2 half-edges.`
+        : `Merged ${sw(st.col[u])} and ${sw(st.col[v])}: the weights add to ${G.w[u] + G.w[v]}, |V| and |E| each drop by 1, and the values of 2<i>w</i> − 2 + |<i>r</i><sup>−1</sup>| add: ${ex[u]} + ${ex[v]} = ${ex[u] + ex[v]}.`;
       S.steps = S.steps.slice(0, S.cur + 1);
       S.steps.push({ G: graph, col, msg });
       S.cur++;
@@ -608,6 +744,8 @@
         o += `<line x1="${num(p[0])}" y1="${num(p[1])}" x2="${num(q[0])}" y2="${num(q[1])}" stroke="var(--mat)" stroke-width="1" stroke-dasharray="2 3"/><circle class="pt-ghost" cx="${num(q[0])}" cy="${num(q[1])}" r="6.5"/>`;
       }
       o += `<circle class="pt-main" cx="${num(p[0])}" cy="${num(p[1])}" r="8.5"/>`;
+      const right = p[0] < 250;
+      o += `<text class="coord" x="${num(p[0] + (right ? 14 : -14))}" y="${num(p[1] - 12)}" text-anchor="${right ? "start" : "end"}">(${a.toFixed(2)}, ${b.toFixed(2)})</text>`;
       svg.innerHTML = o;
       const m = view.draw(GA, S.l, { w: 340, h: 210, pad: 34, font: 13, dot: 4.6, strokeW: 2.8, edgeColors: pal, total: 1.6, label: "The metric graph at this point" });
       $("#cone-graph").innerHTML = m.svg;
@@ -641,6 +779,286 @@
       tween(600, (u) => { S.l = [from[0] + (to[0] - from[0]) * u, from[1] + (to[1] - from[1]) * u]; draw(); });
     });
     draw();
+  }
+
+  /* ================= Part 3: the whole space, cone by cone ================= */
+  function moduliFig() {
+    const svg = $("#mod-svg");
+    if (!svg || !window.Turn3D) return;
+    const { turntable, apply, rotX, rotY, mul } = window.Turn3D;
+    const posetSvg = $("#mod-poset"), mini = $("#mod-mini"), miniCtl = $("#mod-mini-ctl"), info = $("#mod-info");
+    const W = 560, H = 430, CAM = 6, S0 = 168, TMAX = 1.3, LIFT = 0.66;
+    // where Δ sits at total length 1: its plane picture from js/spaces.js, lifted to height 1.
+    // For (1, 2) the picture is a straight path, so it gets a bend to keep its two fans apart.
+    const TYPES = [
+      { key: "1,2", verts: { b: [-1.0, 0.3], a: [0.05, -0.45], f: [0.95, 0.3] }, startCell: 1 },
+      { key: "2,0", verts: null, startCell: 0 },
+    ];
+    const view = new MD.MetricView();
+    let T = null, tt = null, sel = -1, hov = -1, pt = null, here = -1, slider = null;
+
+    function setup(type) {
+      const [g, n] = type.key.split(",").map(Number);
+      const spec = SP.SPACES[type.key], data = MG.enumerate(g, n);
+      const els = SPIC.elementsOf(spec, data);
+      const V2 = type.verts || spec.verts, names = Object.keys(spec.verts);
+      const cx = names.reduce((a, k) => a + V2[k][0], 0) / names.length, cy = names.reduce((a, k) => a + V2[k][1], 0) / names.length;
+      const sc = 0.9 / Math.max(...names.map((k) => Math.hypot(V2[k][0] - cx, V2[k][1] - cy)));
+      const X = {};
+      names.forEach((k) => { X[k] = [(V2[k][0] - cx) * sc, 1, (V2[k][1] - cy) * sc]; });
+      const ptsOf = (el) => (el.kind === 0 ? [el.name] : el.pts);
+      // each graph's own piece: the element of the picture that carries it
+      const home = new Map();
+      els.forEach((e) => { if (!e.fold && e.kind === data.rank[e.idx] - 1 && !home.has(e.idx)) home.set(e.idx, e); });
+      const apex = data.rank.findIndex((r) => r === 0);
+      const tops = els.filter((e) => e.kind === 2);
+      const topOf = (ci) => { const c = spec.cells[ci]; return els.find((e) => e.ci === ci && e.kind === c.pts.length - 1 && !e.fold).idx; };
+      // the shapes to draw, each with the graphs it belongs to
+      const shapes = [];
+      const at = (p, t) => X[p].map((x) => x * t);
+      const TS = [0, 0.45, 0.9, TMAX];
+      els.forEach((e) => {
+        const P = ptsOf(e);
+        if (e.kind === 2) shapes.push({ type: "face", dim: 3, pts: P.map((p) => at(p, TMAX)), owners: [e.idx] });
+        if (e.kind === 1) {
+          const owners = e.fold ? [topOf(e.ci)] : [e.idx, ...tops.filter((t) => P.every((p) => t.pts.includes(p))).map((t) => t.idx)];
+          for (let s = 0; s < 3; s++) shapes.push({ type: "face", dim: e.fold ? 0 : 2, fold: e.fold, pts: [at(P[0], TS[s]), at(P[1], TS[s]), at(P[1], TS[s + 1]), at(P[0], TS[s + 1])], owners });
+          shapes.push({ type: "line", cls: "slice", pts: [at(P[0], 1), at(P[1], 1)], owners: [] });
+          shapes.push({ type: "line", cls: e.fold ? "rim fold" : "rim", pts: [at(P[0], TMAX), at(P[1], TMAX)], owners });
+        }
+        if (e.kind === 0) {
+          const owners = [e.idx];
+          for (let s = 0; s < 3; s++) shapes.push({ type: "line", cls: e.fold ? "ray fold" : "ray", pts: [at(e.name, TS[s]), at(e.name, TS[s + 1])], owners });
+        }
+      });
+      shapes.push({ type: "dot", pts: [[0, 0, 0]], owners: [apex] });
+      return { type, spec, data, els, X, ptsOf, home, apex, shapes };
+    }
+
+    /* ---------- the point ---------- */
+    const fullLam = (el, lam) => T.spec.cells[el.ci].pts.map((p) => { const j = T.ptsOf(el).indexOf(p); return j < 0 ? 0 : lam[j]; });
+    function frameOf(el) {
+      const cell = T.spec.cells[el.ci], P = T.ptsOf(el);
+      const mid = SP.lengthsAt(cell, fullLam(el, P.map(() => 1 / P.length)));
+      const act = mid.map((x, e) => (x > 1e-9 ? e : -1)).filter((e) => e >= 0);
+      const U = P.map((p) => { const Lp = cell.L[cell.pts.indexOf(p)]; return act.map((e) => Lp[e]); });
+      return { cell, P, act, U };
+    }
+    const lengthsOf = (q) => (q.el && q.t > 0 ? SP.lengthsAt(T.spec.cells[q.el.ci], fullLam(q.el, q.lam)).map((x) => x * q.t) : []);
+    const pos3 = (q) => (q.el ? T.ptsOf(q.el).reduce((a, p, j) => a.map((x, k) => x + q.t * q.lam[j] * T.X[p][k]), [0, 0, 0]) : [0, 0, 0]);
+    const graphOf = (q) => (!q.el || q.t <= 1e-9 ? T.apex : MG.lookup(T.data, SP.graphAt(T.spec, q.el.ci, fullLam(q.el, q.lam)).graph));
+
+    /* ---------- the big picture ---------- */
+    function draw3d() {
+      const R = tt.Rm;
+      const pr = (p) => { const q = apply(R, [p[0], p[1] - LIFT, p[2]]), f = CAM / (CAM - q[2]); return { x: W / 2 + S0 * f * q[0], y: H / 2 - S0 * f * q[1], z: q[2] }; };
+      const items = [];
+      const cls = (owners) => (owners.includes(sel) ? " sel" : owners.includes(here) ? " here" : owners.includes(hov) ? " hov" : "");
+      T.shapes.forEach((sh) => {
+        const P = sh.pts.map(pr), z = P.reduce((a, p) => a + p.z, 0) / P.length;
+        const gi = sh.owners[0];
+        const hit = gi >= 0 ? ` data-gi="${gi}"` : "";
+        if (sh.type === "face") items.push({ z, s: `<polygon class="mf d${sh.dim}${sh.fold ? " fold" : ""}${cls(sh.owners)}"${hit} points="${P.map((p) => num(p.x) + "," + num(p.y)).join(" ")}"/>` });
+        else if (sh.type === "line") items.push({ z: z + 0.01, s: `<line class="ml ${sh.cls}${cls(sh.owners)}" x1="${num(P[0].x)}" y1="${num(P[0].y)}" x2="${num(P[1].x)}" y2="${num(P[1].y)}"/>${hit ? `<line class="ml-hit"${hit} x1="${num(P[0].x)}" y1="${num(P[0].y)}" x2="${num(P[1].x)}" y2="${num(P[1].y)}"/>` : ""}` });
+        else items.push({ z: z + 0.02, s: `<circle class="apex${cls(sh.owners)}" cx="${num(P[0].x)}" cy="${num(P[0].y)}" r="6"/><circle class="ml-hit"${hit} cx="${num(P[0].x)}" cy="${num(P[0].y)}" r="12"/><text class="lbl" x="${num(P[0].x + 12)}" y="${num(P[0].y + 16)}">cone point</text>` });
+      });
+      const p = pr(pos3(pt));
+      items.push({ z: p.z + 0.05, s: `<circle class="pt-halo" cx="${num(p.x)}" cy="${num(p.y)}" r="13"/><circle class="pt" cx="${num(p.x)}" cy="${num(p.y)}" r="6"/>` });
+      items.sort((a, b) => a.z - b.z);
+      svg.innerHTML = items.map((it) => it.s).join("");
+    }
+
+    /* ---------- the poset ---------- */
+    function drawPoset() {
+      const { data } = T, maxR = Math.max(...data.rank), CW = 92, CH = 62;
+      const rows = [];
+      data.rank.forEach((r, i) => { (rows[r] = rows[r] || []).push(i); });
+      const pos = [];
+      rows.forEach((row, r) => row.forEach((i, j) => { pos[i] = [70 + ((j + 1) * 280) / (row.length + 1), 392 - (r * 340) / maxR]; }));
+      let o = "";
+      data.down.forEach((ds, i) => ds.forEach((j) => { o += `<line class="pe${i === sel || j === sel ? " on" : ""}" x1="${num(pos[i][0])}" y1="${num(pos[i][1] + CH / 2)}" x2="${num(pos[j][0])}" y2="${num(pos[j][1] - CH / 2)}"/>`; }));
+      rows.forEach((row, r) => { o += `<text class="rank" x="4" y="${num(pos[row[0]][1] + 4)}">${r} ${r === 1 ? "edge" : "edges"}</text>`; });
+      data.graphs.forEach((G, i) => {
+        const [x, y] = pos[i];
+        const c = i === sel ? " sel" : i === here ? " here" : i === hov ? " hov" : "";
+        o += `<g class="pn${c}" data-gi="${i}" tabindex="0" role="button" aria-label="Graph with ${data.rank[i]} edges"><rect x="${num(x - CW / 2)}" y="${num(y - CH / 2)}" width="${CW}" height="${CH}" rx="6"/>${MD.graphSvg(G, { w: CW, h: CH, pad: 9, font: 8, dot: 2.6, strokeW: 1.3, attrs: ` x="${num(x - CW / 2)}" y="${num(y - CH / 2)}" width="${CW}" height="${CH}"` })}</g>`;
+      });
+      posetSvg.innerHTML = o;
+    }
+
+    /* ---------- one cone on its own ---------- */
+    let M = null; // how the mini picture maps lengths to the screen, for dragging
+    function drawMini() {
+      const el = pt.el && T.home.get(sel) === pt.el ? pt.el : T.home.get(sel);
+      const k = T.data.rank[sel];
+      $("#mod-mini-title").textContent = k === 0 ? "The cone point" : `Its cone: ${k === 1 ? "a ray" : k === 2 ? "a 2-dimensional cone" : "a 3-dimensional cone"}`;
+      if (!el) { M = null; mini.innerHTML = `<text class="lbl" x="165" y="125" text-anchor="middle">No edges, so no lengths to choose:</text><text class="lbl" x="165" y="145" text-anchor="middle">this piece is a single point.</text><circle class="pt" cx="165" cy="185" r="7"/>`; miniCtl.innerHTML = ""; return; }
+      const F = frameOf(el), col = (e) => pal(view.colorIndex(e));
+      const L = lengthsOf(pt.el === el ? pt : { el, lam: [], t: 0 });
+      const coords = F.act.map((e) => (L[e] || 0));
+      const fmtc = (v) => "(" + v.map((x) => x.toFixed(2)).join(", ") + ")";
+      const axisLbl = (e, x, y, anchor = "start") => `<text class="lbl-m" x="${num(x)}" y="${num(y)}" text-anchor="${anchor}" style="fill:${col(e)}">${ell(e + 1)}</text>`;
+      let o = HATCH;
+      if (k === 1) {
+        const O = [36, 150], R = 210;
+        M = { k, O, R, F };
+        o += `<line class="ax" x1="${O[0]}" y1="${O[1]}" x2="${O[0] + R * TMAX + 6}" y2="${O[1]}" style="stroke:${col(F.act[0])};stroke-width:3"/>${arrowHead(O[0] + R * TMAX + 12, O[1], 1, 0)}`;
+        o += `<line x1="${O[0] + R}" y1="${O[1] - 5}" x2="${O[0] + R}" y2="${O[1] + 5}" stroke="var(--muted)"/><text class="lbl" x="${O[0] + R}" y="${O[1] + 20}" text-anchor="middle">1</text>`;
+        o += axisLbl(F.act[0], O[0] + R * TMAX - 4, O[1] - 14, "end") + `<circle class="apex" cx="${O[0]}" cy="${O[1]}" r="5"/>`;
+        const x = O[0] + R * (pt.el === el ? pt.t : 0);
+        o += `<circle class="pt-main" cx="${num(x)}" cy="${O[1]}" r="8.5"/><text class="coord" x="${num(x)}" y="${O[1] - 18}" text-anchor="middle">${coords[0].toFixed(2)}</text>`;
+      } else if (k === 2) {
+        const O = [52, 232], R = 158;
+        const P2 = (v) => [O[0] + R * v[0], O[1] - R * v[1]];
+        M = { k, O, R, F, P2 };
+        const E = TMAX;
+        o += `<polygon class="region-off" points="${[[0, 0], [E, 0], [0, E]].map(P2).map((p) => p.map(num).join(",")).join(" ")}"/>`;
+        o += `<polygon class="region" points="${[[0, 0], F.U[0].map((x) => x * E), F.U[1].map((x) => x * E)].map(P2).map((p) => p.map(num).join(",")).join(" ")}"/>`;
+        F.U.forEach((u) => { const face = u.some((x) => x < 1e-9), q = P2(u.map((x) => x * E)); o += `<line class="${face ? "bd" : "foldline"}" x1="${O[0]}" y1="${O[1]}" x2="${num(q[0])}" y2="${num(q[1])}"/>`; });
+        o += `<line class="slice" x1="${num(P2([1, 0])[0])}" y1="${O[1]}" x2="${O[0]}" y2="${num(P2([0, 1])[1])}"/>`;
+        o += `<line class="ax" x1="${O[0]}" y1="${O[1]}" x2="${num(O[0] + R * E + 8)}" y2="${O[1]}"/>${arrowHead(O[0] + R * E + 14, O[1], 1, 0)}<line class="ax" x1="${O[0]}" y1="${O[1]}" x2="${O[0]}" y2="${num(O[1] - R * E - 8)}"/>${arrowHead(O[0], O[1] - R * E - 14, 0, -1)}`;
+        o += axisLbl(F.act[0], O[0] + R * E + 2, O[1] + 20) + axisLbl(F.act[1], O[0] + 10, O[1] - R * E - 4);
+        o += `<circle class="apex" cx="${O[0]}" cy="${O[1]}" r="5"/>`;
+        const p = P2(coords);
+        o += `<circle class="pt-main" cx="${num(p[0])}" cy="${num(p[1])}" r="8.5"/><text class="coord" x="${num(p[0] + 13)}" y="${num(p[1] - 11)}">${fmtc(coords)}</text>`;
+      } else {
+        const O = [165, 182], R = 124, A = [[-0.87, 0.5], [0.87, 0.5], [0, -1]];
+        const P3 = (v) => [O[0] + R * (v[0] * A[0][0] + v[1] * A[1][0] + v[2] * A[2][0]), O[1] + R * (v[0] * A[0][1] + v[1] * A[1][1] + v[2] * A[2][1])];
+        const t = pt.el === el ? pt.t : 1;
+        M = { k, O, R, F, P3, t };
+        const E = TMAX, poly = (vs, c) => `<polygon class="${c}" points="${vs.map(P3).map((p) => p.map(num).join(",")).join(" ")}"/>`;
+        [0, 1, 2].forEach((i) => { const e = [0, 0, 0]; e[i] = E; const q = P3(e); o += `<line class="ax" x1="${O[0]}" y1="${O[1]}" x2="${num(q[0])}" y2="${num(q[1])}"/>`; o += axisLbl(F.act[i], q[0] + (i === 0 ? -8 : 8), q[1] + (i === 2 ? 6 : 2), i === 0 ? "end" : "start"); });
+        o += poly([[t, 0, 0], [0, t, 0], [0, 0, t]], "region-off");
+        o += poly(F.U.map((u) => u.map((x) => x * t)), "region");
+        [[0, 1], [1, 2], [2, 0]].forEach(([i, j]) => {
+          const face = F.act.some((_, c) => F.U[i][c] < 1e-9 && F.U[j][c] < 1e-9);
+          const a = P3(F.U[i].map((x) => x * t)), b = P3(F.U[j].map((x) => x * t));
+          o += `<line class="${face ? "bd" : "foldline"}" x1="${num(a[0])}" y1="${num(a[1])}" x2="${num(b[0])}" y2="${num(b[1])}"/>`;
+        });
+        o += `<circle class="apex" cx="${O[0]}" cy="${O[1]}" r="4.5"/>`;
+        const p = P3(coords);
+        o += `<circle class="pt-main" cx="${num(p[0])}" cy="${num(p[1])}" r="8"/><text class="coord" x="${num(p[0] + 12)}" y="${num(p[1] - 12)}">${fmtc(coords)}</text>`;
+      }
+      mini.innerHTML = o;
+      if (k === 3) {
+        if (!slider || !miniCtl.contains(slider)) {
+          miniCtl.innerHTML = `<label class="mod-slider"><span>Total length</span><input type="range" min="0.05" max="${TMAX}" step="0.01" value="${(pt.t || 1).toFixed(2)}" id="mod-t"><span id="mod-t-val"></span></label>`;
+          slider = $("#mod-t");
+          slider.addEventListener("input", () => { const el2 = T.home.get(sel); if (pt.el !== el2) pt = { el: el2, lam: el2.pts.map(() => 1 / 3), t: 1 }; pt.t = +slider.value; update(); });
+        }
+        slider.value = String(pt.t);
+        $("#mod-t-val").textContent = (+pt.t).toFixed(2);
+      } else { miniCtl.innerHTML = `<span class="note">Drag the point. The dashed line is total length 1.</span>`; slider = null; }
+    }
+    // the nearest point of a triangle, in barycentric coordinates
+    function bary(p, a, b, c) {
+      const det = (b[1] - c[1]) * (a[0] - c[0]) + (c[0] - b[0]) * (a[1] - c[1]);
+      let l1 = ((b[1] - c[1]) * (p[0] - c[0]) + (c[0] - b[0]) * (p[1] - c[1])) / det;
+      let l2 = ((c[1] - a[1]) * (p[0] - c[0]) + (a[0] - c[0]) * (p[1] - c[1])) / det;
+      let l3 = 1 - l1 - l2;
+      if (l1 >= 0 && l2 >= 0 && l3 >= 0) return [l1, l2, l3];
+      const seg = (A, B) => { const dx = B[0] - A[0], dy = B[1] - A[1]; const t = Math.max(0, Math.min(1, ((p[0] - A[0]) * dx + (p[1] - A[1]) * dy) / (dx * dx + dy * dy || 1))); return { t, d: Math.hypot(p[0] - A[0] - t * dx, p[1] - A[1] - t * dy) }; };
+      const c1 = seg(a, b), c2 = seg(b, c), c3 = seg(c, a);
+      if (c1.d <= c2.d && c1.d <= c3.d) return [1 - c1.t, c1.t, 0];
+      if (c2.d <= c3.d) return [0, 1 - c2.t, c2.t];
+      return [c3.t, 0, 1 - c3.t];
+    }
+    function miniMove(p) {
+      if (!M) return;
+      const el = T.home.get(sel), { F } = M;
+      if (M.k === 1) {
+        let t = Math.max(0, Math.min(TMAX, (p[0] - M.O[0]) / M.R));
+        if (t * M.R < 7) t = 0;
+        pt = { el, lam: [1], t };
+      } else if (M.k === 2) {
+        const q = [(p[0] - M.O[0]) / M.R, (M.O[1] - p[1]) / M.R], [u, v] = F.U;
+        const det = u[0] * v[1] - v[0] * u[1];
+        let a = (q[0] * v[1] - v[0] * q[1]) / det, b = (u[0] * q[1] - q[0] * u[1]) / det;
+        if (a < 0 && b < 0) { a = 0; b = 0; }
+        else if (a < 0) { a = 0; b = Math.max(0, (q[0] * v[0] + q[1] * v[1]) / (v[0] * v[0] + v[1] * v[1])); }
+        else if (b < 0) { b = 0; a = Math.max(0, (q[0] * u[0] + q[1] * u[1]) / (u[0] * u[0] + u[1] * u[1])); }
+        let t = a + b;
+        if (t > TMAX) { a *= TMAX / t; b *= TMAX / t; t = TMAX; }
+        // snap onto the sides, so that faces and folds are easy to reach
+        if (t * M.R < 7) { pt = { el, lam: [0.5, 0.5], t: 0 }; return; }
+        let la = a / t;
+        if (la * t * M.R < 6) la = 0;
+        if ((1 - la) * t * M.R < 6) la = 1;
+        pt = { el, lam: [la, 1 - la], t };
+      } else {
+        const C = F.U.map((u) => M.P3(u.map((x) => x * M.t)));
+        let l = bary(p, C[0], C[1], C[2]);
+        l = l.map((x) => (x * M.t * M.R < 5 ? 0 : x));
+        const s = l.reduce((a, b) => a + b, 0);
+        pt = { el, lam: l.map((x) => x / s), t: M.t };
+      }
+      update();
+    }
+
+    /* ---------- the words ---------- */
+    function drawInfo() {
+      const { data } = T, G = data.graphs[sel], k = data.rank[sel];
+      const aut = MG.autInfo(G);
+      const el = T.home.get(sel);
+      const folded = el && frameOf(el).U.length > 1 && (() => { const F = frameOf(el); return F.U.some((u, i) => F.U.some((v, j) => j > i && !F.act.some((_, c) => u[c] < 1e-9 && v[c] < 1e-9))); })();
+      const chip = (j) => `<button type="button" class="mini" data-gi="${j}">${MD.graphSvg(data.graphs[j], { w: 76, h: 54, pad: 7, font: 7.5, dot: 2.3, strokeW: 1.2 })}</button>`;
+      const hereTxt = here === sel ? "The point is inside this cone." : here === T.apex ? "All the lengths are 0, so the point is at the cone point." : `A length is 0, so the point has moved into a face of this cone: the cone of the contracted graph, lit up in the poset.`;
+      info.innerHTML = `
+        <div class="tags"><span class="tag s">${k} ${k === 1 ? "edge" : "edges"}</span><span class="tag">|Aut| = ${aut.order}</span><span class="tag">dimension ${k}</span></div>
+        <p class="note">${k === 0 ? `The graph with no edges: one vertex of weight ${T.data.g}${T.data.n ? ` carrying all ${T.data.n} legs` : ""}. Every other cone has this point as its tip.` : `Its piece is ℝ<span class="ss"><sup>${k}</sup><sub>≥0</sub></span> / Aut(<em class="m">G</em>), one coordinate for each edge.${folded ? " Aut(<em class=\"m\">G</em>) permutes the edges, so the cone is folded: the shaded part holds one copy of each metric graph, and its dashed sides are folds, where lengths are equal." : ""}`}</p>
+        ${k > 0 ? `<p class="note">${hereTxt}</p>` : ""}
+        ${data.down[sel].length ? `<div><h4>Its faces: set one length to 0</h4><div class="minis">${data.down[sel].map(chip).join("")}</div></div>` : ""}
+        ${data.up[sel].length ? `<div><h4>It is a face of</h4><div class="minis">${data.up[sel].map(chip).join("")}</div></div>` : ""}`;
+    }
+
+    function update() {
+      here = graphOf(pt);
+      draw3d();
+      drawPoset();
+      drawMini();
+      // the metric graph at the point
+      const box = $("#mod-graph");
+      if (pt.el && pt.t > 0) {
+        const cell = T.spec.cells[pt.el.ci], L = lengthsOf(pt);
+        box.innerHTML = view.draw(cell.G, L, { w: 300, h: 190, pad: 30, font: 12, dot: 4.2, strokeW: 2.6, edgeColors: pal, total: 1.6, label: "The metric graph at the point" }).svg;
+        $("#mod-len").innerHTML = L.map((x, e) => `<span class="${x <= 1e-9 ? "zero" : ""}"><i style="background:${pal(view.colorIndex(e))}"></i>ℓ<sub>${e + 1}</sub> = ${Math.max(0, x).toFixed(2)}</span>`).join("");
+        drawMini(); // the axis colours follow the drawing
+      } else {
+        box.innerHTML = MD.graphSvg(T.data.graphs[T.apex], { w: 300, h: 190, pad: 30, font: 12, dot: 4.2, strokeW: 2.6, label: "The graph at the cone point" });
+        $("#mod-len").innerHTML = `<span class="note">No edges.</span>`;
+      }
+      drawInfo();
+    }
+    function select(gi) {
+      sel = gi;
+      const el = T.home.get(gi);
+      pt = el ? { el, lam: T.ptsOf(el).map((_, j, a) => 1 / a.length), t: 1 } : { el: null, lam: [], t: 0 };
+      update();
+    }
+    function setType(i) {
+      T = setup(TYPES[i]);
+      $("#mod-type").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.i === i)));
+      $("#mod-title").innerHTML = `The whole space <em class="m">M</em><sub>${T.data.g},${T.data.n}</sub>`;
+      const start = T.els.find((e) => e.ci === TYPES[i].startCell && e.kind === T.spec.cells[e.ci].pts.length - 1 && !e.fold);
+      select(start.idx);
+    }
+
+    $("#mod-type").innerHTML = TYPES.map((t, i) => `<button type="button" class="segbtn" data-i="${i}">(<em class="m">g</em>, <em class="m">n</em>) = (${t.key.replace(",", ", ")})</button>`).join("");
+    $("#mod-type").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) setType(+b.dataset.i); });
+    tt = turntable(svg, {
+      Rm: mul(rotX(0.42), rotY(0.55)), spinBtn: $("#mod-spin"), speed: 0.00022, draw: () => draw3d(),
+      hover(t) { const g = t && t.dataset && t.dataset.gi != null ? +t.dataset.gi : -1; if (g === hov) return false; hov = g; drawPoset(); return true; },
+      pick(t) { if (t && t.dataset && t.dataset.gi != null) select(+t.dataset.gi); },
+    });
+    const pickGraph = (e) => { const g = e.target.closest("[data-gi]"); if (g) select(+g.dataset.gi); };
+    posetSvg.addEventListener("click", pickGraph);
+    posetSvg.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pickGraph(e); } });
+    posetSvg.addEventListener("pointerover", (e) => { const g = e.target.closest("[data-gi]"); const v = g ? +g.dataset.gi : -1; if (v !== hov) { hov = v; draw3d(); drawPoset(); } });
+    posetSvg.addEventListener("pointerleave", () => { hov = -1; draw3d(); drawPoset(); });
+    info.addEventListener("click", pickGraph);
+    drag(mini, { move: miniMove });
+    setType(0);
+    tt.start();
   }
 
   /* ================= Part 4: pictures of small spaces ================= */
@@ -891,10 +1309,13 @@
   const run = (f) => { try { f(); } catch (err) { console.error(err); } };
   run(segments);
   run(lines);
+  run(buildGraph);
   run(anatomy);
+  run(derivations);
   run(stability);
   run(contraction);
   run(cone);
+  run(moduliFig);
   document.querySelectorAll("[data-space]").forEach((el) => run(() => spaceWidget(el)));
   run(petersen);
   run(genus2);

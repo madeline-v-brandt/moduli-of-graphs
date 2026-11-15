@@ -263,7 +263,7 @@
       </div>
     </div>`;
 
-    // column 2: half-edge data, genus, stability budget
+    // column 2: half-edge data, genus, stability check
     const iota = E ? G.edges.map((_, e) => `(${n + 2 * e + 1} ${n + 2 * e + 2})`).join("") : "id";
     const hs = [], rs = [];
     for (let h = 1; h <= Hn; h++) {
@@ -272,14 +272,6 @@
       rs.push(`<td class="v">${VN[v]}</td>`);
     }
     const rTable = Hn ? `<div class="rscroll"><table class="rtable"><tr><th>h</th>${hs.join("")}</tr><tr><th>r(h)</th>${rs.join("")}</tr></table></div>` : `<span class="muted">H is empty</span>`;
-    const ex = MG.excess(G), val = MG.valence(G);
-    const T = 2 * g - 2 + n;
-    let bar = "";
-    G.w.forEach((w, v) => {
-      for (let k = 0; k < ex[v]; k++) bar += `<span class="unit" style="background:${pal(v)}">${k === 0 ? VN[v] : ""}</span>`;
-    });
-    const spare = T - ex.reduce((a, b) => a + b, 0);
-    const legend = G.w.map((w, v) => `<div><i style="background:${pal(v)}"></i>${VN[v]}: 2·${w} − 2 + ${val[v]} = ${ex[v]}</div>`).join("");
     const col2 = `<div>
       <h4>Half-edge data</h4>
       <dl>
@@ -291,12 +283,7 @@
       </dl>
       ${rTable}
       <div class="calc">g = <i>b</i><sub>1</sub> + ∑<i>w</i> = (${E} − ${V} + 1) + ${sw} = ${g}</div>
-      <div class="budget">
-        <h4>Stability budget</h4>
-        <div class="bar" aria-label="Each vertex uses 2w − 2 + val squares out of 2g − 2 + n = ${T}">${bar}</div>
-        <div class="bar-legend">${legend}</div>
-        <p class="note">Each vertex uses 2<em class="m">w</em> − 2 + val ≥ 1 of the 2<em class="m">g</em> − 2 + <em class="m">n</em> = ${T} squares, and together they use all of them${spare ? ` (check: ${spare} left over)` : ""}. So there are at most ${T} vertices. ${V === T ? "This graph has the maximum: every vertex uses exactly one square, so it is trivalent with weight 0." : `This graph has ${V}.`}</p>
-      </div>
+      ${MD.stabilityHtml(G, { name: (v) => VN[v] })}
     </div>`;
 
     // column 3: automorphisms and neighbours
@@ -323,8 +310,8 @@
     const below = S.data.down[i], above = S.data.up[i];
     const col3 = `<div>
       <div class="aut"><h4>Automorphisms (as permutations of H)</h4>${autHtml}</div>
-      <div class="aut"><h4>Below: contract one edge</h4>${below.length ? `<div class="minis">${below.map(mini).join("")}</div>` : `<p class="empty">Nothing below: no edges to contract.</p>`}</div>
-      <div class="aut"><h4>Above: split one vertex</h4>${above.length ? `<div class="minis">${above.map(mini).join("")}</div>` : `<p class="empty">Nothing above: every vertex is trivalent of weight 0, so nothing can be split.</p>`}</div>
+      <div class="aut"><h4>Who lives below? Contract one edge.</h4>${below.length ? `<div class="minis">${below.map(mini).join("")}</div>` : `<p class="empty">Nothing below: no edges to contract.</p>`}</div>
+      <div class="aut"><h4>Who lives above? Split one vertex.</h4>${above.length ? `<div class="minis">${above.map(mini).join("")}</div>` : `<p class="empty">Nothing above: every vertex is trivalent of weight 0, so nothing can be split.</p>`}</div>
     </div>`;
 
     box.innerHTML = col1 + col2 + col3;

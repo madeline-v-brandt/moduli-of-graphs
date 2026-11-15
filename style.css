@@ -179,12 +179,13 @@ dd { margin: 0; font-family: var(--mono); font-variant-numeric: tabular-nums; ov
 .calc { font-family: var(--display); font-size: 16px; }
 .calc i { font-style: italic; }
 
-.budget { display: grid; gap: 8px; border-top: 1px solid var(--rule); padding-top: 12px; }
-.bar { display: flex; flex-wrap: wrap; gap: 3px; }
-.bar .unit { width: 22px; height: 22px; border-radius: 3px; display: grid; place-items: center; font: 500 11px var(--mono); color: var(--panel); }
-.bar .gap { width: 6px; }
-.bar-legend { display: grid; gap: 2px; font: 12px var(--mono); color: var(--muted); }
-.bar-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+.stab-check { display: grid; gap: 8px; border-top: 1px solid var(--rule); padding-top: 12px; }
+.stab-t { border-collapse: collapse; font: 12.5px var(--mono); white-space: nowrap; }
+.stab-t th { font: 500 12px var(--body); color: var(--muted); text-align: left; padding: 0 12px 5px 0; border-bottom: 1px solid var(--rule); }
+.stab-t td { padding: 4px 12px 0 0; }
+.stab-t td.ok { color: var(--mat); font-weight: 600; }
+.stab-t td.bad { color: var(--nm); font-weight: 600; }
+.stab-t .sv i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
 
 .aut { display: grid; gap: 8px; }
 .aut-list { display: flex; flex-wrap: wrap; gap: 5px; max-height: 210px; overflow: auto; }
@@ -228,9 +229,9 @@ dd { margin: 0; font-family: var(--mono); font-variant-numeric: tabular-nums; ov
 .live-head { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; justify-content: space-between; }
 .live svg { display: block; width: 100%; height: auto; }
 .lengths { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 4px 12px; font: 12.5px var(--mono); font-variant-numeric: tabular-nums; }
-.lengths span { display: inline-flex; gap: 6px; align-items: center; }
+.lengths span { white-space: nowrap; }
 .lengths span.zero { color: var(--muted); text-decoration: line-through; }
-.lengths i { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+.lengths i { width: 14px; height: 3px; border-radius: 2px; display: inline-block; margin-right: 6px; vertical-align: middle; }
 .btn { font: 500 13px var(--body); border: 1px solid var(--ink); background: var(--ink); color: var(--paper); padding: 6px 12px; border-radius: 5px; cursor: pointer; }
 .btn-quiet { font: 12.5px var(--mono); padding: 4px 10px; border: 1px solid var(--rule); border-radius: 4px; background: transparent; cursor: pointer; }
 .btn-quiet:hover { border-color: var(--atom); }

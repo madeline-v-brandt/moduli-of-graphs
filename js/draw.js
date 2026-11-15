@@ -456,7 +456,8 @@
             this.side[cur] = this.side[shortest] || 1;
             this.side[shortest] = 0;
           }
-          return this.side[eg] === 0 ? 0 : this.side[eg] * (k + 0.02);
+          // the two side edges always bow a little, so that three equal edges stay visibly apart
+          return this.side[eg] === 0 ? 0 : this.side[eg] * Math.max(k + 0.02, 0.3 * chord);
         }
         const sd = this.side[eg] || (j % 2 === 1 ? 1 : -1);
         return sd * (k + 0.02 + Math.floor(j / 2) * 0.06);
@@ -683,5 +684,16 @@
     this.X[v] = [V[0] + eps * tx, V[1] + eps * ty];
   };
 
-  root.MD = { layout, graphSvg, screenPositions, along, MetricView, VNAMES, num };
+  /* The stability check: 2w(v) − 2 + |r⁻¹(v)| > 0 at every vertex. name(v) labels a vertex and
+     swatch(v), if given, is a colour to key the row to the drawing. */
+  function stabilityHtml(G, { name, swatch } = {}) {
+    const val = MG.valence(G), ex = MG.excess(G);
+    const rows = G.w.map((w, v) => `<tr><td class="sv">${swatch ? `<i style="background:${swatch(v)}"></i>` : ""}${name ? name(v) : "v" + (v + 1)}</td><td>${w}</td><td>${val[v]}</td><td>2·${w} − 2 + ${val[v]} = ${ex[v]}</td><td class="${ex[v] > 0 ? "ok" : "bad"}">${ex[v] > 0 ? "✓" : "✗"}</td></tr>`).join("");
+    const ok = ex.every((x) => x > 0);
+    return `<div class="stab-check"><h4>Stability check</h4>
+      <div class="rscroll"><table class="stab-t"><thead><tr><th>vertex</th><th><i>w</i>(<i>v</i>)</th><th>|<i>r</i><sup>−1</sup>(<i>v</i>)|</th><th>2<i>w</i>(<i>v</i>) − 2 + |<i>r</i><sup>−1</sup>(<i>v</i>)|</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
+      <p class="note">${ok ? `Every vertex has 2<em class="m">w</em>(<em class="m">v</em>) − 2 + |<em class="m">r</em><sup>−1</sup>(<em class="m">v</em>)| &gt; 0, so the graph is stable.` : "Some vertex fails the check, so this graph is not stable."}</p></div>`;
+  }
+
+  root.MD = { layout, graphSvg, screenPositions, along, MetricView, VNAMES, num, stabilityHtml };
 })(window);

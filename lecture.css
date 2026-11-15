@@ -67,6 +67,8 @@
 .ax { stroke: var(--muted); stroke-width: 1.2; fill: none; }
 .axh { fill: var(--muted); }
 .grid-l { stroke: var(--rule); stroke-width: 1; }
+.grid-f { stroke: var(--rule); stroke-width: 1; stroke-opacity: 0.55; }
+.axis-l { stroke: var(--muted); stroke-width: 1.2; stroke-opacity: 0.7; }
 .lbl { fill: var(--muted); font: 11px var(--mono); }
 .lbl-m { fill: var(--ink); font: italic 15px var(--display); }
 .seg { stroke: var(--ink); stroke-width: 3; stroke-linecap: round; }
@@ -80,6 +82,80 @@
 .region-off { fill: url(#hatch); }
 .hatch-line { stroke: var(--rule); stroke-width: 1.4; }
 .slice { stroke: var(--atom); stroke-width: 1.6; stroke-dasharray: 2 4; fill: none; }
+
+/* the coordinates of a draggable point */
+.coord { font: 500 12px var(--mono); fill: var(--ink); paint-order: stroke; stroke: var(--panel); stroke-width: 4px; stroke-linejoin: round; pointer-events: none; }
+.bd { stroke: var(--ink); stroke-width: 1.8; fill: none; }
+
+/* the whole space, cone by cone */
+.mod-top { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); }
+.mod-bot { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); border-top: 1px solid var(--rule); }
+.mod-top > div, .mod-bot > div { padding: 14px 16px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.mod-top > div + div, .mod-bot > div + div { border-left: 1px solid var(--rule); }
+.mod-top svg, .mod-bot svg { display: block; width: 100%; height: auto; }
+.mod3d { cursor: grab; touch-action: none; }
+.mod3d.dragging { cursor: grabbing; }
+.mod3d .mf { stroke: none; cursor: pointer; }
+.mod3d .mf.d2 { fill: var(--mat); fill-opacity: 0.16; }
+.mod3d .mf.d3 { fill: var(--o1); fill-opacity: 0.12; }
+.mod3d .mf.d0 { fill: var(--nm); fill-opacity: 0.06; }
+.mod3d .mf.hov { fill: var(--atom); fill-opacity: 0.16; }
+.mod3d .mf.here { fill: var(--mat); fill-opacity: 0.32; }
+.mod3d .mf.sel { fill: var(--atom); fill-opacity: 0.34; }
+.mod3d .ml { stroke: var(--ink); fill: none; stroke-linecap: round; }
+.mod3d .ml.ray { stroke-width: 2; }
+.mod3d .ml.rim { stroke-width: 0.8; stroke-opacity: 0.45; }
+.mod3d .ml.fold { stroke: var(--nm); stroke-width: 1.4; stroke-dasharray: 5 4; stroke-opacity: 1; }
+.mod3d .ml.slice { stroke: var(--atom); stroke-width: 1.4; stroke-dasharray: 2 4; }
+.mod3d .ml.hov { stroke: var(--atom); stroke-opacity: 0.8; }
+.mod3d .ml.here { stroke: var(--mat); stroke-width: 3; stroke-opacity: 1; }
+.mod3d .ml.sel { stroke: var(--atom); stroke-width: 3.4; stroke-opacity: 1; }
+.mod3d .ml-hit { stroke: transparent; stroke-width: 12; fill: transparent; cursor: pointer; }
+.mod3d .apex, .mod-bot .apex { fill: var(--ink); }
+.mod3d .apex.here { fill: var(--mat); }
+.mod3d .apex.sel { fill: var(--atom); }
+.mod3d .pt-halo { fill: var(--mat); fill-opacity: 0.2; pointer-events: none; }
+.mod3d .pt { fill: var(--mat); stroke: var(--panel); stroke-width: 2.5; pointer-events: none; }
+.mod-bot .pt { fill: var(--mat); stroke: var(--panel); stroke-width: 2.5; }
+.mod-poset .pe { stroke: var(--rule); stroke-width: 1.2; }
+.mod-poset .pe.on { stroke: var(--atom); stroke-width: 1.8; }
+.mod-poset .rank { font: 10.5px var(--mono); fill: var(--muted); }
+.mod-poset .pn { cursor: pointer; }
+.mod-poset .pn rect { fill: var(--panel); stroke: var(--rule); stroke-width: 1.2; }
+.mod-poset .pn.hov rect, .mod-poset .pn:focus-visible rect { stroke: var(--atom); }
+.mod-poset .pn:focus { outline: none; }
+.mod-poset .pn.here rect { stroke: var(--mat); stroke-width: 2.4; fill: var(--mat-soft); }
+.mod-poset .pn.sel rect { stroke: var(--atom); stroke-width: 2.6; fill: var(--atom-soft); }
+.mod-info { font-size: 13px; }
+.mod-info .mini { width: 84px; }
+.mod-mini-ctl { font-size: 13px; }
+.mod-slider { display: flex; align-items: center; gap: 10px; font: 12.5px var(--mono); color: var(--muted); }
+.mod-slider input { flex: 1; accent-color: var(--mat); }
+
+/* building a graph from the definition */
+.build-data { font-size: 13px; display: grid; gap: 10px; align-content: start; }
+.prose .build-data p.note { font-size: 14px; color: var(--ink); }
+.build-data dl > div { display: contents; }
+.build-data dl > div.new dt, .build-data dl > div.new dd { color: var(--atom); }
+.build .hl circle { fill: var(--panel); stroke: var(--rule); }
+.build .hl text { fill: var(--ink); font: 500 11px var(--mono); }
+.build .ann { font: italic 600 15px var(--display); text-anchor: middle; paint-order: stroke; stroke: var(--panel); stroke-width: 4px; }
+#build-svg { width: 100%; height: auto; display: block; }
+
+/* a calculation whose steps explain themselves when you point at them */
+.derive { display: grid; gap: 10px; margin: 10px 0 6px; }
+.derive .rows { display: grid; grid-template-columns: auto auto auto; justify-content: start; gap: 8px 10px; align-items: baseline; font-family: var(--display); font-size: 19px; overflow-x: auto; padding: 2px 0; }
+.derive .row { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: baseline; }
+.derive .rel { text-align: center; }
+.derive .t { border-radius: 4px; padding: 1px 3px; cursor: help; border-bottom: 2px solid transparent; white-space: nowrap; }
+.derive .t:focus { outline: none; }
+.derive .t:focus-visible { outline: 2px solid var(--atom); outline-offset: 1px; }
+.derive .t-w, .derive .t-w0 { color: var(--gen); border-bottom-color: color-mix(in srgb, var(--gen) 40%, transparent); }
+.derive .t-two, .derive .t-V { color: var(--o1); border-bottom-color: color-mix(in srgb, var(--o1) 40%, transparent); }
+.derive .t-half { color: var(--nm); border-bottom-color: color-mix(in srgb, var(--nm) 40%, transparent); }
+.derive .t-count, .derive .t-stab, .derive .t-g, .derive .t-gdef, .derive .t-add { border-bottom: 1.5px dotted var(--muted); }
+.derive .t.on { background: color-mix(in srgb, currentColor 13%, transparent); }
+.derive .why { margin: 0; font: 14.5px/1.5 var(--body); color: var(--muted); border-left: 3px solid var(--rule); padding: 2px 0 2px 12px; min-height: 3em; }
 
 /* anatomy */
 .anat-data { font-size: 13px; }
@@ -186,6 +262,9 @@ table.dict td { font-family: var(--display); font-size: 17px; }
   .fig-pair { grid-template-columns: minmax(0, 1fr); }
   .fig-pair > div + div { border-left: 0; border-top: 1px solid var(--rule); }
   .stab-wrap { grid-template-columns: minmax(0, 1fr); }
+  .derive .rows { font-size: 16px; }
+  .mod-top, .mod-bot { grid-template-columns: minmax(0, 1fr); }
+  .mod-top > div + div, .mod-bot > div + div { border-left: 0; border-top: 1px solid var(--rule); }
   .prose p, .prose li { font-size: 17px; }
   .g2-row { grid-template-columns: minmax(0, 1fr); }
   .g2-card { width: 128px; }
