@@ -460,7 +460,8 @@
           return this.side[eg] === 0 ? 0 : this.side[eg] * Math.max(k + 0.02, 0.3 * chord);
         }
         const sd = this.side[eg] || (j % 2 === 1 ? 1 : -1);
-        return sd * (k + 0.02 + Math.floor(j / 2) * 0.06);
+        // opts.minBulge: parallel edges of equal length still bow apart, by this fraction of the chord
+        return sd * Math.max(k + 0.02 + Math.floor(j / 2) * 0.06, o.minBulge ? o.minBulge * chord * (1 + Math.floor(j / 2)) : 0);
       };
       // bounding box of everything drawn, arcs and loops included
       const loopKU = (eh) => lobeK(0, Math.max(K * lenOf(eh) * unit, 0.015));

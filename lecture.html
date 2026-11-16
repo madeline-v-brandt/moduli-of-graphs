@@ -9,16 +9,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="style.css?v=10">
-<link rel="stylesheet" href="lecture.css?v=10">
-<link rel="stylesheet" href="deck.css?v=4">
+<link rel="stylesheet" href="style.css?v=11">
+<link rel="stylesheet" href="lecture.css?v=11">
+<link rel="stylesheet" href="deck.css?v=5">
 </head>
 <body>
 <div class="wrap notes-wrap">
   <header class="notes-head">
     <a class="back" href="index.html">← The explorer</a>
-    <div class="eyebrow">Website developed by Madeline Brandt</div>
     <h1>A space whose points are… graphs?</h1>
+    <div class="eyebrow byline">Website developed by Madeline Brandt</div>
     <p class="lede">These notes build the moduli spaces of graphs from scratch. This page has interactive examples that introduce the key ideas. The <a href="index.html">explorer</a> showcases the spaces for many choices of (<em class="m">g</em>, <em class="m">n</em>).</p>
     <div class="mode-switch seg-ctl" role="group" aria-label="View">
       <button type="button" class="segbtn" id="mode-read" aria-pressed="true">Reading mode</button>
@@ -48,7 +48,7 @@
 
         <h3>Example: segments in ℝ<sup>2</sup></h3>
         <p>A segment in the plane is a set [<em class="m">p</em>, <em class="m">q</em>] = {(1 − <em class="m">t</em>)<em class="m">p</em> + <em class="m">tq</em> : 0 ≤ <em class="m">t</em> ≤ 1} for two distinct points <em class="m">p</em> and <em class="m">q</em>. Call two segments equivalent if some rotation followed by a translation carries one onto the other. What does the space of all segments look like?</p>
-        <p>Translate any segment so that <em class="m">p</em> sits at the origin, then rotate it so that <em class="m">q</em> lies on the positive <em class="m">x</em>-axis. Using this translation and rotation, every segment is equivalent to one of the form [(0, 0), (ℓ, 0)], where ℓ = |<em class="m">q</em> − <em class="m">p</em>| &gt; 0. Rotations and translations preserve length, so different values of ℓ give segments that are not equivalent. The length is the only parameter:</p>
+        <p>The strategy is to pick out, from each equivalence class, one representative of a specific form. Translate any segment so that <em class="m">p</em> sits at the origin, then rotate it so that <em class="m">q</em> lies on the positive <em class="m">x</em>-axis. Using this translation and rotation, every segment is equivalent to one of the form [(0, 0), (ℓ, 0)], where ℓ = |<em class="m">q</em> − <em class="m">p</em>| &gt; 0. Rotations and translations preserve length, so different values of ℓ give segments that are not equivalent. The length is the only parameter:</p>
         <div class="display">
           <span>{segments in ℝ<sup>2</sup>} / (rotations, translations)</span><span>≅</span><span>(0, ∞),</span>
           <span class="gap"></span><span>[<i>p</i>, <i>q</i>] ↦ |<i>q</i> − <i>p</i>|.</span>
@@ -70,7 +70,7 @@
         <p><b>Why this example?</b> Segments are the building block for the rest of the lecture. An edge of a metric graph is a segment, determined up to isometry by its length, and length zero is exactly where the edge degenerates. A graph with <em class="m">k</em> edges will contribute a copy of (0, ∞)<sup><em class="m">k</em></sup>, one coordinate per edge.</p>
 
         <h3>Example: lines through the origin</h3>
-        <p>Let's make a moduli space for the set of lines through the origin in ℝ<sup>2</sup>. A line through the origin is determined by its angle θ with the <em class="m">x</em>-axis, taken in [0, π). As θ approaches π the line comes back to the <em class="m">x</em>-axis, so the two ends of the interval are glued together and the space of lines is a circle. To make this precise, send the line at angle θ to the point (cos 2θ, sin 2θ). This is a map from the set of lines through the origin to the unit circle in ℝ<sup>2</sup>, and it is a bijection: doubling the angle stretches the half-turn [0, π) once around the full circle.</p>
+        <p>Let's make a moduli space for the set of lines through the origin in ℝ<sup>2</sup>. A first idea is to use the slope: the line <em class="m">y</em> = <em class="m">mx</em> goes to the number <em class="m">m</em>. This doesn't work too well. The vertical line has no slope, and lines that are close to vertical have huge positive or huge negative slopes, so lines that are close together can be very far apart in ℝ. A better parameter is the angle θ that the line makes with the <em class="m">x</em>-axis, taken in [0, π).</p>
 
         <figure class="fig" id="w-lines">
           <div class="fig-pair">
@@ -80,6 +80,8 @@
           <div class="fig-bar end"><span class="fig-read" id="lines-read"></span><button type="button" class="btn-quiet" id="lines-spin">Turn the line through 180°</button></div>
           <figcaption class="fig-cap">Drag in the left picture to turn the line, or drag the point around the circle on the right. Turning the line by 180° brings it back to where it started and sends the point once around the circle.</figcaption>
         </figure>
+
+        <p>As θ approaches π the line comes back to the <em class="m">x</em>-axis, so the two ends of the interval [0, π) are glued together and the space of lines is a circle. To make this precise, send the line at angle θ to the point (cos 2θ, sin 2θ). This is a map from the set of lines through the origin to the unit circle in ℝ<sup>2</sup>, and it is a bijection: doubling the angle stretches the half-turn [0, π) once around the full circle.</p>
 
         <div class="board4" aria-labelledby="h-four">
           <h3 id="h-four">Three things to remember</h3>
@@ -126,11 +128,9 @@
           <figcaption class="fig-cap">Build a graph one piece of the definition at a time. Each step adds one ingredient to the picture and to the data on the right.</figcaption>
         </figure>
 
-        <p>The set <em class="m">r</em><sup>−1</sup>(<em class="m">v</em>) is the set of half-edges rooted at <em class="m">v</em>, so |<em class="m">r</em><sup>−1</sup>(<em class="m">v</em>)| counts them. A loop at <em class="m">v</em> contributes two half-edges and a leg contributes one. For a graph with no loops or legs, |<em class="m">r</em><sup>−1</sup>(<em class="m">v</em>)| is the usual degree of <em class="m">v</em>.</p>
-
         <div class="theorem">
           <div class="eyebrow">Definition · genus</div>
-          <p>For a connected graph <em class="m">G</em>,</p>
+          <p>The <b>genus</b> of a connected graph <em class="m">G</em> is</p>
           <div class="display"><span><i>g</i>(<i>G</i>) = |<i>E</i>| − |<i>V</i>| + 1 + <span class="bigop">∑<small>v ∈ V</small></span> <i>w</i>(<i>v</i>).</span></div>
         </div>
         <p>The number |<em class="m">E</em>| − |<em class="m">V</em>| + 1 is denoted <em class="m">b</em><sub>1</sub>(<em class="m">G</em>) and counts the independent cycles of <em class="m">G</em>: it is the number of edges outside a spanning tree. The weights count genus that is hidden at a vertex. Contraction, at the end of this part, explains where hidden genus comes from.</p>
@@ -140,21 +140,39 @@
           <p>A graph <em class="m">G</em> is <b>stable</b> if every vertex satisfies</p>
           <div class="display"><span>2<i>w</i>(<i>v</i>) − 2 + |<i>r</i><sup>−1</sup>(<i>v</i>)| &gt; 0.</span></div>
         </div>
+        <p>Here <em class="m">r</em><sup>−1</sup>(<em class="m">v</em>) is the set of half-edges rooted at <em class="m">v</em>, so |<em class="m">r</em><sup>−1</sup>(<em class="m">v</em>)| counts them. A loop at <em class="m">v</em> contributes two half-edges and a leg contributes one. For a graph with no loops or legs, |<em class="m">r</em><sup>−1</sup>(<em class="m">v</em>)| is the usual degree of <em class="m">v</em>.</p>
         <figure class="fig" id="w-stab">
           <div class="fig-bar"><h4>The local picture at a vertex</h4></div>
           <div class="stab-wrap">
             <div class="scroll"><table class="stab" id="stab-table" aria-label="2w − 2 + |r⁻¹(v)| for small weights and numbers of half-edges"></table></div>
             <div class="stab-read" id="stab-read" aria-live="polite"></div>
           </div>
-          <figcaption class="fig-cap">The quantity 2<em class="m">w</em> − 2 + |<em class="m">r</em><sup>−1</sup>(<em class="m">v</em>)| for a vertex of weight <em class="m">w</em> with |<em class="m">r</em><sup>−1</sup>(<em class="m">v</em>)| half-edges. Shaded cells are stable. Point at a cell to see the vertex, and what goes wrong in the unstable cells.</figcaption>
+          <figcaption class="fig-cap">Each cell shows a vertex of weight <em class="m">w</em> (the row) with |<em class="m">r</em><sup>−1</sup>(<em class="m">v</em>)| half-edges (the column). Green cells are stable and red cells are not. Point at a cell to see the value of 2<em class="m">w</em> − 2 + |<em class="m">r</em><sup>−1</sup>(<em class="m">v</em>)|, and what goes wrong in the unstable cells.</figcaption>
         </figure>
         <p>Reading the table: a weight-0 vertex needs at least 3 half-edges, a weight-1 vertex needs at least 1, and a vertex of weight 2 or more is always fine. So a stable graph has no unweighted vertex with 1 or 2 half-edges. Those are the leaves and the vertices in the middle of an edge, which carry no information.</p>
+
+        <figure class="fig" id="w-quiz">
+          <div class="fig-bar">
+            <h4>Quiz: stable or not?</h4>
+            <span class="fig-read" id="quiz-score" aria-live="polite"></span>
+            <button type="button" class="btn-quiet" id="quiz-reset">Start over</button>
+          </div>
+          <div class="quiz" id="quiz"></div>
+          <figcaption class="fig-cap">Decide whether each graph is stable, then check your answer. Check every vertex: a weight-0 vertex needs at least 3 half-edges, and a weight-1 vertex needs at least 1.</figcaption>
+        </figure>
 
         <p>Before creating a moduli space for graphs, we need to know when two graphs should be considered equivalent.</p>
 
         <div class="theorem">
           <div class="eyebrow">Definition · isomorphism</div>
-          <p>An <b>isomorphism</b> <em class="m">G</em> → <em class="m">G</em>′ is a pair of bijections <em class="m">f<sub>V</sub></em> : <em class="m">V</em> → <em class="m">V</em>′ and <em class="m">f<sub>H</sub></em> : <em class="m">H</em> → <em class="m">H</em>′ such that <em class="m">r</em>′ ∘ <em class="m">f<sub>H</sub></em> = <em class="m">f<sub>V</sub></em> ∘ <em class="m">r</em> and ι′ ∘ <em class="m">f<sub>H</sub></em> = <em class="m">f<sub>H</sub></em> ∘ ι, which preserves weights (<em class="m">w</em>′ ∘ <em class="m">f<sub>V</sub></em> = <em class="m">w</em>) and leg labels (<em class="m">m</em>′ ∘ <em class="m">f<sub>H</sub></em> = <em class="m">m</em> on legs). The isomorphisms <em class="m">G</em> → <em class="m">G</em> form the group Aut(<em class="m">G</em>).</p>
+          <p>An <b>isomorphism</b> <em class="m">G</em> → <em class="m">G</em>′ is a pair of bijections <em class="m">f<sub>V</sub></em> : <em class="m">V</em> → <em class="m">V</em>′ and <em class="m">f<sub>H</sub></em> : <em class="m">H</em> → <em class="m">H</em>′ that respect all of the structure:</p>
+          <ul>
+            <li><b>roots:</b> if <em class="m">h</em> is rooted at <em class="m">v</em>, then <em class="m">f<sub>H</sub></em>(<em class="m">h</em>) is rooted at <em class="m">f<sub>V</sub></em>(<em class="m">v</em>). In symbols, <em class="m">r</em>′ ∘ <em class="m">f<sub>H</sub></em> = <em class="m">f<sub>V</sub></em> ∘ <em class="m">r</em>.</li>
+            <li><b>pairing:</b> if <em class="m">h</em> and <em class="m">k</em> form an edge, then <em class="m">f<sub>H</sub></em>(<em class="m">h</em>) and <em class="m">f<sub>H</sub></em>(<em class="m">k</em>) form an edge, and legs go to legs. In symbols, ι′ ∘ <em class="m">f<sub>H</sub></em> = <em class="m">f<sub>H</sub></em> ∘ ι.</li>
+            <li><b>weights:</b> <em class="m">v</em> and <em class="m">f<sub>V</sub></em>(<em class="m">v</em>) have the same weight. In symbols, <em class="m">w</em>′ ∘ <em class="m">f<sub>V</sub></em> = <em class="m">w</em>.</li>
+            <li><b>leg labels:</b> the leg labelled <em class="m">i</em> goes to the leg labelled <em class="m">i</em>. In symbols, <em class="m">m</em>′ ∘ <em class="m">f<sub>H</sub></em> = <em class="m">m</em> on legs.</li>
+          </ul>
+          <p>The isomorphisms <em class="m">G</em> → <em class="m">G</em> form the group Aut(<em class="m">G</em>).</p>
         </div>
         <figure class="fig" id="w-anat">
           <div class="fig-bar">
@@ -165,11 +183,11 @@
             <div><svg id="anat-svg" viewBox="0 0 360 250" role="img" aria-label="The example graph with its half-edges lettered"></svg></div>
             <div class="anat-data" id="anat-data" aria-live="polite"></div>
           </div>
-          <figcaption class="fig-cap">Half-edges are lettered and vertices are named <em class="m">v</em>. Pull the half-edges apart to see that each edge is two half-edges paired by ι. Click an automorphism to watch where it sends each half-edge.</figcaption>
+          <figcaption class="fig-cap">Half-edges are lettered and vertices are named <em class="m">v</em>. Pull the half-edges apart to see that each edge is two half-edges paired by ι. Click an automorphism to watch where it sends each half-edge and each vertex. Click several in a row to apply one after another.</figcaption>
         </figure>
         <p>In the loop-and-leg graph in the figure, swapping the half-edges <em class="m">a</em> and <em class="m">b</em> and fixing everything else is an automorphism. So |Aut(<em class="m">G</em>)| = 2, even though no vertex and no edge moves. The old definition of a graph cannot see this symmetry, which is one reason half-edges are the right language.</p>
 
-        <p>Why insist on stability? Without it, we could put as many new vertices as we like in the middle of an edge, or hang on as many new leaves as we like, and the genus and the legs would not change. So there would be infinitely many graphs of each type. Stability rules this out.</p>
+        <p>Why insist on stability? Without it, we could keep adding new vertices in the middle of an edge, or keep attaching new edges that end at a new bare vertex (a leaf). Each of these moves adds one vertex and one edge, so |<em class="m">E</em>| − |<em class="m">V</em>| + 1 and the genus do not change. It adds no legs either: a leaf is a vertex, not a leg. So there would be infinitely many graphs with the same genus and the same number of legs. Stability rules this out.</p>
         <div class="theorem">
           <div class="eyebrow">Proposition</div>
           <p>For each <em class="m">g</em> and <em class="m">n</em>, there are finitely many connected stable graphs of genus <em class="m">g</em> with <em class="m">n</em> marked legs, up to isomorphism.</p>
@@ -197,7 +215,7 @@
             </div>
             <p class="why" aria-live="polite">Point at a coloured term, or at a sign, to see where it comes from.</p>
           </div>
-          <p>Equality holds exactly when all weights are 0 and every vertex has 2<em class="m">w</em>(<em class="m">v</em>) − 2 + |<em class="m">r</em><sup>−1</sup>(<em class="m">v</em>)| = 1, that is, every vertex has exactly 3 half-edges. We call such a vertex <b>trivalent</b>. Finally, with |<em class="m">V</em>| and |<em class="m">E</em>| bounded, |<em class="m">H</em>| = 2|<em class="m">E</em>| + <em class="m">n</em> is bounded and every weight is at most <em class="m">g</em>, so there are only finitely many possibilities for (<em class="m">V</em>, <em class="m">H</em>, <em class="m">r</em>, ι, <em class="m">w</em>, <em class="m">m</em>). <span class="qed">∎</span></p>
+          <p>When does equality hold? The edge bound is an equality exactly when both of its inputs are: every weight is 0, and |<em class="m">V</em>| = 2<em class="m">g</em> − 2 + <em class="m">n</em>. The vertex bound is an equality exactly when every term 2<em class="m">w</em>(<em class="m">v</em>) − 2 + |<em class="m">r</em><sup>−1</sup>(<em class="m">v</em>)| that replaced a 1 is equal to 1. With <em class="m">w</em>(<em class="m">v</em>) = 0 this says |<em class="m">r</em><sup>−1</sup>(<em class="m">v</em>)| − 2 = 1, so every vertex has exactly 3 half-edges. We call such a vertex <b>trivalent</b>. Finally, with |<em class="m">V</em>| and |<em class="m">E</em>| bounded, |<em class="m">H</em>| = 2|<em class="m">E</em>| + <em class="m">n</em> is bounded and every weight is at most <em class="m">g</em>, so there are only finitely many possibilities for (<em class="m">V</em>, <em class="m">H</em>, <em class="m">r</em>, ι, <em class="m">w</em>, <em class="m">m</em>). <span class="qed">∎</span></p>
         </div>
 
         <h3>Edge contraction</h3>
@@ -221,7 +239,7 @@
             <div class="con-data" id="con-data" aria-live="polite"></div>
           </div>
           <div class="con-hist" id="con-hist" aria-label="Contractions so far"></div>
-          <figcaption class="fig-cap">Click an edge to contract it. The vertex colours match the rows of the stability check. The genus and the number of legs never change, and every vertex keeps passing the stability check.</figcaption>
+          <figcaption class="fig-cap">Click an edge to contract it: it shrinks slowly to length 0, and then the picture settles into <em class="m">G</em>/<em class="m">e</em>. The vertex colours match the rows of the stability check. The genus and the number of legs never change, and every vertex keeps passing the stability check.</figcaption>
         </figure>
 
         <div class="facts">
@@ -508,6 +526,7 @@
 
   <section class="slide" data-part="1" data-title="The space of segments">
     <h2>The space of segments</h2>
+    <p class="lead step"><b>Strategy:</b> from each equivalence class, pick out one representative of a specific form.</p>
     <ul class="pts">
       <li class="step">Translate <em class="m">p</em> to the origin, then rotate <em class="m">q</em> onto the positive <em class="m">x</em>-axis. Using this translation and rotation, every segment is equivalent to one of the form [(0, 0), (ℓ, 0)], with ℓ = |<em class="m">q</em> − <em class="m">p</em>| &gt; 0.</li>
       <li class="step">Rotations and translations preserve length, so ℓ is the only parameter:</li>
@@ -533,16 +552,24 @@
   <section class="slide" data-part="1" data-title="Example: lines through the origin">
     <h2>Example: lines through the origin</h2>
     <ul class="pts">
-      <li class="step">Let's make a moduli space for the set of lines through the origin in ℝ<sup>2</sup>. Each one is determined by its angle θ in [0, π).</li>
-      <li class="step">As θ approaches π the line comes back to the <em class="m">x</em>-axis, so the ends of the interval glue together: the space of lines is a <b>circle</b>.</li>
-      <li class="step">To make this precise, send the line at angle θ to the point (cos 2θ, sin 2θ): a bijection from the set of lines through the origin to the unit circle.</li>
+      <li class="step">Let's make a moduli space for the set of lines through the origin in ℝ<sup>2</sup>.</li>
+      <li class="step">First idea: the <b>slope</b>. The line <em class="m">y</em> = <em class="m">mx</em> goes to <em class="m">m</em> ∈ ℝ.<span class="aside">This doesn't work too well. The vertical line has no slope, and lines close to vertical have huge positive or huge negative slopes: lines that are close together can be very far apart in ℝ.</span></li>
+      <li class="step">Better: the <b>angle</b> θ that the line makes with the <em class="m">x</em>-axis, taken in [0, π).</li>
     </ul>
   </section>
 
-  <section class="slide interactive" data-part="1" data-title="Try it: the circle of lines">
-    <h2>Try it: the circle of lines</h2>
+  <section class="slide interactive" data-part="1" data-title="Try it: turning the line">
+    <h2>Try it: turning the line</h2>
     <p class="prompt">Turn the line, or drag the point around the circle.</p>
     <div class="slot" data-fig="#w-lines"></div>
+  </section>
+
+  <section class="slide" data-part="1" data-title="The circle of lines">
+    <h2>The circle of lines</h2>
+    <ul class="pts">
+      <li class="step">As θ approaches π the line comes back to the <em class="m">x</em>-axis, so the ends of the interval [0, π) glue together: the space of lines is a <b>circle</b>.</li>
+      <li class="step">To make this precise, send the line at angle θ to the point (cos 2θ, sin 2θ): a bijection from the set of lines through the origin to the unit circle.</li>
+    </ul>
   </section>
 
   <section class="slide" data-part="1" data-title="Three things to remember">
@@ -555,8 +582,8 @@
   </section>
 
   <!-- ===== Part 2 ===== -->
-  <section class="slide" data-part="2" data-title="Why half-edges?">
-    <h2>Why half-edges?</h2>
+  <section class="slide" data-part="2" data-title="We need a better definition for graphs">
+    <h2>We need a better definition for graphs</h2>
     <p class="lead">A vertex set with a set of two-element subsets cannot handle three things we need:</p>
     <ul class="pts">
       <li class="step">loops,</li>
@@ -595,10 +622,8 @@
 
   <section class="slide" data-part="2" data-title="Genus">
     <h2>Genus</h2>
-    <ul class="pts">
-      <li class="step"><em class="m">r</em><sup>−1</sup>(<em class="m">v</em>) is the set of half-edges at <em class="m">v</em>, and |<em class="m">r</em><sup>−1</sup>(<em class="m">v</em>)| counts them. A loop counts twice, a leg once.</li>
-    </ul>
-    <div class="display step"><span><i>g</i>(<i>G</i>) = |<i>E</i>| − |<i>V</i>| + 1 + <span class="bigop">∑<small>v ∈ V</small></span> <i>w</i>(<i>v</i>)</span></div>
+    <p class="lead">The <b>genus</b> of a connected graph <em class="m">G</em> is</p>
+    <div class="display"><span><i>g</i>(<i>G</i>) = |<i>E</i>| − |<i>V</i>| + 1 + <span class="bigop">∑<small>v ∈ V</small></span> <i>w</i>(<i>v</i>)</span></div>
     <ul class="pts">
       <li class="step"><em class="m">b</em><sub>1</sub>(<em class="m">G</em>) = |<em class="m">E</em>| − |<em class="m">V</em>| + 1 counts independent cycles. The weights count genus hidden at a vertex.</li>
     </ul>
@@ -609,6 +634,7 @@
     <p class="lead">A graph is <b>stable</b> if every vertex satisfies</p>
     <div class="display"><span>2<i>w</i>(<i>v</i>) − 2 + |<i>r</i><sup>−1</sup>(<i>v</i>)| &gt; 0.</span></div>
     <ul class="pts">
+      <li class="step"><em class="m">r</em><sup>−1</sup>(<em class="m">v</em>) is the set of half-edges rooted at <em class="m">v</em>, so |<em class="m">r</em><sup>−1</sup>(<em class="m">v</em>)| counts them. A loop counts twice, a leg once.</li>
       <li class="step">Weight 0 needs at least 3 half-edges, weight 1 needs at least 1, and weight 2 or more is always fine.</li>
       <li class="step">So no unweighted leaves, and no unweighted vertices in the middle of an edge.</li>
     </ul>
@@ -616,29 +642,38 @@
 
   <section class="slide interactive" data-part="2" data-title="The local picture at a vertex">
     <h2>The local picture at a vertex</h2>
-    <p class="prompt">Point at a cell to see the vertex.</p>
-    <div class="slot" data-fig="#w-stab"></div>
+    <div class="formula">Stable: 2<i>w</i>(<i>v</i>) − 2 + |<i>r</i><sup>−1</sup>(<i>v</i>)| &gt; 0 at every vertex <i>v</i>.</div>
+    <div class="slot-pair">
+      <div class="slot" data-fig="#w-stab"></div>
+      <div class="slot" data-fig="#w-quiz"></div>
+    </div>
   </section>
 
   <section class="slide" data-part="2" data-title="Isomorphisms and automorphisms">
     <h2>Isomorphisms and automorphisms</h2>
     <p class="lead">Before creating a moduli space for graphs, we need to know when two graphs should be considered equivalent.</p>
-    <ul class="pts">
-      <li class="step">An <b>isomorphism</b> <em class="m">G</em> → <em class="m">G</em>′ is a pair of bijections <em class="m">f<sub>V</sub></em>, <em class="m">f<sub>H</sub></em> compatible with <em class="m">r</em>, ι, the weights and the leg labels.</li>
-      <li class="step">The isomorphisms <em class="m">G</em> → <em class="m">G</em> form the group Aut(<em class="m">G</em>).</li>
-      <li class="step">A loop with a leg: swapping the loop's two half-edges is an automorphism, so |Aut(<em class="m">G</em>)| = 2, even though no vertex or edge moves.</li>
-    </ul>
+    <div class="theorem step">
+      <div class="eyebrow">Definition · isomorphism</div>
+      <p>An <b>isomorphism</b> <em class="m">G</em> → <em class="m">G</em>′ is a pair of bijections <em class="m">f<sub>V</sub></em> : <em class="m">V</em> → <em class="m">V</em>′ and <em class="m">f<sub>H</sub></em> : <em class="m">H</em> → <em class="m">H</em>′ such that</p>
+      <ul>
+        <li class="step"><b>roots:</b> if <em class="m">h</em> is rooted at <em class="m">v</em>, then <em class="m">f<sub>H</sub></em>(<em class="m">h</em>) is rooted at <em class="m">f<sub>V</sub></em>(<em class="m">v</em>),</li>
+        <li class="step"><b>pairing:</b> if <em class="m">h</em> and <em class="m">k</em> form an edge, then so do <em class="m">f<sub>H</sub></em>(<em class="m">h</em>) and <em class="m">f<sub>H</sub></em>(<em class="m">k</em>), and legs go to legs,</li>
+        <li class="step"><b>weights:</b> <em class="m">v</em> and <em class="m">f<sub>V</sub></em>(<em class="m">v</em>) have the same weight,</li>
+        <li class="step"><b>leg labels:</b> the leg labelled <em class="m">i</em> goes to the leg labelled <em class="m">i</em>.</li>
+      </ul>
+      <p class="step">The isomorphisms <em class="m">G</em> → <em class="m">G</em> form the group Aut(<em class="m">G</em>).</p>
+    </div>
   </section>
 
   <section class="slide interactive" data-part="2" data-title="Example: half-edges and automorphisms">
     <h2>Example: half-edges and automorphisms</h2>
-    <p class="prompt">Pull the half-edges apart, switch examples, or click an automorphism.</p>
+    <p class="prompt">Pull the half-edges apart, switch examples, or click automorphisms one after another.</p>
     <div class="slot" data-fig="#w-anat"></div>
   </section>
 
   <section class="slide" data-part="2" data-title="Finiteness">
     <h2>Finiteness</h2>
-    <p class="lead">Without stability, we could add vertices in the middle of an edge, or new leaves, forever, without changing <em class="m">g</em> or <em class="m">n</em>. Stability rules this out.</p>
+    <p class="lead">Without stability, we could keep adding vertices in the middle of an edge, or new edges ending at a bare vertex (a leaf), forever. Each move adds one vertex and one edge, so <em class="m">g</em> stays the same, and a leaf is not a leg, so <em class="m">n</em> stays the same. Stability rules this out.</p>
     <div class="theorem step">
       <div class="eyebrow">Proposition</div>
       <p>For each <em class="m">g</em> and <em class="m">n</em>, there are finitely many connected stable graphs of genus <em class="m">g</em> with <em class="m">n</em> marked legs, up to isomorphism.</p>
@@ -673,7 +708,7 @@
             <p class="why" aria-live="polite">Point at a coloured term, or at a sign, to see where it comes from.</p>
           </div>
     <ul class="pts">
-      <li class="step">Equality exactly when all weights are 0 and every vertex has 3 half-edges: every vertex is <b>trivalent</b>.</li>
+      <li class="step">Equality needs every <em class="m">w</em>(<em class="m">v</em>) = 0 and equality in the vertex bound, so every 2<em class="m">w</em>(<em class="m">v</em>) − 2 + |<em class="m">r</em><sup>−1</sup>(<em class="m">v</em>)| = 1. Then |<em class="m">r</em><sup>−1</sup>(<em class="m">v</em>)| = 3: every vertex is <b>trivalent</b>.</li>
     </ul>
   </section>
 
@@ -696,7 +731,7 @@
 
   <section class="slide interactive" data-part="2" data-title="Try it: contract edges">
     <h2>Try it: contract edges</h2>
-    <p class="prompt">Click an edge. Watch the genus, the legs and the stability check.</p>
+    <p class="prompt">Click an edge and watch it shrink to length 0. Watch the genus, the legs and the stability check.</p>
     <div class="slot" data-fig="#w-contract"></div>
   </section>
 
@@ -953,11 +988,11 @@
 </template>
 
 <script src="js/core.js?v=7"></script>
-<script src="js/draw.js?v=10"></script>
+<script src="js/draw.js?v=11"></script>
 <script src="js/spaces.js?v=7"></script>
 <script src="js/spacepic.js?v=7"></script>
 <script src="js/turntable.js?v=1"></script>
-<script src="js/lecture.js?v=12"></script>
+<script src="js/lecture.js?v=13"></script>
 <script src="js/deck.js?v=2"></script>
 </body>
 </html>

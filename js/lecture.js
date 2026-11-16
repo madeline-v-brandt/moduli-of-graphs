@@ -11,6 +11,7 @@
   const SUB = "₀₁₂₃₄₅₆₇₈₉";
   const mk = MG.make;
   const ell = (k) => `ℓ<tspan font-size="0.72em" dy="0.3em">${k}</tspan>`;
+  const signed = (x) => (x < 0 ? "−" + -x : String(x)); // a proper minus sign
   const fmt = (x, d = 2) => (Math.abs(x) < 1e-9 ? "0" : x.toFixed(d));
 
   const svgPoint = (svg, e) => {
@@ -422,11 +423,31 @@
       const e = Math.floor(i / 2), half = i % 2;
       return MD.along(geo[e], half ? 0.76 + gap / 2 : 0.24 - gap / 2);
     }
-    function draw() {
+    /* the picture moves along a gentle arc from where things are to where they go */
+    const bendTo = (p, q, s) => {
+      const dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy) || 1, bend = 0.28 * L * 4 * s * (1 - s);
+      return [p[0] + dx * s - (dy / L) * bend, p[1] + dy * s + (dx / L) * bend];
+    };
+    /* points along the half-edge slot i (our numbering), from its root to the middle of its edge */
+    function halfPts(i) {
+      const { geo } = geom(), e = Math.floor(i / 2), half = i % 2, pts = [];
+      const t0 = half ? 1 : 0, t1 = half ? 0.5 + S.gap : 0.5 - S.gap;
+      for (let j = 0; j <= 20; j++) pts.push(MD.along(geo[e], t0 + ((t1 - t0) * j) / 20));
+      return pts;
+    }
+    const ident = (m) => [...Array(m).keys()];
+    /* S.pos[i] is the slot where half-edge i is drawn now, S.vpos[v] the slot of vertex v. They start
+       as the identity, and each automorphism clicked moves whatever sits in slot p to slot σ(p). */
+    function resetPos() { const g = G(); S.pos = ident(2 * g.edges.length + g.legs.length); S.vpos = ident(g.w.length); }
+    resetPos();
+    /* anim = { h0, h1, v0, v1, s }: draw everything part way from the slots h0, v0 to h1, v1 */
+    function draw(anim) {
       const g = G(), E = g.edges.length, k = g.w.length;
       const { P, geo } = geom();
+      const s = anim ? anim.s : 1;
+      const h0 = anim ? anim.h0 : S.pos, h1 = anim ? anim.h1 : S.pos, v0 = anim ? anim.v0 : S.vpos, v1 = anim ? anim.v1 : S.vpos;
       let o = "";
-      // legs
+      // legs (fixed by every automorphism: their labels must be kept)
       g.legs.forEach((v, i) => {
         const V = P[v], T = P[k + i];
         const dx = T[0] - V[0], dy = T[1] - V[1], L = Math.hypot(dx, dy) || 1;
@@ -434,42 +455,44 @@
         o += `<circle cx="${num(T[0])}" cy="${num(T[1])}" r="2.4" fill="var(--muted)"/>`;
         o += `<text x="${num(T[0] + (dx / L) * 11)}" y="${num(T[1] + (dy / L) * 11)}" font-size="13" text-anchor="middle" dominant-baseline="central" fill="var(--muted)" font-family="var(--mono)">${i + 1}</text>`;
       });
-      // edges as two halves
-      g.edges.forEach((uv, e) => {
-        const gm = geo[e], col = pal(e);
-        const piece = (a, b) => {
-          let d = "";
-          for (let j = 0; j <= 24; j++) { const p = MD.along(gm, a + ((b - a) * j) / 24); d += (j ? "L" : "M") + num(p[0]) + " " + num(p[1]); }
-          return `<path class="hp" d="${d}" fill="none" stroke="${col}" stroke-width="2.8" stroke-linecap="round"/>`;
-        };
-        o += piece(0, 0.5 - S.gap) + piece(0.5 + S.gap, 1);
-        if (S.gap > 0.012) {
-          const A = MD.along(gm, 0.5 - S.gap), B = MD.along(gm, 0.5 + S.gap), mid = MD.along(gm, 0.5);
-          const dx = B[0] - A[0], dy = B[1] - A[1], L = Math.hypot(dx, dy) || 1;
-          let nx = -dy / L, ny = dx / L;
-          const ref = P[uv[0]];
-          if ((mid[0] + nx - ref[0]) ** 2 + (mid[1] + ny - ref[1]) ** 2 < (mid[0] - nx - ref[0]) ** 2 + (mid[1] - ny - ref[1]) ** 2) { nx = -nx; ny = -ny; }
-          const bow = 20 * (S.gap / 0.12);
-          const c = [mid[0] + nx * bow, mid[1] + ny * bow];
-          o += `<path d="M${num(A[0])} ${num(A[1])}Q${num(c[0])} ${num(c[1])} ${num(B[0])} ${num(B[1])}" fill="none" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="3 3"/>`;
-          o += `<text x="${num(mid[0] + nx * (bow * 0.5 + 9))}" y="${num(mid[1] + ny * (bow * 0.5 + 9))}" font-size="14" text-anchor="middle" dominant-baseline="central" fill="var(--muted)" font-family="var(--display)" font-style="italic" opacity="${Math.min(1, S.gap / 0.06)}">ι</text>`;
-        }
+      // the ι connectors between the two halves of each edge, when they are pulled apart
+      if (S.gap > 0.012) g.edges.forEach((uv, e) => {
+        const gm = geo[e];
+        const A = MD.along(gm, 0.5 - S.gap), B = MD.along(gm, 0.5 + S.gap), mid = MD.along(gm, 0.5);
+        const dx = B[0] - A[0], dy = B[1] - A[1], L = Math.hypot(dx, dy) || 1;
+        let nx = -dy / L, ny = dx / L;
+        const ref = P[uv[0]];
+        if ((mid[0] + nx - ref[0]) ** 2 + (mid[1] + ny - ref[1]) ** 2 < (mid[0] - nx - ref[0]) ** 2 + (mid[1] - ny - ref[1]) ** 2) { nx = -nx; ny = -ny; }
+        const bow = 20 * (S.gap / 0.12);
+        const c = [mid[0] + nx * bow, mid[1] + ny * bow];
+        o += `<path d="M${num(A[0])} ${num(A[1])}Q${num(c[0])} ${num(c[1])} ${num(B[0])} ${num(B[1])}" fill="none" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="3 3"/>`;
+        o += `<text x="${num(mid[0] + nx * (bow * 0.5 + 9))}" y="${num(mid[1] + ny * (bow * 0.5 + 9))}" font-size="14" text-anchor="middle" dominant-baseline="central" fill="var(--muted)" font-family="var(--display)" font-style="italic" opacity="${Math.min(1, S.gap / 0.06)}">ι</text>`;
       });
-      // vertices and names
+      // the half-edges, each in its own colour, travelling from slot h0[i] to slot h1[i]
+      for (let i = 0; i < 2 * E; i++) {
+        const A = halfPts(h0[i]), B = h1[i] === h0[i] ? A : halfPts(h1[i]);
+        const d = A.map((p, j) => { const r = bendTo(p, B[j], s); return (j ? "L" : "M") + num(r[0]) + " " + num(r[1]); }).join("");
+        o += `<path class="hp" d="${d}" fill="none" stroke="${pal(Math.floor(i / 2))}" stroke-width="2.8" stroke-linecap="round"/>`;
+      }
+      // vertices and their names travel with them
+      const namePos = (slot, r) => {
+        const near = [], [x, y] = P[slot];
+        g.legs.forEach((lv, i) => { if (lv === slot) near.push(P[k + i]); });
+        g.edges.forEach(([a, b], e) => { if (a === slot) near.push(MD.along(geo[e], 0.12)); if (b === slot) near.push(MD.along(geo[e], 0.88)); });
+        const [ux, uy] = freeDir(P, slot, near);
+        return [x + ux * (r + 11), y + uy * (r + 11)];
+      };
       g.w.forEach((w, v) => {
-        const [x, y] = P[v];
+        const [x, y] = bendTo(P[v0[v]], P[v1[v]], s);
         const r = w > 0 ? 12 : 5.5;
-        if (w > 0) o += `<circle cx="${num(x)}" cy="${num(y)}" r="${r}" fill="var(--gen-soft)" stroke="var(--gen)" stroke-width="1.5"/><text x="${num(x)}" y="${num(y)}" font-size="13" text-anchor="middle" dominant-baseline="central" fill="var(--gen)" font-family="var(--mono)" font-weight="500">${w}</text>`;
+        if (w > 0) o += `<circle cx="${num(x)}" cy="${num(y)}" r="${r}" fill="var(--panel)"/><circle cx="${num(x)}" cy="${num(y)}" r="${r}" fill="var(--gen-soft)" stroke="var(--gen)" stroke-width="1.5"/><text x="${num(x)}" y="${num(y)}" font-size="13" text-anchor="middle" dominant-baseline="central" fill="var(--gen)" font-family="var(--mono)" font-weight="500">${w}</text>`;
         else o += `<circle cx="${num(x)}" cy="${num(y)}" r="${r}" fill="var(--ink)"/>`;
-        const near = [];
-        g.legs.forEach((lv, i) => { if (lv === v) near.push(P[k + i]); });
-        g.edges.forEach(([a, b], e) => { if (a === v) near.push(MD.along(geo[e], 0.12)); if (b === v) near.push(MD.along(geo[e], 0.88)); });
-        const [ux, uy] = freeDir(P, v, near);
-        o += `<text x="${num(x + ux * (r + 11))}" y="${num(y + uy * (r + 11))}" font-size="17" text-anchor="middle" dominant-baseline="central" fill="var(--atom)" font-family="var(--display)" font-style="italic">${vname(k, v)}</text>`;
+        const [nx, ny] = bendTo(namePos(v0[v], r), namePos(v1[v], r), s);
+        o += `<text x="${num(nx)}" y="${num(ny)}" font-size="17" text-anchor="middle" dominant-baseline="central" fill="var(--atom)" font-family="var(--display)" font-style="italic">${vname(k, v)}</text>`;
       });
       // letters
       for (let i = 0; i < 2 * E + g.legs.length; i++) {
-        const [x, y] = anchor(i);
+        const [x, y] = bendTo(anchor(h0[i]), anchor(h1[i]), s);
         o += `<g class="hl" data-i="${i}"><circle cx="${num(x)}" cy="${num(y)}" r="9.5"/><text x="${num(x)}" y="${num(y)}" text-anchor="middle" dominant-baseline="central">${LET[i]}</text></g>`;
       }
       svg.innerHTML = o;
@@ -485,19 +508,11 @@
       const legsTxt = n ? g.legs.map((_, i) => LET[2 * E + i]).join(", ") : "";
       let rt = `<div class="rscroll"><table class="rtable"><tr><th>h</th>${[...Array(Hn).keys()].map((i) => `<th>${LET[i]}</th>`).join("")}</tr><tr><th>r(h)</th>${[...Array(Hn).keys()].map((i) => `<td class="v">${vname(k, rootOf(i))}</td>`).join("")}</tr></table></div>`;
       const stab = g.w.map((w, v) => { const x = 2 * w - 2 + val[v]; return `<div>${vname(k, v)}: 2·${w} − 2 + ${val[v]} = ${x} <span class="${x > 0 ? "ok" : "bad"}">${x > 0 ? "&gt; 0 ✓" : "✗"}</span></div>`; }).join("");
-      const chips = aut.autos.map((a, j) => {
+      S.chips = aut.autos.map((a, j) => {
         const img = []; // our index -> our index
         for (let h = 1; h < a.h.length; h++) img[idxOfH(g, h)] = idxOfH(g, a.h[h]);
-        const seen = new Set(), cyc = [];
-        for (let i = 0; i < Hn; i++) {
-          if (seen.has(i)) continue;
-          const c = []; let x = i;
-          while (!seen.has(x)) { seen.add(x); c.push(LET[x]); x = img[x]; }
-          if (c.length > 1) cyc.push("(" + c.join(" ") + ")");
-        }
-        return { j, img, label: cyc.length ? cyc.join("") : "id" };
+        return { j, img, sigma: a.sigma.slice(), label: cycles(img) };
       });
-      S.chips = chips;
       box.innerHTML = `
         <div class="tags"><span class="tag s">|Aut| = ${aut.order}</span></div>
         <dl>
@@ -510,81 +525,63 @@
         ${rt}
         <div><h4>Stability</h4>${stab}</div>
         <div class="calc">g = (|<i>E</i>| − |<i>V</i>| + 1) + ∑<i>w</i> = (${E} − ${k} + 1) + ${MG.sumW(g)} = ${gg}</div>
-        <div class="aut"><h4>Automorphisms</h4><div class="aut-list" id="anat-auts">${chips.map((c) => `<button type="button" class="chip" data-j="${c.j}" aria-pressed="${c.j === S.aut}">${c.label}</button>`).join("")}</div><div class="aut-now" id="anat-now">${autNow()}</div></div>`;
+        <div class="aut"><h4>Automorphisms</h4><div class="aut-list" id="anat-auts">${S.chips.map((c) => `<button type="button" class="chip" data-j="${c.j}" aria-pressed="${c.j === S.aut}">${c.label}</button>`).join("")}</div><div class="aut-now" id="anat-now">${autNow()}</div></div>`;
       $("#anat-auts").addEventListener("click", (e) => {
         const c = e.target.closest(".chip");
         if (!c) return;
         S.aut = +c.dataset.j;
         box.querySelectorAll(".chip").forEach((x) => x.setAttribute("aria-pressed", String(+x.dataset.j === S.aut)));
-        $("#anat-now").innerHTML = autNow();
-        play();
+        play(S.chips[S.aut]);
       });
+    }
+    /* cycle notation for a permutation of our half-edge indices */
+    function cycles(img) {
+      const seen = new Set(), cyc = [];
+      for (let i = 0; i < img.length; i++) {
+        if (seen.has(i)) continue;
+        const c = []; let x = i;
+        while (!seen.has(x)) { seen.add(x); c.push(LET[x]); x = img[x]; }
+        if (c.length > 1) cyc.push("(" + c.join(" ") + ")");
+      }
+      return cyc.length ? cyc.join("") : "id";
     }
     function autNow() {
-      if (S.aut < 0 || !S.chips) return "Click a permutation to apply it.";
+      const moved = S.pos.some((p, i) => p !== i) || S.vpos.some((p, v) => p !== v);
+      const back = moved ? ` <button type="button" class="btn-quiet" id="anat-back">Put the labels back</button>` : "";
+      const sofar = moved ? `<div class="sofar">Everything applied so far, in total: <b>${cycles(S.pos)}</b>.${back}</div>` : "";
+      if (S.aut < 0 || !S.chips) return `Click a permutation to apply it.${sofar}`;
       const c = S.chips[S.aut];
-      if (c.label === "id") return "The identity fixes every half-edge.";
+      if (c.label === "id") return `The identity fixes every half-edge.${sofar}`;
       const g = G(), E = g.edges.length;
-      const moved = [];
+      const out = [];
       for (let e = 0; e < E; e++) {
         const t = Math.floor(c.img[2 * e] / 2);
-        if (t !== e) moved.push(`{${LET[2 * e]}, ${LET[2 * e + 1]}} ↦ {${LET[2 * t]}, ${LET[2 * t + 1]}}`);
+        if (t !== e) out.push(`{${LET[2 * e]}, ${LET[2 * e + 1]}} ↦ {${LET[2 * t]}, ${LET[2 * t + 1]}}`);
       }
-      return `<b>${c.label}</b>. ${moved.length ? "On edges: " + moved.join(", ") + "." : "Every edge goes to itself, so no edge length can change."}`;
+      return `<div><b>${c.label}</b>. ${out.length ? "On edges: " + out.join(", ") + "." : "Every edge goes to itself, so no edge length can change."}</div>${sofar}`;
     }
-    /* points along half-edge i (our numbering), from its root to the middle of its edge */
-    function halfPts(i) {
-      const { geo } = geom(), e = Math.floor(i / 2), half = i % 2, pts = [];
-      const t0 = half ? 1 : 0, t1 = half ? 0.5 + S.gap : 0.5 - S.gap;
-      for (let j = 0; j <= 20; j++) pts.push(MD.along(geo[e], t0 + ((t1 - t0) * j) / 20));
-      return pts;
-    }
-    function play() {
+    /* apply the automorphism c to the picture as it is now (or, with c null, go back to the start) */
+    function play(c) {
       if (S.stopA) S.stopA();
-      draw();
-      const c = S.chips[S.aut];
-      const g = G(), E = g.edges.length;
-      const bendTo = (p, q, s) => {
-        const dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy) || 1, bend = 0.28 * L * 4 * s * (1 - s);
-        return [p[0] + dx * s - (dy / L) * bend, p[1] + dy * s + (dx / L) * bend];
-      };
-      // the half-edges themselves travel to the positions of their images, keeping their colours
-      svg.querySelectorAll(".hp").forEach((p) => { p.style.opacity = "0"; });
-      const NS = "http://www.w3.org/2000/svg", layer = document.createElementNS(NS, "g");
-      svg.insertBefore(layer, svg.querySelector(".hl"));
-      const halves = [];
-      for (let i = 0; i < 2 * E; i++) {
-        const path = document.createElementNS(NS, "path");
-        path.setAttribute("fill", "none"); path.setAttribute("stroke", pal(Math.floor(i / 2)));
-        path.setAttribute("stroke-width", "2.8"); path.setAttribute("stroke-linecap", "round");
-        layer.appendChild(path);
-        halves.push({ path, src: halfPts(i), tgt: halfPts(c.img[i]) });
-      }
-      const labels = [];
-      svg.querySelectorAll(".hl").forEach((el) => {
-        const i = +el.dataset.i;
-        labels.push({ el, p: anchor(i), q: anchor(c.img[i]) });
-      });
-      const frame = (s) => {
-        halves.forEach(({ path, src, tgt }) => {
-          path.setAttribute("d", src.map((p, j) => { const r = bendTo(p, tgt[j], s); return (j ? "L" : "M") + num(r[0]) + " " + num(r[1]); }).join(""));
-        });
-        labels.forEach(({ el, p, q }) => {
-          const r = bendTo(p, q, s);
-          el.setAttribute("transform", `translate(${num(r[0] - p[0])},${num(r[1] - p[1])})`);
-        });
-      };
-      frame(0);
-      S.stopA = tween(1400, frame);
+      const g = G();
+      const anim = { h0: S.pos.slice(), v0: S.vpos.slice(), s: 0 };
+      anim.h1 = c ? anim.h0.map((p) => c.img[p]) : ident(anim.h0.length);
+      anim.v1 = c ? anim.v0.map((p) => c.sigma[p]) : ident(g.w.length);
+      if (!c) { S.aut = -1; box.querySelectorAll(".chip").forEach((x) => x.setAttribute("aria-pressed", "false")); }
+      S.pos = anim.h1; S.vpos = anim.v1;
+      $("#anat-now").innerHTML = autNow();
+      S.stopA = tween(1400, (u) => { anim.s = u; draw(anim); });
     }
     $("#anat-pick").addEventListener("click", (e) => {
       const b = e.target.closest(".segbtn");
       if (!b) return;
       S.ex = +b.dataset.i; S.aut = -1;
       if (S.stopA) S.stopA();
+      resetPos();
       $("#anat-pick").querySelectorAll(".segbtn").forEach((x) => x.setAttribute("aria-pressed", String(+x.dataset.i === S.ex)));
       draw(); data();
     });
+    box.addEventListener("click", (e) => { if (e.target.closest("#anat-back")) play(null); });
     const splitBtn = $("#anat-split");
     splitBtn.addEventListener("click", () => {
       S.split = !S.split;
@@ -598,6 +595,19 @@
   }
 
   /* ================= Part 2: the stability table ================= */
+  /* the local picture at a vertex: a vertex of weight w with v half-edges, as svg markup
+     centred at (cx, cy) with spokes of length L */
+  function localPicture(w, v, cx, cy, L, r) {
+    let o = "";
+    for (let i = 0; i < v; i++) {
+      const a = -Math.PI / 2 + (i * 2 * Math.PI) / Math.max(v, 1) + (v === 2 ? Math.PI / 2 : 0);
+      o += `<line x1="${cx}" y1="${cy}" x2="${num(cx + L * Math.cos(a))}" y2="${num(cy + L * Math.sin(a))}" stroke="var(--ink)" stroke-width="${num(L / 13)}" stroke-linecap="round"/>`;
+    }
+    o += w > 0
+      ? `<circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--panel)"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--gen-soft)" stroke="var(--gen)" stroke-width="1.3"/><text x="${cx}" y="${cy}" font-size="${num(r * 1.1)}" text-anchor="middle" dominant-baseline="central" fill="var(--gen)" font-family="var(--mono)" font-weight="500">${w}</text>`
+      : `<circle cx="${cx}" cy="${cy}" r="${num(r * 0.45)}" fill="var(--ink)"/>`;
+    return o;
+  }
   function stability() {
     const t = $("#stab-table"), read = $("#stab-read");
     if (!t) return;
@@ -610,32 +620,82 @@
       "1,1": "Weight 1 needs only one half-edge.",
       "2,0": "Weight 2 is stable even with nothing attached.",
     };
-    let h = `<thead><tr><th>w \\ |r⁻¹(v)|</th>${[0, 1, 2, 3, 4, 5].map((v) => `<th>${v}</th>`).join("")}</tr></thead><tbody>`;
+    let h = `<thead><tr><th class="corner"><i>w</i> \\ |<i>r</i><sup>−1</sup>(<i>v</i>)|</th>${[0, 1, 2, 3, 4, 5].map((v) => `<th>${v}</th>`).join("")}</tr></thead><tbody>`;
     for (let w = 0; w <= 3; w++) {
       h += `<tr><th>${w}</th>`;
-      for (let v = 0; v <= 5; v++) { const x = 2 * w - 2 + v; h += `<td><button type="button" class="${x > 0 ? "ok" : ""}" data-w="${w}" data-v="${v}" aria-label="weight ${w}, ${v} half-edges: ${x}">${x}</button></td>`; }
+      for (let v = 0; v <= 5; v++) {
+        const x = 2 * w - 2 + v;
+        h += `<td><button type="button" class="${x > 0 ? "ok" : "bad"}" data-w="${w}" data-v="${v}" aria-label="weight ${w}, ${v} half-edges: ${x > 0 ? "stable" : "not stable"}"><svg viewBox="0 0 56 44" aria-hidden="true">${localPicture(w, v, 28, 22, 16, 8)}</svg></button></td>`;
+      }
       h += `</tr>`;
     }
     t.innerHTML = h + "</tbody>";
-    function glyph(w, v) {
-      const C = [60, 40];
-      let o = "";
-      for (let i = 0; i < v; i++) {
-        const a = -Math.PI / 2 + (i * 2 * Math.PI) / Math.max(v, 1) + (v === 2 ? Math.PI / 2 : 0);
-        o += `<line x1="${C[0]}" y1="${C[1]}" x2="${num(C[0] + 30 * Math.cos(a))}" y2="${num(C[1] + 30 * Math.sin(a))}" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round"/>`;
-      }
-      o += w > 0 ? `<circle cx="${C[0]}" cy="${C[1]}" r="11" fill="var(--gen-soft)" stroke="var(--gen)" stroke-width="1.4"/><text x="${C[0]}" y="${C[1]}" font-size="12" text-anchor="middle" dominant-baseline="central" fill="var(--gen)" font-family="var(--mono)">${w}</text>` : `<circle cx="${C[0]}" cy="${C[1]}" r="5" fill="var(--ink)"/>`;
-      return `<svg viewBox="0 0 120 80" aria-hidden="true">${o}</svg>`;
-    }
     function show(w, v) {
       const x = 2 * w - 2 + v;
-      read.innerHTML = `${glyph(w, v)}<div><b>w = ${w}, ${v} ${v === 1 ? "half-edge" : "half-edges"}:</b> 2·${w} − 2 + ${v} = ${x}. ${x > 0 ? "Stable." : "Not stable."}</div>${NOTE[w + "," + v] ? `<div>${NOTE[w + "," + v]}</div>` : ""}`;
+      t.querySelectorAll("button[data-w]").forEach((b) => b.classList.toggle("cur", +b.dataset.w === w && +b.dataset.v === v));
+      read.innerHTML = `<svg viewBox="0 0 120 80" aria-hidden="true">${localPicture(w, v, 60, 40, 30, 11)}</svg><div><b>w = ${w}, ${v} ${v === 1 ? "half-edge" : "half-edges"}:</b> 2·${w} − 2 + ${v} = ${signed(x)}. <span class="${x > 0 ? "ok" : "bad"}">${x > 0 ? "Stable." : "Not stable."}</span></div>${NOTE[w + "," + v] ? `<div>${NOTE[w + "," + v]}</div>` : ""}`;
     }
     const pick = (e) => { const b = e.target.closest("button[data-w]"); if (b) show(+b.dataset.w, +b.dataset.v); };
     t.addEventListener("pointerover", pick);
     t.addEventListener("focusin", pick);
     t.addEventListener("click", pick);
     show(0, 2);
+  }
+
+  /* ================= Part 2: quiz, stable or not ================= */
+  function quiz() {
+    const box = $("#quiz"), score = $("#quiz-score");
+    if (!box) return;
+    const Q = [
+      mk([0, 0], [0, 0], [[0, 1]]), // a leaf
+      mk([0, 0], [], [[0, 1], [0, 1], [0, 1]]), // theta
+      mk([0, 0], [0], [[0, 1], [0, 1]]), // a bare vertex in the middle of an edge
+      mk([1, 0], [1, 1], [[0, 1]]), // weight 1 on a bridge
+      mk([0, 0], [], [[0, 0], [0, 1], [1, 1]]), // dumbbell
+      mk([0], [], [[0, 0]]), // a loop and nothing else
+    ];
+    const ans = Q.map(() => null);
+    const val = Q.map((G) => MG.valence(G)), ex = Q.map((G) => MG.excess(G));
+    const stable = Q.map((_, i) => ex[i].every((x) => x > 0));
+    function why(i) {
+      const G = Q[i];
+      if (stable[i]) return "Stable: every vertex has 2<i>w</i> − 2 + |<i>r</i><sup>−1</sup>| &gt; 0.";
+      const v = ex[i].findIndex((x) => x <= 0), w = G.w[v], k = val[i][v];
+      return `Not stable: the red vertex has weight ${w} and ${k} ${k === 1 ? "half-edge" : "half-edges"}, and 2·${w} − 2 + ${k} = ${signed(ex[i][v])}.`;
+    }
+    function render() {
+      box.innerHTML = Q.map((G, i) => {
+        const a = ans[i], done = a !== null, right = done && a === stable[i];
+        return `<div class="qcard${done ? (right ? " right" : " wrong") : ""}" data-i="${i}">
+          <div class="qpic">${MD.graphSvg(G, { w: 150, h: 96, pad: 18, font: 11, dot: 4, strokeW: 2.2, label: "Graph " + (i + 1) })}</div>
+          <div class="qbtns" role="group" aria-label="Graph ${i + 1}: stable or not?">
+            <button type="button" class="segbtn" data-a="1" aria-pressed="${a === true}">Stable</button>
+            <button type="button" class="segbtn" data-a="0" aria-pressed="${a === false}">Not stable</button>
+          </div>
+          <div class="qwhy">${done ? `<b>${right ? "Right." : "Not quite."}</b> ${why(i)}` : ""}</div>
+        </div>`;
+      }).join("");
+      // colour the failing vertices once a graph has been answered
+      box.querySelectorAll(".qcard").forEach((c) => {
+        const i = +c.dataset.i;
+        if (ans[i] === null) return;
+        c.querySelectorAll(".vtx").forEach((el) => {
+          if (ex[i][+el.dataset.v] > 0) return;
+          if (Q[i].w[+el.dataset.v] > 0) el.setAttribute("stroke", "var(--nm)");
+          else { el.setAttribute("fill", "var(--nm)"); el.setAttribute("r", "5.5"); }
+        });
+      });
+      const n = ans.filter((a) => a !== null).length, ok = ans.filter((a, i) => a === stable[i]).length;
+      score.textContent = n ? `${ok} of ${n} right${n === Q.length ? (ok === n ? ". All correct!" : "") : ""}` : "";
+    }
+    box.addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-a]");
+      if (!b) return;
+      ans[+b.closest(".qcard").dataset.i] = b.dataset.a === "1";
+      render();
+    });
+    $("#quiz-reset").addEventListener("click", () => { ans.fill(null); render(); });
+    render();
   }
 
   /* ================= Part 2: contraction ================= */
@@ -647,9 +707,20 @@
       { name: "Theta", G: mk([0, 0], [], [[0, 1], [0, 1], [0, 1]]) },
       { name: "Five-leg caterpillar", G: mk([0, 0, 0], [0, 0, 1, 2, 2], [[0, 1], [1, 2]]) },
     ];
-    const S = { start: 0, steps: [], cur: 0 };
+    const S = { start: 0, steps: [], cur: 0, busy: false, stop: null };
+    // the big picture is a metric drawing with every edge of length 1, so that an edge can shrink
+    // continuously to length 0 and the rest of the graph can follow it
+    let view = new MD.MetricView();
+    const VOPT = { w: 400, h: 260, pad: 36, font: 13, dot: 6, strokeW: 2.8, total: 2.4, minBulge: 0.3 };
+    const ones = (G) => G.edges.map(() => 1);
+    function picture(G, lengths, col, hit, shrinking) {
+      const r = view.draw(G, lengths, Object.assign({}, VOPT, { hit, label: hit ? "A stable graph. Click an edge to contract it." : "An edge shrinking to length 0" }));
+      fig.innerHTML = r.svg;
+      paint(fig, { G: r.H, col }); // r.H is the graph drawn: G with its length-0 edges contracted
+      if (shrinking != null) fig.querySelector(`.edge-path[data-e="${shrinking}"]`)?.classList.add("hover");
+    }
     $("#con-pick").innerHTML = STARTS.map((x, i) => `<button type="button" class="segbtn" data-i="${i}" aria-pressed="${i === 0}">${x.name}</button>`).join("");
-    const reset = () => { const G = STARTS[S.start].G; S.steps = [{ G, col: G.w.map((_, v) => v), msg: "" }]; S.cur = 0; render(); };
+    const reset = () => { const G = STARTS[S.start].G; S.steps = [{ G, col: G.w.map((_, v) => v), msg: "" }]; S.cur = 0; render(true); };
     const vcol = (c) => pal(c);
     function paint(svgRoot, st) {
       svgRoot.querySelectorAll(".vtx").forEach((c) => {
@@ -658,11 +729,14 @@
         else c.setAttribute("fill", col);
       });
     }
-    function render() {
+    /* fresh: lay the picture out from scratch (after a jump), rather than carrying it on */
+    function render(fresh) {
+      if (S.stop) { S.stop(); S.stop = null; }
+      S.busy = false;
       const st = S.steps[S.cur], G = st.G;
       const E = G.edges.length, V = G.w.length, n = G.legs.length, g = MG.genus(G);
-      fig.innerHTML = MD.graphSvg(G, { w: 400, h: 260, pad: 36, font: 13, dot: 6, strokeW: 2.8, hit: E > 0, label: "A stable graph. Click an edge to contract it." });
-      paint(fig, st);
+      if (fresh) view = new MD.MetricView();
+      picture(G, ones(G), st.col, E > 0);
       box.innerHTML = `
         <div class="tags"><span class="tag s">genus ${g}</span><span class="tag s">${n} ${n === 1 ? "leg" : "legs"}</span><span class="tag">|V| = ${V}</span><span class="tag">|E| = ${E}</span></div>
         <div class="calc">g = (|<i>E</i>| − |<i>V</i>| + 1) + ∑<i>w</i> = (${E} − ${V} + 1) + ${MG.sumW(G)} = ${g}</div>
@@ -674,7 +748,7 @@
     }
     fig.addEventListener("click", (e) => {
       const h = e.target.closest(".edge-hit");
-      if (!h) return;
+      if (!h || S.busy) return;
       const st = S.steps[S.cur], G = st.G, e0 = +h.dataset.e;
       const [u, v] = G.edges[e0];
       const ex = MG.excess(G);
@@ -687,15 +761,30 @@
         : `Merged ${sw(st.col[u])} and ${sw(st.col[v])}: the weights add to ${G.w[u] + G.w[v]}, |V| and |E| each drop by 1, and the values of 2<i>w</i> − 2 + |<i>r</i><sup>−1</sup>| add: ${ex[u]} + ${ex[v]} = ${ex[u] + ex[v]}.`;
       S.steps = S.steps.slice(0, S.cur + 1);
       S.steps.push({ G: graph, col, msg });
-      S.cur++;
-      render();
+      // shrink the edge slowly to length 0, then let the contracted graph settle into place
+      S.busy = true;
+      fig.classList.add("busy");
+      const len = ones(G);
+      S.stop = tween(2200, (u) => {
+        len[e0] = u >= 1 ? 0 : Math.max(1 - u, 0.004);
+        if (u >= 1) picture(G, len, col, false);
+        else picture(G, len, st.col, false, e0);
+      }, () => {
+        S.cur++;
+        const one = ones(graph);
+        S.stop = tween(700, (u) => picture(graph, one, col, false), () => {
+          S.stop = null;
+          fig.classList.remove("busy");
+          render(false);
+        });
+      });
     });
     fig.addEventListener("mouseover", (e) => {
       const h = e.target.closest(".edge-hit");
       fig.querySelectorAll(".edge-path.hover").forEach((p) => p.classList.remove("hover"));
       if (h) fig.querySelector(`.edge-path[data-e="${h.dataset.e}"]`)?.classList.add("hover");
     });
-    hist.addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { S.cur = +b.dataset.i; render(); } });
+    hist.addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { fig.classList.remove("busy"); S.cur = +b.dataset.i; render(true); } });
     $("#con-pick").addEventListener("click", (e) => {
       const b = e.target.closest(".segbtn");
       if (!b) return;
@@ -703,7 +792,7 @@
       $("#con-pick").querySelectorAll(".segbtn").forEach((x) => x.setAttribute("aria-pressed", String(+x.dataset.i === S.start)));
       reset();
     });
-    $("#con-reset").addEventListener("click", reset);
+    $("#con-reset").addEventListener("click", () => { fig.classList.remove("busy"); reset(); });
     reset();
   }
 
@@ -1313,6 +1402,7 @@
   run(anatomy);
   run(derivations);
   run(stability);
+  run(quiz);
   run(contraction);
   run(cone);
   run(moduliFig);

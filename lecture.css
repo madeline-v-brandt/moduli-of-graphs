@@ -171,12 +171,32 @@
 table.stab { border-collapse: separate; border-spacing: 3px; font: 13px var(--mono); font-variant-numeric: tabular-nums; }
 table.stab th { font-weight: 500; color: var(--muted); padding: 2px 6px; white-space: nowrap; }
 table.stab td { padding: 0; }
-table.stab button { width: 40px; height: 32px; border-radius: 4px; border: 1px solid var(--rule); background: transparent; font: 500 13px var(--mono); cursor: default; color: var(--muted); }
-table.stab button.ok { background: var(--mat-soft); border-color: var(--mat); color: var(--ink); }
-table.stab button:hover, table.stab button:focus-visible { border-color: var(--atom); }
+table.stab th.corner { font-size: 11.5px; }
+table.stab th.corner i { font-family: var(--display); font-size: 13px; }
+table.stab button { display: block; width: 56px; height: 44px; padding: 0; border-radius: 5px; border: 1px solid var(--rule); background: transparent; cursor: default; }
+table.stab button svg { display: block; width: 100%; height: 100%; }
+table.stab button.ok { background: var(--mat-soft); border-color: color-mix(in srgb, var(--mat) 55%, transparent); }
+table.stab button.bad { background: var(--nm-soft); border-color: color-mix(in srgb, var(--nm) 40%, transparent); }
+table.stab button:hover, table.stab button:focus-visible, table.stab button.cur { border-color: var(--atom); box-shadow: 0 0 0 1px var(--atom); outline: none; }
 .stab-read { font-size: 13.5px; color: var(--muted); display: grid; gap: 8px; min-width: 0; }
 .stab-read svg { width: 120px; height: 80px; display: block; }
 .stab-read b { color: var(--ink); font-weight: 500; }
+.stab-read .ok { color: var(--mat); font-weight: 500; }
+.stab-read .bad { color: var(--nm); font-weight: 500; }
+
+/* quiz: stable or not? */
+.quiz { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; padding: 14px; }
+.qcard { display: grid; gap: 8px; align-content: start; padding: 8px; border: 1px solid var(--rule); border-radius: 6px; min-width: 0; }
+.qcard.right { border-color: var(--mat); background: var(--mat-soft); }
+.qcard.wrong { border-color: var(--nm); background: var(--nm-soft); }
+.qpic svg { display: block; width: 100%; height: auto; }
+.qbtns { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+.qbtns .segbtn { padding: 3px 8px; font-size: 12px; }
+.qwhy { font-size: 12.5px; line-height: 1.4; color: var(--muted); min-height: 0; }
+.qwhy:empty { display: none; }
+.qwhy b { color: var(--ink); font-weight: 600; }
+#w-quiz .fig-bar h4 { color: var(--ink); }
+#con-svg.busy .edge-hit { cursor: default; }
 
 /* contraction */
 .con-data { font-size: 13px; }
@@ -262,6 +282,8 @@ table.dict td { font-family: var(--display); font-size: 17px; }
   .fig-pair { grid-template-columns: minmax(0, 1fr); }
   .fig-pair > div + div { border-left: 0; border-top: 1px solid var(--rule); }
   .stab-wrap { grid-template-columns: minmax(0, 1fr); }
+  .quiz { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  table.stab button { width: 44px; height: 36px; }
   .derive .rows { font-size: 16px; }
   .mod-top, .mod-bot { grid-template-columns: minmax(0, 1fr); }
   .mod-top > div + div, .mod-bot > div + div { border-left: 0; border-top: 1px solid var(--rule); }
