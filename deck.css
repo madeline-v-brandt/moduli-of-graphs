@@ -57,9 +57,10 @@ body.presenting { overflow: hidden; }
 .slide table.dict th { font-size: clamp(11px, 0.95vw, 14px); }
 
 .slide .derive .rows { font-size: clamp(20px, 2.3vw, 36px); gap: 0.45em 0.5em; }
-/* in a proof on a slide, the colours that explain a step appear only once the third line is up */
+/* in a proof on a slide, the colours that explain a step appear only once line data-colours-at is up */
 .derive .t { transition: color 0.4s ease, border-color 0.4s ease; }
-.slide .derive:has(.row:nth-child(3):not(.on)) :is(.t-w, .t-w0, .t-two, .t-V, .t-half) { color: inherit; border-bottom-color: transparent; }
+.slide .derive[data-colours-at="2"]:has(.row:nth-child(2):not(.on)) :is(.t-w, .t-w0, .t-two, .t-V, .t-half),
+.slide .derive[data-colours-at="3"]:has(.row:nth-child(3):not(.on)) :is(.t-w, .t-w0, .t-two, .t-V, .t-half) { color: inherit; border-bottom-color: transparent; }
 .slide .derive .why { font-size: clamp(15px, 1.35vw, 21px); max-width: 48em; }
 .slot #build-svg { max-height: calc(100vh - 330px); }
 .slot #w-mod .mod-top svg { max-height: calc(42vh - 60px); }

@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="style.css?v=11">
 <link rel="stylesheet" href="lecture.css?v=11">
-<link rel="stylesheet" href="deck.css?v=5">
+<link rel="stylesheet" href="deck.css?v=6">
 </head>
 <body>
 <div class="wrap notes-wrap">
@@ -685,7 +685,7 @@
 
   <section class="slide" data-part="2" data-title="Proof: counting vertices">
     <h2>Proof: counting vertices</h2>
-    <div class="derive" data-default="Point at a coloured term, or at a sign, to see where it comes from.">
+    <div class="derive" data-colours-at="3" data-default="Point at a coloured term, or at a sign, to see where it comes from.">
             <div class="rows">
               <div class="row step"><span class="l">|<i>V</i>|</span><span class="rel"><span class="t t-count" data-k="count" tabindex="0" data-why="Adding 1 once for each vertex counts the vertices.">=</span></span><span class="r"><span class="bigop">∑<small>v</small></span>1</span></div>
               <div class="row step"><span class="l"></span><span class="rel"><span class="t t-stab" data-k="stab" tabindex="0" data-why="Stability: each 2<i>w</i>(<i>v</i>) − 2 + |<i>r</i><sup>−1</sup>(<i>v</i>)| is a positive integer, so it is at least 1. Replacing each 1 by something at least as big can only make the sum bigger.">≤</span></span><span class="r"><span class="bigop">∑<small>v</small></span>( <span class="t t-w" data-k="w" tabindex="0" data-why="Adding up 2<i>w</i>(<i>v</i>) over all vertices gives twice the total weight.">2<i>w</i>(<i>v</i>)</span> <span class="t t-two" data-k="two" tabindex="0" data-why="The −2 appears once for each vertex, so these add up to −2|<i>V</i>|.">− 2</span> <span class="t t-half" data-k="half" tabindex="0" data-why="Every half-edge has exactly one root, so adding up |<i>r</i><sup>−1</sup>(<i>v</i>)| over all vertices counts each half-edge once. Each edge is two half-edges and each leg is one, so the total is 2|<i>E</i>| + <i>n</i>.">+ |<i>r</i><sup>−1</sup>(<i>v</i>)|</span> )</span></div>
@@ -699,7 +699,7 @@
   <section class="slide" data-part="2" data-title="Proof: counting edges">
     <h2>Proof: counting edges</h2>
     <p class="lead">Since <em class="m">g</em> = |<em class="m">E</em>| − |<em class="m">V</em>| + 1 + ∑<em class="m">w</em>(<em class="m">v</em>),</p>
-    <div class="derive" data-default="Point at a coloured term, or at a sign, to see where it comes from.">
+    <div class="derive" data-colours-at="2" data-default="Point at a coloured term, or at a sign, to see where it comes from.">
             <div class="rows">
               <div class="row step"><span class="l">|<i>E</i>|</span><span class="rel"><span class="t t-gdef" data-k="gdef" tabindex="0" data-why="Solve <i>g</i> = |<i>E</i>| − |<i>V</i>| + 1 + ∑<i>w</i>(<i>v</i>) for |<i>E</i>|.">=</span></span><span class="r"><i>g</i> <span class="t t-w0" data-k="w0" tabindex="0" data-why="Weights are never negative, so −∑<i>w</i>(<i>v</i>) is at most 0.">− <span class="bigop">∑<small>v</small></span><i>w</i>(<i>v</i>)</span> <span class="t t-V" data-k="V" tabindex="0" data-why="This is the bound on the number of vertices that we just proved.">+ |<i>V</i>|</span> − 1</span></div>
               <div class="row step"><span class="l"></span><span class="rel">≤</span><span class="r"><i>g</i> <span class="t t-w0" data-k="w0" tabindex="0">+ 0</span> <span class="t t-V" data-k="V" tabindex="0">+ (2<i>g</i> − 2 + <i>n</i>)</span> − 1</span></div>
