@@ -262,15 +262,21 @@ table.stab button:hover, table.stab button:focus-visible, table.stab button.cur 
 .g2-card span.nm { color: var(--ink); font: 13px var(--body); }
 
 /* pinching */
-.pinch-ctl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 14px; align-items: center; padding: 12px 16px; border-top: 1px solid var(--rule); font-size: 13px; }
-.pinch-ctl input { width: 100%; accent-color: var(--mat); }
+.pinch-ctl { display: grid; grid-template-columns: repeat(2, max-content); gap: 10px 36px; padding: 12px 16px; border-top: 1px solid var(--rule); font-size: 13px; }
+.pinch-ctl .pc { display: grid; gap: 4px; }
+.pinch-ctl input { width: 180px; max-width: 100%; margin: 0; accent-color: var(--mat); }
 .swatch { display: inline-block; width: 18px; height: 3px; border-radius: 2px; vertical-align: 3px; margin-right: 8px; }
 .swatch.neck { background: var(--o2); }
 .swatch.handle { background: var(--o1); }
+.swatch.rhandle { background: var(--o5); }
+.swatch.between { background: var(--o3); }
 .surf { fill: var(--mat-soft); stroke: var(--ink); stroke-width: 1.8; }
 .hole { fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; }
 .vc-neck { fill: none; stroke: var(--o2); stroke-width: 2.2; }
 .vc-handle { fill: none; stroke: var(--o1); stroke-width: 2.2; }
+.vc-rhandle { fill: none; stroke: var(--o5); stroke-width: 2.2; }
+.vc-mid { fill: none; stroke: var(--o3); stroke-width: 2.2; }
+.ovl { text-decoration: overline; text-decoration-thickness: 1px; }
 .vc-back { stroke-dasharray: 3 4; stroke-width: 1.6; }
 .node-dot { fill: var(--nm); }
 
@@ -285,6 +291,8 @@ table.dict td { font-family: var(--display); font-size: 17px; }
 .exercises details { font-family: var(--body); }
 .exercises summary { cursor: pointer; font: 12.5px var(--mono); color: var(--mat); }
 .exercises details p { font-size: 16px; padding: 6px 0 0 0; color: var(--muted); }
+.exercises details ul { padding: 6px 0 0 20px; gap: 4px; }
+.exercises details li { font-size: 16px; color: var(--muted); }
 .reading { list-style: none; padding: 0 !important; gap: 10px !important; }
 
 @media (max-width: 960px) {
@@ -304,7 +312,9 @@ table.dict td { font-family: var(--display); font-size: 17px; }
   .prose p, .prose li { font-size: 17px; }
   .g2-row { grid-template-columns: minmax(0, 1fr); }
   .g2-card { width: 128px; }
-  .pinch-ctl { grid-template-columns: minmax(0, 1fr); }
+  .pinch-ctl { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; }
+  .pinch-ctl .pc { min-width: 0; }
+  .pinch-ctl input { width: 100%; }
 }
 
 /* stacked sub- and superscript, as in ℝ with both */

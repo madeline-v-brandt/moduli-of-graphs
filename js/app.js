@@ -2,6 +2,17 @@
    finiteness table, and the hero animation. */
 (function () {
   "use strict";
+  // QR code dialog, for students to open the explorer on their own devices; a click outside the card closes it
+  {
+    const dlg = document.getElementById("qr-dialog"), btn = document.getElementById("qr-open");
+    if (dlg && btn && dlg.showModal) {
+      btn.addEventListener("click", () => dlg.showModal());
+      dlg.addEventListener("click", (e) => {
+        const r = dlg.getBoundingClientRect();
+        if (e.target === dlg && (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom)) dlg.close();
+      });
+    } else if (btn) btn.hidden = true;
+  }
   const MG = window.MG, MD = window.MD, SP = window.SPACES;
   const $ = (s, r = document) => r.querySelector(s);
   const num = MD.num;

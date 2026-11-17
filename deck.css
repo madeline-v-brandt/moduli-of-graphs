@@ -94,7 +94,9 @@ body.presenting { overflow: hidden; }
 .slot .fig-pair svg, .slot .space .pic svg { max-height: calc(100vh - 300px); }
 .slot #anat-svg, .slot #con-svg svg { max-height: calc(100vh - 360px); }
 .slot .live svg { max-height: calc(100vh - 420px); }
-.slot #pinch-svg { max-height: calc(100vh - 380px); }
+.slot #pinch-svg { max-height: calc(100vh - 400px); }
+.slot .pinch-ctl { grid-template-columns: repeat(4, max-content); gap: 8px 28px; padding: 8px 16px; }
+.slot .pinch-ctl input { width: 160px; }
 .slot .anat-data, .slot .con-data, .slot .pet-side, .slot .live .note, .slot .stab-read { font-size: 15px; }
 /* a short formula to keep in view above an interactive figure */
 .slide .formula { font-family: var(--display); font-size: clamp(17px, 1.6vw, 26px); padding: 0.3em 0.8em; border-left: 3px solid var(--mat); background: var(--mat-soft); border-radius: 0 6px 6px 0; align-self: flex-start; }
@@ -109,7 +111,11 @@ body.presenting { overflow: hidden; }
 .slot .qwhy { font-size: 14px; }
 .slot .pet-chips.trees { max-width: 600px; }
 .slot .qbtns .segbtn { font-size: 13.5px; }
-.slot .g2-card { width: clamp(130px, 13vw, 190px); }
+.slot .g2-card { width: clamp(130px, 12vw, 180px); }
+/* on a slide the four rows of the genus 2 activity sit in a 2 × 2 grid, so they fit without scrolling */
+.slot .g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.slot .g2-row:nth-child(odd) { border-right: 1px solid var(--rule); }
+.slot .g2-row:nth-last-child(-n+2) { border-bottom: 0; }
 .slot .con-hist button { width: 74px; }
 
 /* bottom bar */
@@ -160,7 +166,12 @@ body.presenting { overflow: hidden; }
 @media (max-width: 760px) {
   .deck-title { display: none; }
   .slide .slot-pair { grid-template-columns: minmax(0, 1fr); }
+  .slot .pinch-ctl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .slot .pinch-ctl input { width: 100%; }
   .slot .fig-pair svg, .slot .space .pic svg { max-height: none; }
+  .slot .g2 { grid-template-columns: minmax(0, 1fr); }
+  .slot .g2-row:nth-child(odd) { border-right: 0; }
+  .slot .g2-row:nth-child(3) { border-bottom: 1px solid var(--rule); }
 }
 
 /* on big screens, enlarge the text panels beside the figures so they read from the back of a room */

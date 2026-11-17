@@ -100,7 +100,7 @@
     };
   }
 
-  /* (2,0): two triangles glued along the rose */
+  /* (2,0): two triangles glued along the figure-eights */
   {
     const verts = { A: [-1, 0], m: [1, 0], c: [0.28, -0.95], B: [-0.3, 0.95] };
     const theta = mk([0, 0], [], [[0, 1], [0, 1], [0, 1]]);
@@ -113,8 +113,8 @@
       ],
       foldPts: ["m", "c"], labels: {}, icons: ["A", "m", "c", "B"], iconSize: [78, 58],
       title: "Total edge length 1: two triangles",
-      text: "The theta graph has three edges, and its automorphisms permute them in all six ways, so only one sixth of its triangle appears. The dumbbell's automorphism swaps its two loops, so half of its triangle appears. The two pieces are glued along the segment of roses (two loops at one vertex). Dashed sides are folds, where an automorphism maps the triangle to itself. They are not boundaries.",
-      cap: "Top: a sixth of the theta triangle. Bottom: half of the dumbbell triangle. The horizontal side holds the roses with loop lengths t and 1 − t, for t ≤ ½.",
+      text: "The theta graph has three edges, and its automorphisms permute them in all six ways, so only one sixth of its triangle appears. The dumbbell's automorphism swaps its two loops, so half of its triangle appears. The two pieces are glued along the segment of figure-eights (two loops at one vertex). Dashed sides are folds, where an automorphism maps the triangle to itself. They are not boundaries.",
+      cap: "Top: a sixth of the theta triangle. Bottom: half of the dumbbell triangle. The horizontal side holds the figure-eights with loop lengths t and 1 − t, for t ≤ ½.",
     };
   }
 

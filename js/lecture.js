@@ -1369,7 +1369,7 @@
     if (!box) return;
     const ROWS = [
       [3, [["theta", mk([0, 0], [], [[0, 1], [0, 1], [0, 1]])], ["dumbbell", mk([0, 0], [], [[0, 0], [1, 1], [0, 1]])]]],
-      [2, [["figure-eight", mk([0], [], [[0, 0], [0, 0]])], ["weight 1, edge, loop", mk([1, 0], [], [[0, 1], [1, 1]])]]],
+      [2, [["figure-eight", mk([0], [], [[0, 0], [0, 0]])], ["lasso", mk([1, 0], [], [[0, 1], [1, 1]])]]],
       [1, [["weight 1 with a loop", mk([1], [], [[0, 0]])], ["two weight-1 vertices", mk([1, 1], [], [[0, 1]])]]],
       [0, [["one vertex of weight 2", mk([2], [], [])]]],
     ];
@@ -1390,33 +1390,56 @@
     const svg = $("#pinch-svg");
     if (!svg) return;
     const X = (x) => 260 + 112 * x, Y = (y) => 125 - 112 * y;
-    const B = 0.8, HOLE_TOP = 0.1, CX = 0.88, XE = CX + 1;
+    const B = 0.8, HOLE_TOP = 0.1, CX = 0.88, XE = CX + 1, TIP = 0.08;
     const lobe = (x) => { const u = Math.abs(x) - CX; return u * u < 1 ? B * Math.sqrt(1 - u * u) : 0; };
-    const graphs = {
-      "00": mk([2], [], []),
-      "10": mk([1, 1], [], [[0, 1]]),
-      "01": mk([1], [], [[0, 0]]),
-      "11": mk([0, 1], [], [[0, 0], [0, 1]]),
+    // four curves: N the middle neck (separating), M between the holes, L and R around the handles.
+    // N and M cross, so at most one of them is pinched. Each edge of a dual graph is tagged with its curve.
+    const SL = { N: $("#pinch-neck"), M: $("#pinch-mid"), L: $("#pinch-handle"), R: $("#pinch-rhandle") };
+    const COL = { N: "var(--o2)", M: "var(--o3)", L: "var(--o1)", R: "var(--o5)" };
+    const G = (w, edges, tags) => ({ G: mk(w, [], edges), tags });
+    const ONE_LOOP = (t) => G([1], [[0, 0]], [t]);
+    const EIGHT = (a, b) => G([0], [[0, 0], [0, 0]], [a, b]);
+    const DUAL = {
+      "": G([2], [], []),
+      N: G([1, 1], [[0, 1]], ["N"]),
+      L: ONE_LOOP("L"), R: ONE_LOOP("R"), M: ONE_LOOP("M"),
+      LR: EIGHT("L", "R"), LM: EIGHT("L", "M"), MR: EIGHT("M", "R"),
+      LN: G([0, 1], [[0, 0], [0, 1]], ["L", "N"]),
+      NR: G([1, 0], [[0, 1], [1, 1]], ["N", "R"]),
+      LNR: G([0, 0], [[0, 0], [0, 1], [1, 1]], ["L", "N", "R"]),
+      LMR: G([0, 0], [[0, 1], [0, 1], [0, 1]], ["L", "M", "R"]),
     };
+    const LOOP1 = "There is still one component. It has genus 1 and meets itself at the node: a vertex of weight 1 with a loop, and 1 + 1 = 2.";
+    const EIGHT_NOTE = "Two nodes, and the surface is still in one piece. It has genus 0 and meets itself at both nodes: a weight-0 vertex with two loops, the figure-eight.";
     const NOTES = {
-      "00": "Still one smooth surface of genus 2, so the dual graph is a single vertex of weight 2.",
-      "10": "The middle neck has pinched to a node. Two components of genus 1 meet at one point: two vertices of weight 1 joined by an edge.",
-      "01": "The handle's curve has pinched to a node. There is still one component. It has genus 1 and meets itself at the node: a vertex of weight 1 with a loop, and 1 + 1 = 2.",
-      "11": "Two nodes. The left component has genus 0 and meets itself once, and the right component has genus 1: a weight-0 vertex with a loop, joined to a weight-1 vertex.",
+      "": "Still one smooth surface of genus 2, so the dual graph is a single vertex of weight 2.",
+      N: "The middle neck has pinched to a node. Two components of genus 1 meet at one point: two vertices of weight 1 joined by an edge.",
+      L: "The curve around the left handle has pinched to a node. " + LOOP1,
+      R: "The curve around the right handle has pinched to a node. " + LOOP1,
+      M: "The curve between the holes has pinched to a node, where the two holes now touch. " + LOOP1,
+      LR: EIGHT_NOTE, LM: EIGHT_NOTE, MR: EIGHT_NOTE,
+      LN: "Two nodes. The left component has genus 0 and meets itself once, and the right component has genus 1: a weight-0 vertex with a loop, joined to a weight-1 vertex.",
+      NR: "Two nodes. The right component has genus 0 and meets itself once, and the left component has genus 1: a weight-0 vertex with a loop, joined to a weight-1 vertex.",
+      LNR: "Three nodes: the dumbbell. Each half has genus 0 and meets itself once, and the two halves meet at the middle neck.",
+      LMR: "Three nodes: the theta graph. The surface falls apart into two components of genus 0, and they meet each other at all three nodes.",
     };
+    let crossed = false;
     function draw() {
-      const s = +$("#pinch-neck").value / 100, hnd = +$("#pinch-handle").value / 100;
-      const f = (x) => lobe(x) * (1 - s * Math.exp(-((x / 0.34) ** 2)));
-      const dentAt = (f(-CX) - HOLE_TOP) * hnd;
-      const top = (x) => f(x) - dentAt * Math.exp(-(((x + CX) / 0.3) ** 2));
+      const v = {}; Object.keys(SL).forEach((k) => (v[k] = +SL[k].value / 100));
+      const f = (x) => lobe(x) * (1 - v.N * Math.exp(-((x / 0.34) ** 2)));
+      const dL = (f(-CX) - HOLE_TOP) * v.L, dR = (f(CX) - HOLE_TOP) * v.R;
+      const top = (x) => f(x) - dL * Math.exp(-(((x + CX) / 0.3) ** 2)) - dR * Math.exp(-(((x - CX) / 0.3) ** 2));
       let d = "";
       const N = 200;
       for (let j = 0; j <= N; j++) { const x = -XE * Math.cos((Math.PI * j) / N); d += (j ? "L" : "M") + num(X(x)) + " " + num(Y(top(x))); }
       for (let j = N; j >= 0; j--) { const x = -XE * Math.cos((Math.PI * j) / N); d += "L" + num(X(x)) + " " + num(Y(-f(x))); }
       let o = `<path class="surf" d="${d}Z"/>`;
-      [-CX, CX].forEach((cx) => {
-        o += `<path class="hole" d="M${num(X(cx - 0.42))} ${num(Y(0.08))}Q${num(X(cx))} ${num(Y(-0.22))} ${num(X(cx + 0.42))} ${num(Y(0.08))}"/>`;
-        o += `<path class="hole" d="M${num(X(cx - 0.3))} ${num(Y(0))}Q${num(X(cx))} ${num(Y(0.2))} ${num(X(cx + 0.3))} ${num(Y(0))}"/>`;
+      // each hole runs from an outer tip to an inner tip; pinching the curve between them pulls the inner tips together
+      const inner = CX - 0.42 - (CX - 0.42 - 0.03) * v.M;
+      [-1, 1].forEach((sg) => {
+        const xo = sg * (CX + 0.42), xi = sg * inner, mid = (xo + xi) / 2;
+        o += `<path class="hole" d="M${num(X(xo))} ${num(Y(TIP))}Q${num(X(mid))} ${num(Y(-0.22))} ${num(X(xi))} ${num(Y(TIP))}"/>`;
+        o += `<path class="hole" d="M${num(X(xo - sg * 0.12))} ${num(Y(0))}Q${num(X(mid))} ${num(Y(0.2))} ${num(X(xi + sg * 0.12))} ${num(Y(0))}"/>`;
       });
       // the vanishing curves: front half solid, back half dashed
       const ring = (cx, y0, y1, cls) => {
@@ -1426,17 +1449,31 @@
         return `<path class="${cls}" d="M${num(a[0])} ${num(a[1])}A${num(112 * rx)} ${num(112 * ry)} 0 0 1 ${num(b[0])} ${num(b[1])}"/>` +
           `<path class="${cls} vc-back" d="M${num(a[0])} ${num(a[1])}A${num(112 * rx)} ${num(112 * ry)} 0 0 0 ${num(b[0])} ${num(b[1])}"/>`;
       };
-      o += ring(0, -f(0), top(0), "vc-neck");
+      const hring = (cy, x0, x1, cls) => {
+        const rx = Math.abs(x1 - x0) / 2, ry = Math.max(0.012, Math.min(0.07, rx * 0.35));
+        if (rx < 0.035) return `<circle class="node-dot" cx="${num(X((x0 + x1) / 2))}" cy="${num(Y(cy))}" r="5"/>`;
+        const a = [X(x0), Y(cy)], b = [X(x1), Y(cy)];
+        return `<path class="${cls}" d="M${num(a[0])} ${num(a[1])}A${num(112 * rx)} ${num(112 * ry)} 0 0 0 ${num(b[0])} ${num(b[1])}"/>` +
+          `<path class="${cls} vc-back" d="M${num(a[0])} ${num(a[1])}A${num(112 * rx)} ${num(112 * ry)} 0 0 1 ${num(b[0])} ${num(b[1])}"/>`;
+      };
+      if (!(v.N > 0)) o += hring(TIP, -inner, inner, "vc-mid");
+      if (!(v.M > 0)) o += ring(0, -f(0), top(0), "vc-neck");
       o += ring(-CX, HOLE_TOP, top(-CX), "vc-handle");
+      o += ring(CX, HOLE_TOP, top(CX), "vc-rhandle");
       svg.innerHTML = o;
-      const key = (s >= 1 ? "1" : "0") + (hnd >= 1 ? "1" : "0");
-      const G = graphs[key];
-      const colors = (e) => (G.edges[e][0] === G.edges[e][1] ? "var(--o1)" : "var(--o2)");
-      $("#pinch-graph").innerHTML = MD.graphSvg(G, { w: 260, h: 170, pad: 30, font: 13, dot: 5, strokeW: 2.6, edgeColors: colors, label: "The dual graph" });
-      $("#pinch-note").textContent = NOTES[key] + (key === "00" && (s > 0 || hnd > 0) ? " A curve that is only partly pinched is still smooth." : "");
+      const key = ["L", "M", "N", "R"].filter((k) => v[k] >= 1).join("");
+      const D = DUAL[key];
+      $("#pinch-graph").innerHTML = MD.graphSvg(D.G, { w: 260, h: 170, pad: 30, font: 13, dot: 5, strokeW: 2.6, edgeColors: (e) => COL[D.tags[e]], label: "The dual graph" });
+      const partly = Object.keys(v).some((k) => v[k] > 0 && v[k] < 1);
+      $("#pinch-note").textContent = (crossed ? "The middle neck and the curve between the holes cross each other, so they cannot both pinch: moving one releases the other. " : "") +
+        NOTES[key] + (partly ? " A curve that is only partly pinched has not made a node yet." : "");
     }
-    $("#pinch-neck").addEventListener("input", draw);
-    $("#pinch-handle").addEventListener("input", draw);
+    Object.keys(SL).forEach((k) => SL[k].addEventListener("input", () => {
+      const other = k === "N" ? "M" : k === "M" ? "N" : null;
+      if (other && +SL[other].value > 0) { SL[other].value = 0; crossed = true; }
+      else if (!other) crossed = false;
+      draw();
+    }));
     draw();
   }
 

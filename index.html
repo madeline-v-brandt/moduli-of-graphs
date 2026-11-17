@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="style.css?v=11">
+<link rel="stylesheet" href="style.css?v=12">
 </head>
 <body>
 <div class="wrap">
@@ -18,6 +18,7 @@
       <h1>Moduli spaces of graphs</h1>
       <div class="eyebrow byline">Website developed by Madeline Brandt</div>
       <p class="to-notes"><a href="lecture.html">Read more about the math</a><span>Definitions, the finiteness proof and worked examples, with figures you can move.</span></p>
+      <p class="qr-row"><button type="button" class="btn-quiet" id="qr-open">Show QR code</button><span>Open the explorer on your own device.</span></p>
       <p class="lede">Pick a type (<em class="m">g</em>, <em class="m">n</em>) below to see its stable graphs, the poset they form under contraction, their automorphisms, and, when the dimension is small, a picture of the space you can move around in.</p>
     </div>
     <figure class="hero-fig">
@@ -68,6 +69,13 @@
   </section>
 
 
+  <dialog class="qr-dialog" id="qr-dialog" aria-labelledby="qr-title">
+    <h2 id="qr-title">Open the explorer on your phone</h2>
+    <img src="qr-explorer.svg" alt="QR code linking to madeline-v-brandt.github.io/moduli-of-graphs">
+    <p class="qr-url">madeline-v-brandt.github.io/moduli-of-graphs</p>
+    <form method="dialog"><button class="btn-quiet">Close</button></form>
+  </dialog>
+
   <footer>
     <div>Graphs are enumerated in your browser by splitting vertices, starting from the single vertex of weight <em class="m">g</em> with <em class="m">n</em> legs, and are identified up to isomorphism by a canonical form.</div>
     <div><a href="lecture.html">More about the math</a>: what a moduli space is, half-edges, stability and finiteness, and the worked examples.</div>
@@ -75,11 +83,11 @@
 </div>
 <script src="js/core.js?v=6"></script>
 <script src="js/draw.js?v=11"></script>
-<script src="js/spaces.js?v=6"></script>
+<script src="js/spaces.js?v=8"></script>
 <script src="js/spacepic.js?v=6"></script>
 <script src="js/turntable.js?v=1"></script>
 <script src="js/delta06.js?v=2"></script>
 <script src="js/delta13.js?v=1"></script>
-<script src="js/app.js?v=8"></script>
+<script src="js/app.js?v=9"></script>
 </body>
 </html>

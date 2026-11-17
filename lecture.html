@@ -9,9 +9,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="style.css?v=11">
-<link rel="stylesheet" href="lecture.css?v=12">
-<link rel="stylesheet" href="deck.css?v=7">
+<link rel="stylesheet" href="style.css?v=12">
+<link rel="stylesheet" href="lecture.css?v=15">
+<link rel="stylesheet" href="deck.css?v=9">
 </head>
 <body>
 <div class="wrap notes-wrap">
@@ -66,7 +66,7 @@
         </figure>
 
         <p>What happens as ℓ approaches 0? The two endpoints collide and the segment collapses to a single point. That point is no longer a segment, but it is the natural limit of segments: a <b>degenerate</b> segment. It sits at the boundary point 0 of the ray, and adding it closes up (0, ∞) to [0, ∞).</p>
-        <p>Every segment also has a symmetry that swaps its two endpoints: the half-turn about its midpoint. That symmetry does not change ℓ, so it leaves no trace in the picture. The same thing will happen with loops in Part 4.</p>
+        <p>Every segment also has a symmetry that swaps its two endpoints: the half-turn about its midpoint. That symmetry does not change ℓ, so it leaves no trace in the picture.</p>
         <p><b>Why this example?</b> Segments are the building block for the rest of the lecture. An edge of a metric graph is a segment, determined up to isometry by its length, and length zero is exactly where the edge degenerates. A graph with <em class="m">k</em> edges will contribute a copy of (0, ∞)<sup><em class="m">k</em></sup>, one coordinate per edge.</p>
 
         <h3>Example: lines through the origin</h3>
@@ -370,38 +370,29 @@
         </ul>
 
         <h3>Examples with genus</h3>
-        <p><b><em class="m">M</em><sub>1,1</sub>: a ray.</b> At most one edge is allowed. The graphs are a vertex of weight 1 with the leg, and a weight-0 vertex with a loop and the leg (it has 2 + 1 = 3 half-edges). Contracting the loop gives the first graph. The second graph has Aut = ℤ/2, which flips the loop's two half-edges, but the flip does not change the loop's length. So <em class="m">M</em><sub>1,1</sub> is a ray and Δ<sub>1,1</sub> is a point. This is the segment's endpoint swap from Part 1. The automorphism is invisible in the space, but it is still there, and it matters in algebraic geometry.</p>
+        <p><b><em class="m">M</em><sub>1,1</sub>: a ray.</b> By the edge bound from Part 2, a stable graph of type (1, 1) has at most 3<em class="m">g</em> − 3 + <em class="m">n</em> = 3 · 1 − 3 + 1 = 1 edge. The graphs are a vertex of weight 1 with the leg, and a weight-0 vertex with a loop and the leg (it has 2 + 1 = 3 half-edges). Contracting the loop gives the first graph. So <em class="m">M</em><sub>1,1</sub> is a ray and Δ<sub>1,1</sub> is a point.</p>
         <div class="space spc lw" data-space="1,1"></div>
 
-        <p><b><em class="m">M</em><sub>1,2</sub>: a segment.</b> At most two edges are allowed, so Δ<sub>1,2</sub> is 1-dimensional. There are two graphs with two edges.</p>
-        <ul class="plain-bullets">
-          <li><b>A:</b> two weight-0 vertices joined by two parallel edges, with leg 1 on one vertex and leg 2 on the other. Aut(A) = ℤ/2 swaps the two edges, so its piece of Δ<sub>1,2</sub> is the segment {ℓ<sub>1</sub> + ℓ<sub>2</sub> = 1} folded in half at ℓ<sub>1</sub> = ℓ<sub>2</sub> = ½. This is the slice of the folded quadrant from Part 3.</li>
-          <li><b>B:</b> a vertex with a loop, joined by a bridge to a vertex carrying legs 1 and 2. Its automorphism flips the loop and fixes both lengths, so its piece is a full segment.</li>
-        </ul>
-        <p>There are two graphs with one edge, the vertices of Δ<sub>1,2</sub>.</p>
-        <ul class="plain-bullets">
-          <li><b>C:</b> one weight-0 vertex with a loop and legs 1 and 2. It is A with either edge contracted, and B with the bridge contracted.</li>
-          <li><b>D:</b> a weight-1 vertex joined by an edge to a vertex carrying legs 1 and 2. It is B with the loop contracted.</li>
-        </ul>
-        <p>So Δ<sub>1,2</sub> is a segment. The piece of B runs from D to C, and the folded piece of A continues from C to the point where ℓ<sub>1</sub> = ℓ<sub>2</sub>, which is not glued to anything.</p>
-        <div class="space spc lw" data-space="1,2"></div>
 
         <h3>Activity: genus 2, no legs</h3>
-        <p>List all stable graphs of type (2, 0) and organize them by contraction. There are 7. The bounds from Part 2 say each has at most 2 vertices and at most 3 edges. Try it before revealing the rows.</p>
+        <p>List all stable graphs of type (2, 0) and organize them by contraction. There are 7. Start from the bounds in Part 2: a stable graph of type (<em class="m">g</em>, <em class="m">n</em>) has</p>
+        <div class="display"><span>|<i>V</i>| ≤ 2<i>g</i> − 2 + <i>n</i></span><span class="gap"></span><span>and</span><span class="gap"></span><span>|<i>E</i>| ≤ 3<i>g</i> − 3 + <i>n</i>.</span></div>
+        <p>What do these say when <em class="m">g</em> = 2 and <em class="m">n</em> = 0? Use that to guide your search, and try it before revealing the rows.</p>
         <figure class="fig" id="w-g2">
           <div class="g2" id="g2-rows"></div>
           <div class="fig-bar end"><button type="button" class="btn-quiet" id="g2-all">Reveal all</button></div>
         </figure>
-        <p>So Δ<sub>2</sub> has two triangles, one for the theta graph and one for the dumbbell, each folded by its automorphisms. The theta graph's automorphisms permute its three edges in all six ways, so only a sixth of its triangle survives. The dumbbell's automorphisms swap its two loops, so half of its triangle survives. The two pieces are glued along the segment of figure-eights, also called roses.</p>
+        <p>So Δ<sub>2</sub> has two triangles, one for the theta graph and one for the dumbbell, each folded by its automorphisms. The theta graph's automorphisms permute its three edges in all six ways, so only a sixth of its triangle survives. The dumbbell's automorphisms swap its two loops, so half of its triangle survives. The two pieces are glued along the segment of figure-eights.</p>
         <div class="space spc lw" data-space="2,0"></div>
       </section>
 
       <!-- ================= PART 5 ================= -->
       <section id="part5" class="part" aria-labelledby="h-part5">
         <div class="part-head"><div class="eyebrow">Part 5</div><h2 id="h-part5">Why geometers care</h2></div>
-        <p>This part is a story with pictures, not proofs. The combinatorics above is a shadow of something much bigger.</p>
+        <p>This part is a story with pictures, not proofs. The combinatorics above is a shadow of something much bigger from geometry.</p>
         <p><b>The moduli space of curves.</b> Algebraic geometers study the moduli space of curves ℳ<sub><em class="m">g</em>,<em class="m">n</em></sub>. Its points are Riemann surfaces of genus <em class="m">g</em> (a sphere with <em class="m">g</em> handles) with <em class="m">n</em> marked points. It has complex dimension 3<em class="m">g</em> − 3 + <em class="m">n</em>, the same number as our bound on the number of edges. That is not a coincidence.</p>
-        <p><b>Degenerations and dual graphs.</b> ℳ<sub><em class="m">g</em>,<em class="m">n</em></sub> is not compact. A surface can degenerate when a loop drawn on it pinches down to a point. The limit is a <b>nodal curve</b>: several surfaces glued together at points. Every nodal curve has a <b>dual graph</b>.</p>
+        <p><b>Why marked points?</b> They come up whenever a surface has special points to keep track of. One source is punctures: the plane is a sphere with one point removed, and remembering where the removed points were means marking them. Another is covers: the map <em class="m">z</em> ↦ <em class="m">z</em><sup>2</sup> wraps the sphere around itself twice, with the two sheets coming together at the branch points 0 and ∞, and to study covers we mark their branch points. In the dictionary below, marked points become legs. This is where the legs of our graphs come from.</p>
+        <p><b>Degenerations and dual graphs.</b> However, ℳ<sub><em class="m">g</em>,<em class="m">n</em></sub> is not compact. A surface can degenerate when a loop drawn on it pinches down to a point. The limit is a <b>nodal curve</b>: several surfaces glued together at points. Each of these surfaces is a <b>component</b> of the nodal curve, and each gluing point, where two components meet or a component meets itself, is a <b>node</b>. Every nodal curve has a <b>dual graph</b>.</p>
         <div class="scroll"><table class="dict">
           <thead><tr><th>Nodal curve</th><th>Dual graph</th></tr></thead>
           <tbody>
@@ -414,31 +405,29 @@
 
         <figure class="fig" id="w-pinch">
           <div class="fig-pair pinch">
-            <div><h4>A surface of genus 2</h4><svg id="pinch-svg" viewBox="0 0 520 250" role="img" aria-label="A genus 2 surface with two curves that can pinch"></svg></div>
+            <div><h4>A surface of genus 2</h4><svg id="pinch-svg" viewBox="0 0 520 250" role="img" aria-label="A genus 2 surface with four curves that can pinch"></svg></div>
             <div class="live"><h4>Its dual graph</h4><div id="pinch-graph"></div><p class="note" id="pinch-note"></p></div>
           </div>
           <div class="pinch-ctl">
-            <label for="pinch-neck"><span class="swatch neck"></span>Pinch the middle neck</label>
-            <input type="range" id="pinch-neck" min="0" max="100" value="0">
-            <label for="pinch-handle"><span class="swatch handle"></span>Pinch the left handle</label>
-            <input type="range" id="pinch-handle" min="0" max="100" value="0">
+            <label class="pc"><span><span class="swatch neck"></span>Middle neck</span><input type="range" id="pinch-neck" min="0" max="100" value="0"></label>
+            <label class="pc"><span><span class="swatch between"></span>Between the holes</span><input type="range" id="pinch-mid" min="0" max="100" value="0"></label>
+            <label class="pc"><span><span class="swatch handle"></span>Left handle</span><input type="range" id="pinch-handle" min="0" max="100" value="0"></label>
+            <label class="pc"><span><span class="swatch rhandle"></span>Right handle</span><input type="range" id="pinch-rhandle" min="0" max="100" value="0"></label>
           </div>
-          <figcaption class="fig-cap">Slide each curve all the way to pinch it to a node. Until the end of the slider the surface is still smooth, and its dual graph is a single vertex of weight 2.</figcaption>
+          <figcaption class="fig-cap">Slide a curve all the way to pinch it to a node. Until the end of the slider the surface is still smooth. Each edge of the dual graph has the colour of its curve. The middle neck and the curve between the holes cross each other, so only one of them can be pinched at a time. Which curves give the dumbbell? Which give the theta graph?</figcaption>
         </figure>
 
+        <p>To compactify ℳ<sub><em class="m">g</em>,<em class="m">n</em></sub>, we add in <b>boundary strata</b>, one for each possible dual graph: the stratum of a stable graph <em class="m">G</em> consists of the nodal curves whose dual graph is <em class="m">G</em>. The result is the compactified moduli space <span class="ovl">ℳ</span><sub><em class="m">g</em>,<em class="m">n</em></sub>. So the moduli space of graphs knows the combinatorics of the boundary of <span class="ovl">ℳ</span><sub><em class="m">g</em>,<em class="m">n</em></sub>.</p>
         <p>Two things line up exactly.</p>
         <ul class="plain-bullets">
-          <li>A nodal curve is <b>stable</b>, meaning it has only finitely many automorphisms, exactly when its dual graph is stable in our sense. The inequality 2<em class="m">w</em>(<em class="m">v</em>) − 2 + |<em class="m">r</em><sup>−1</sup>(<em class="m">v</em>)| &gt; 0 says that each component, with its nodes and marked points removed, has negative Euler characteristic.</li>
-          <li>Contracting an edge corresponds to smoothing a node. So the way our cones glue is the way the boundary strata of the compactified moduli space fit together. A graph with <em class="m">k</em> edges corresponds to a stratum of codimension <em class="m">k</em>.</li>
+          <li>A nodal curve is <b>stable</b>, meaning it has only finitely many automorphisms, exactly when its dual graph is stable in our sense. Why ask for finitely many? Just as Aut(<em class="m">G</em>) folds the cone of <em class="m">G</em>, the automorphisms of a curve fold the moduli space near that curve, and folding by a finite group still leaves a reasonable space. A sphere with only two marked points has infinitely many automorphisms (it can be rotated about the axis through them), and they would wreck the space instead of folding it. This matches the graph side: a vertex of weight 0 needs at least three half-edges, and a sphere needs at least three nodes or marked points.</li>
+          <li>Contracting an edge in the graph corresponds to smoothing a node. So the way our cones glue is the way the boundary strata of the compactified moduli space <span class="ovl">ℳ</span><sub><em class="m">g</em>,<em class="m">n</em></sub> fit together. A graph with <em class="m">k</em> edges corresponds to a stratum of codimension <em class="m">k</em>.</li>
         </ul>
         <p><b>What the edge lengths mean.</b> Roughly, the length of an edge measures how fast the corresponding neck pinches in a family of surfaces. A longer edge means a thinner neck.</p>
-        <p><b>The precise statement.</b> The space Δ<sub><em class="m">g</em>,<em class="m">n</em></sub> is the boundary complex of the Deligne–Mumford compactification of ℳ<sub><em class="m">g</em>,<em class="m">n</em></sub> (Abramovich, Caporaso and Payne). As a result, its homology computes the top-weight cohomology of ℳ<sub><em class="m">g</em>,<em class="m">n</em></sub>. Chan, Galatius and Payne used this to show that the rational cohomology of ℳ<sub><em class="m">g</em></sub> in degree 4<em class="m">g</em> − 6 is nonzero for <em class="m">g</em> = 3, 5 and every <em class="m">g</em> ≥ 7, and that its dimension grows at least exponentially in <em class="m">g</em>. Counting holes in a space of graphs told us something new about the space of all surfaces.</p>
-        <p><b>Back to <em class="m">M</em><sub>0,5</sub>.</b> The compactified moduli space of 5 points on the sphere is a complex surface. Its boundary consists of 10 curves, one for each 2-subset of {1, …, 5}, and two of them meet exactly when their 2-subsets are disjoint. The Petersen graph is the picture of how they meet.</p>
+        <p><b>The precise statement.</b> The space Δ<sub><em class="m">g</em>,<em class="m">n</em></sub> is the boundary complex of the Deligne–Mumford compactification of ℳ<sub><em class="m">g</em>,<em class="m">n</em></sub> (Abramovich, Caporaso and Payne). As a result, its homology computes the top-weight cohomology of ℳ<sub><em class="m">g</em>,<em class="m">n</em></sub>. Chan, Galatius and Payne used this to show that the rational cohomology of ℳ<sub><em class="m">g</em></sub> in degree 4<em class="m">g</em> − 6 is nonzero for <em class="m">g</em> = 3, 5 and every <em class="m">g</em> ≥ 7, and that its dimension grows at least exponentially in <em class="m">g</em>. Counting holes in the moduli space of graphs gave new information about the space of all surfaces.</p>
 
         <!-- H_{g,n}: add a paragraph here on what H_{g,n} parametrizes, how it sits inside M_{g,n},
              and a link to its explorer. -->
-
-        <p class="closing">Everything from this semester shows up in current research on the geometry of surfaces: trees, cycles, contraction, automorphisms, and the Petersen graph.</p>
       </section>
 
       <!-- ================= EXERCISES ================= -->
@@ -447,11 +436,20 @@
         <p>Optional problems for anyone who wants more.</p>
         <ol class="exercises">
           <li><p>Write the graph with one vertex, two loops and one leg in half-edge notation (<em class="m">V</em>, <em class="m">H</em>, <em class="m">r</em>, ι). Compute |Aut(<em class="m">G</em>)|.</p><details><summary>Answer</summary><p>|Aut(<em class="m">G</em>)| = 8. Each loop can be flipped, and the two loops can be swapped: 2 · 2 · 2.</p></details></li>
+          <li><p>For which types (<em class="m">g</em>, <em class="m">n</em>) is there at least one stable graph?</p><details><summary>Answer</summary><p>Exactly when 2<em class="m">g</em> − 2 + <em class="m">n</em> &gt; 0, which rules out only (0, 0), (0, 1), (0, 2) and (1, 0). If 2<em class="m">g</em> − 2 + <em class="m">n</em> &gt; 0, the single vertex of weight <em class="m">g</em> carrying all <em class="m">n</em> legs is stable, because its stability condition is exactly 2<em class="m">g</em> − 2 + <em class="m">n</em> &gt; 0. Conversely, the vertex bound from Part 2 says a stable graph has |<em class="m">V</em>| ≤ 2<em class="m">g</em> − 2 + <em class="m">n</em>, and every graph has at least one vertex, so 2<em class="m">g</em> − 2 + <em class="m">n</em> ≥ 1.</p></details></li>
           <li><p>Show that edge contraction preserves genus and stability.</p><details><summary>Hint</summary><p>See the two key facts at the end of Part 2: track |<em class="m">E</em>| − |<em class="m">V</em>| + 1, the weights, and 2<em class="m">w</em>(<em class="m">v</em>) − 2 + |<em class="m">r</em><sup>−1</sup>(<em class="m">v</em>)| for the vertices involved.</p></details></li>
-          <li><p>How many stable graphs of type (0, 6) have 3 edges?</p><details><summary>Answer</summary><p>105, the number of trivalent trees with 6 labelled leaves, which is (2 · 6 − 5)!! = 7 · 5 · 3.</p></details></li>
-          <li><p>Show that Δ<sub>0,5</sub> has no 3-cycles and no 4-cycles, so its girth is 5.</p></li>
+          <li><p>Show that there are 2<sup><em class="m">n</em> − 1</sup> − <em class="m">n</em> − 1 stable graphs of type (0, <em class="m">n</em>) with exactly one edge.</p><details><summary>Answer</summary><p>Such a graph is a tree with two vertices of weight 0 joined by an edge, so it is determined by how the legs 1, …, <em class="m">n</em> split between the two vertices. Each vertex already has one half-edge from the edge, so stability asks for at least two legs on each side. To count each split once, look at the side containing leg 1. It can be any set of legs containing 1, which gives 2<sup><em class="m">n</em> − 1</sup> choices, except three kinds that leave a side with fewer than two legs: the set {1} on its own, the set of all <em class="m">n</em> legs, and the <em class="m">n</em> − 1 sets that leave out exactly one other leg. That leaves 2<sup><em class="m">n</em> − 1</sup> − 1 − 1 − (<em class="m">n</em> − 1) = 2<sup><em class="m">n</em> − 1</sup> − <em class="m">n</em> − 1. For <em class="m">n</em> = 4, 5, 6 this gives 3, 10 and 25: the three rays of <em class="m">M</em><sub>0,4</sub>, the ten vertices of Δ<sub>0,5</sub>, and the 25 vertices of Δ<sub>0,6</sub>.</p></details></li>
+          <li><p>How many stable graphs of type (<em class="m">g</em>, <em class="m">n</em>) = (0, 6) have 3 edges?</p><details><summary>Answer</summary><p>105, the number of trivalent trees with 6 labelled leaves, which is (2 · 6 − 5)!! = 7 · 5 · 3.</p></details></li>
           <li><p>The space Δ<sub>0,6</sub> is 2-dimensional: it has a vertex for each tree with one edge, an edge for each tree with two edges, and a triangle for each trivalent tree. The <b>link</b> of a vertex is the graph with one point for each edge of Δ<sub>0,6</sub> at that vertex, and a segment between two points for each triangle that contains both edges. Explain why the link of the vertex 56 | 1234 (the tree with one edge separating legs 5 and 6 from legs 1, 2, 3, 4) is the Petersen graph. You can see it in the <a href="index.html#g0-n6">explorer</a>.</p><details><summary>Hint</summary><p>A tree that contracts to 56 | 1234 must split its vertex carrying legs 1, 2, 3, 4. That vertex has five half-edges: four legs and the edge towards legs 5 and 6. Splitting it is the same as choosing a point of Δ<sub>0,5</sub>, with the edge playing the role of a fifth leg. So the link is a copy of Δ<sub>0,5</sub>, which is the Petersen graph from Part 4.</p></details></li>
-          <li><p>Verify the list of 7 stable graphs of type (2, 0), and compute |Aut| for the theta graph.</p><details><summary>Answer</summary><p>12. The symmetric group <em class="m">S</em><sub>3</sub> permutes the three edges, and ℤ/2 swaps the two vertices.</p></details></li>
+          <li><p>Verify the list of 7 stable graphs of type (2, 0), and compute |Aut| for each of them.</p><details><summary>Answer</summary><ul>
+            <li>Theta: 12. The symmetric group <em class="m">S</em><sub>3</sub> permutes the three edges, and ℤ/2ℤ swaps the two vertices: 6&nbsp;·&nbsp;2.</li>
+            <li>Dumbbell: 8. Each loop can be flipped, and the two halves can be swapped: 2&nbsp;·&nbsp;2&nbsp;·&nbsp;2.</li>
+            <li>Figure-eight: 8. Each loop can be flipped, and the two loops can be swapped: 2&nbsp;·&nbsp;2&nbsp;·&nbsp;2.</li>
+            <li>Lasso: 2. The loop can be flipped.</li>
+            <li>One vertex of weight 1 with a loop: 2. The loop can be flipped.</li>
+            <li>Two vertices of weight 1 joined by an edge: 2. The two vertices can be swapped, which flips the edge.</li>
+            <li>One vertex of weight 2: 1. There are no half-edges to move.</li>
+          </ul></details></li>
           <li><p>Challenge: show that the number of trivalent trees with <em class="m">n</em> labelled leaves is (2<em class="m">n</em> − 5)!!.</p></li>
         </ol>
         <h3>Further reading</h3>
@@ -890,9 +888,9 @@
   <section class="slide" data-part="4" data-title="M₁,₁: a ray">
     <h2><em class="m">M</em><sub>1,1</sub>: a ray</h2>
     <ul class="pts">
+      <li class="step">Edge bound: |<em class="m">E</em>| ≤ 3<em class="m">g</em> − 3 + <em class="m">n</em> = 3 · 1 − 3 + 1 = 1. At most one edge.</li>
       <li class="step">Two graphs: a vertex of weight 1 with the leg, and a weight-0 vertex with a loop and the leg.</li>
-      <li class="step">Aut = ℤ/2 flips the loop, but the loop keeps its length.</li>
-      <li class="step">So <em class="m">M</em><sub>1,1</sub> is a ray, just like the segments. The automorphism leaves no trace.</li>
+      <li class="step">So <em class="m">M</em><sub>1,1</sub> is a ray, just like the segments.</li>
     </ul>
   </section>
 
@@ -902,24 +900,10 @@
     <div class="slot" data-fig='.space[data-space="1,1"]'></div>
   </section>
 
-  <section class="slide" data-part="4" data-title="M₁,₂: a segment">
-    <h2><em class="m">M</em><sub>1,2</sub>: a segment</h2>
-    <ul class="pts">
-      <li class="step"><b>A:</b> two parallel edges, with legs on different vertices. Swapping the edges folds its segment in half.</li>
-      <li class="step"><b>B:</b> a loop joined by a bridge to a vertex with both legs. Its segment is not folded.</li>
-      <li class="step">Glued: from D (the loop contracted) through B to C (one loop), then through A to the point where ℓ<sub>1</sub> = ℓ<sub>2</sub>.</li>
-    </ul>
-  </section>
-
-  <section class="slide interactive" data-part="4" data-title="Explore M₁,₂">
-    <h2>Explore <em class="m">M</em><sub>1,2</sub></h2>
-    <p class="prompt">The hollow diamond is the fold, where the two parallel edges have equal length.</p>
-    <div class="slot" data-fig='.space[data-space="1,2"]'></div>
-  </section>
-
   <section class="slide interactive" data-part="4" data-title="Activity: genus 2, no legs">
     <h2>Activity: genus 2, no legs</h2>
-    <p class="prompt">List all 7 stable graphs of genus 2 with no legs: at most 2 vertices and at most 3 edges. Then reveal the rows.</p>
+    <p class="prompt">List all 7 stable graphs of genus 2 with no legs. What do the bounds say for <em class="m">g</em> = 2, <em class="m">n</em> = 0?</p>
+    <div class="formula">|<i>V</i>| ≤ 2<i>g</i> − 2 + <i>n</i> &nbsp;and&nbsp; |<i>E</i>| ≤ 3<i>g</i> − 3 + <i>n</i><span class="step"> &nbsp;⟹&nbsp; at most 2 vertices and 3 edges.</span></div>
     <div class="slot" data-fig="#w-g2"></div>
   </section>
 
@@ -936,12 +920,13 @@
       <li class="step">ℳ<sub><em class="m">g</em>,<em class="m">n</em></sub>: Riemann surfaces of genus <em class="m">g</em> with <em class="m">n</em> marked points.</li>
       <li class="step">It has complex dimension 3<em class="m">g</em> − 3 + <em class="m">n</em>, the same as our bound on the number of edges.</li>
       <li class="step">That is not a coincidence.</li>
+      <li class="step">Why marked points? Punctures (the plane is a sphere minus a point), and branch points of covers (<em class="m">z</em> ↦ <em class="m">z</em><sup>2</sup> branches at 0 and ∞). Marked points will become our legs.</li>
     </ul>
   </section>
 
   <section class="slide" data-part="5" data-title="Nodal curves and dual graphs">
     <h2>Nodal curves and dual graphs</h2>
-    <p class="lead step">When a loop on a surface pinches to a point, the limit is a <b>nodal curve</b>: surfaces glued at points.</p>
+    <p class="lead step">However, ℳ<sub><em class="m">g</em>,<em class="m">n</em></sub> is not compact. When a loop on a surface pinches to a point, the limit is a <b>nodal curve</b>: surfaces, its <b>components</b>, glued at points, its <b>nodes</b>.</p>
     <table class="dict step">
       <thead><tr><th>Nodal curve</th><th>Dual graph</th></tr></thead>
       <tbody>
@@ -955,15 +940,25 @@
 
   <section class="slide interactive" data-part="5" data-title="Pinching a surface">
     <h2>Pinching a surface</h2>
-    <p class="prompt">Slide a curve all the way to pinch it to a node.</p>
+    <p class="prompt">Slide a curve all the way to pinch it to a node. Can you make the dumbbell? The theta graph?</p>
     <div class="slot" data-fig="#w-pinch"></div>
+  </section>
+
+  <section class="slide" data-part="5" data-title="Compactifying">
+    <h2>Compactifying ℳ<sub><em class="m">g</em>,<em class="m">n</em></sub></h2>
+    <ul class="pts">
+      <li class="step">Add <b>boundary strata</b>, one for each possible dual graph <em class="m">G</em>: the nodal curves whose dual graph is <em class="m">G</em>.</li>
+      <li class="step">The result is the compactified moduli space <span class="ovl">ℳ</span><sub><em class="m">g</em>,<em class="m">n</em></sub>.</li>
+      <li class="step">So the moduli space of graphs knows the combinatorics of the boundary of <span class="ovl">ℳ</span><sub><em class="m">g</em>,<em class="m">n</em></sub>.</li>
+    </ul>
   </section>
 
   <section class="slide" data-part="5" data-title="Everything lines up">
     <h2>Everything lines up</h2>
     <ul class="pts">
-      <li class="step">A nodal curve is stable exactly when its dual graph is stable.</li>
-      <li class="step">Contracting an edge is smoothing a node. The cones glue like the boundary strata of the compactified moduli space.</li>
+      <li class="step">A nodal curve is stable (finitely many automorphisms) exactly when its dual graph is stable.</li>
+      <li class="step">Why finitely many? Automorphisms fold the space, like Aut(<em class="m">G</em>) folds a cone. A finite fold is fine; the infinitely many rotations of a sphere with two marked points would wreck it.</li>
+      <li class="step">Contracting an edge in the graph is smoothing a node. The cones glue like the boundary strata of <span class="ovl">ℳ</span><sub><em class="m">g</em>,<em class="m">n</em></sub>.</li>
       <li class="step">The length of an edge measures, roughly, how fast its neck pinches.</li>
     </ul>
   </section>
@@ -977,15 +972,6 @@
     </ul>
   </section>
 
-  <section class="slide" data-part="5" data-title="Back to M₀,₅">
-    <h2>Back to <em class="m">M</em><sub>0,5</sub></h2>
-    <ul class="pts">
-      <li class="step">The compactified moduli space of 5 points on the sphere is a complex surface with 10 boundary curves, one for each 2-subset.</li>
-      <li class="step">Two of them meet exactly when their 2-subsets are disjoint. The Petersen graph is the picture.</li>
-    </ul>
-    <p class="lead step closing">Trees, cycles, contraction, automorphisms and the Petersen graph all show up in current research on the geometry of surfaces.</p>
-  </section>
-
   <section class="slide title end" data-part="5" data-title="Questions">
     <h1>Questions?</h1>
     <p class="sub">Explore more types (<em class="m">g</em>, <em class="m">n</em>) in the explorer, and find the exercises at the end of the notes.</p>
@@ -995,10 +981,10 @@
 
 <script src="js/core.js?v=7"></script>
 <script src="js/draw.js?v=11"></script>
-<script src="js/spaces.js?v=7"></script>
+<script src="js/spaces.js?v=8"></script>
 <script src="js/spacepic.js?v=7"></script>
 <script src="js/turntable.js?v=1"></script>
-<script src="js/lecture.js?v=14"></script>
+<script src="js/lecture.js?v=16"></script>
 <script src="js/deck.js?v=2"></script>
 </body>
 </html>
