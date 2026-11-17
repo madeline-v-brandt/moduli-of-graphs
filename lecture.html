@@ -10,8 +10,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="style.css?v=11">
-<link rel="stylesheet" href="lecture.css?v=11">
-<link rel="stylesheet" href="deck.css?v=6">
+<link rel="stylesheet" href="lecture.css?v=12">
+<link rel="stylesheet" href="deck.css?v=7">
 </head>
 <body>
 <div class="wrap notes-wrap">
@@ -281,17 +281,18 @@
         </figure>
 
         <h3>Step 2: gluing the spaces together</h3>
-        <p>Step 1 gives one space for each graph, and so far these spaces have nothing to do with each other. But they should be connected. When the length of an edge shrinks to 0, the metric graph looks more and more like the graph where that edge has been contracted. In a moduli space, moving continuously should deform the graph continuously, so a path along which ℓ(<em class="m">e</em>) shrinks to 0 should arrive in the space of the contracted graph. This is just like the segments in Part 1, which approached the degenerate segment at the boundary point 0.</p>
-        <p>We build this in two moves. First, allow lengths to be 0, by closing up the orthant to ℝ<span class="ss"><sup><em class="m">E</em>(<em class="m">G</em>)</sup><sub>≥0</sub></span>. Second, decide which metric graph a point with ℓ(<em class="m">e</em>) = 0 is: it should be the graph where <em class="m">e</em> has shrunk away, the contraction <em class="m">G</em>/<em class="m">e</em> from Part 2. So we glue the face {ℓ(<em class="m">e</em>) = 0} of the orthant of <em class="m">G</em> to the orthant of <em class="m">G</em>/<em class="m">e</em>. In the figure above, each axis is a copy of the ray of the graph with one loop and both legs on its vertex, and the corner is the single vertex of weight 1.</p>
+        <p>Step 1 gives one space for each graph, and so far these spaces have nothing to do with each other. But they should be connected. When the length of an edge shrinks to 0, the metric graph looks more and more like the graph where that edge has been contracted. In a moduli space, moving continuously should deform the graph continuously, so a path in the moduli space along which ℓ(<em class="m">e</em>) shrinks to 0 should arrive in the space of the contracted graph. This is just like the segments in Part 1, which approached the degenerate segment at the boundary point 0.</p>
+        <p>We construct the moduli space of graphs in two steps. First, close up the orthant to ℝ<span class="ss"><sup><em class="m">E</em>(<em class="m">G</em>)</sup><sub>≥0</sub></span> by allowing edge lengths to be 0. Second, decide which metric graph a point with ℓ(<em class="m">e</em>) = 0 is: it should be the graph where <em class="m">e</em> has shrunk away, the contraction <em class="m">G</em>/<em class="m">e</em> from Part 2. So we glue the orthant of <em class="m">G</em>/<em class="m">e</em> to the face of the orthant of <em class="m">G</em> where ℓ(<em class="m">e</em>) = 0. We call this gluing relation ∼. In the figure above, each axis is a copy of the ray of the graph with one loop and both legs on its vertex, and the corner is the single vertex of weight 1.</p>
 
         <div class="theorem">
           <div class="eyebrow">Definition · the moduli space of graphs</div>
           <div class="display"><span><i>M</i><sub><i>g</i>,<i>n</i></sub> = </span><span>( <span class="bigop">⊔<small>G</small></span> ℝ<span class="ss"><sup><i>E</i>(<i>G</i>)</sup><sub>≥0</sub></span> / Aut(<i>G</i>) ) / ∼</span></div>
-          <p>The union runs over the stable graphs <em class="m">G</em> of type (<em class="m">g</em>, <em class="m">n</em>), one from each isomorphism class. Each term ℝ<span class="ss"><sup><em class="m">E</em>(<em class="m">G</em>)</sup><sub>≥0</sub></span> / Aut(<em class="m">G</em>) is the space for the single graph <em class="m">G</em> from Step 1, with lengths now allowed to be 0. The relation ∼ glues these spaces together by edge contraction: it identifies the face ℓ(<em class="m">e</em>) = 0 in the space of <em class="m">G</em> with the space of <em class="m">G</em>/<em class="m">e</em>.</p>
+          <p>The union runs over the stable graphs <em class="m">G</em> of type (<em class="m">g</em>, <em class="m">n</em>), one from each isomorphism class. Each term ℝ<span class="ss"><sup><em class="m">E</em>(<em class="m">G</em>)</sup><sub>≥0</sub></span> / Aut(<em class="m">G</em>) is the space for the single graph <em class="m">G</em> from Step 1, with lengths now allowed to be 0. The relation ∼ is the gluing from Step 2: it glues the space of <em class="m">G</em>/<em class="m">e</em> to the face ℓ(<em class="m">e</em>) = 0 of the space of <em class="m">G</em>.</p>
         </div>
         <ul class="plain-bullets">
           <li>As a set, the points of <em class="m">M</em><sub><em class="m">g</em>,<em class="m">n</em></sub> are exactly the isomorphism classes of metric stable graphs of type (<em class="m">g</em>, <em class="m">n</em>). The graph with no edges, one vertex of weight <em class="m">g</em> carrying all <em class="m">n</em> legs, is a single <b>cone point</b> where every piece meets.</li>
-          <li>Each piece is a <b>cone</b>: scaling all the lengths of one of its points by a positive number gives another point of the same piece, so the piece is made of rays starting at the cone point. The pieces are indexed by graphs. A graph with <em class="m">k</em> edges gives a <em class="m">k</em>-dimensional piece, and contraction says which piece is a face of which. The graphs ordered by contraction form the poset drawn in the <a href="index.html">explorer</a>.</li>
+          <li>Each piece is a <b>cone</b>: scaling all the lengths of one of its points by a positive number gives another point of the same piece, so the piece is made of rays starting at the cone point.</li>
+          <li>The pieces are indexed by graphs. A graph with <em class="m">k</em> edges gives a <em class="m">k</em>-dimensional piece, and contraction says which piece is a face of which. The graphs ordered by contraction form a <b>poset</b> (a set together with a partial order relation), drawn in the <a href="index.html">explorer</a>.</li>
           <li>By the edge bound in Part 2, the largest pieces have dimension 3<em class="m">g</em> − 3 + <em class="m">n</em>. They come from graphs with all weights 0 and all vertices trivalent.</li>
           <li>Symmetry folds the space: a graph whose automorphisms permute its edges gives a folded cone.</li>
         </ul>
@@ -325,26 +326,27 @@
       <!-- ================= PART 4 ================= -->
       <section id="part4" class="part" aria-labelledby="h-part4">
         <div class="part-head"><div class="eyebrow">Part 4</div><h2 id="h-part4">Examples</h2></div>
-        <p>In genus 0 every weight is 0 and every graph is a tree (|<em class="m">E</em>| − |<em class="m">V</em>| + 1 = 0). So a stable graph of type (0, <em class="m">n</em>) is a tree whose leaves are the <em class="m">n</em> labelled legs and whose vertices all have valence at least 3. Biologists call these <b>phylogenetic trees</b>, and <em class="m">M</em><sub>0,<em class="m">n</em></sub> is the space of phylogenetic trees on <em class="m">n</em> labelled species. Every leg is labelled, so these trees have no nontrivial automorphisms and nothing gets folded.</p>
+        <h3>Genus 0: trees</h3>
+        <p>In genus 0 every weight is 0 and every graph is a tree (|<em class="m">E</em>| − |<em class="m">V</em>| + 1 = 0). So a stable graph of type (0, <em class="m">n</em>) is a tree whose leaves are the <em class="m">n</em> labelled legs and whose vertices all have at least 3 half-edges. Biologists call these <b>phylogenetic trees</b>, and <em class="m">M</em><sub>0,<em class="m">n</em></sub> is the space of phylogenetic trees on <em class="m">n</em> labelled species. Every leg is labelled, so these trees have no nontrivial automorphisms and nothing gets folded.</p>
 
-        <h3><em class="m">M</em><sub>0,3</sub>: a point</h3>
+        <h4 class="ex"><em class="m">M</em><sub>0,3</sub>: a point</h4>
         <p>The bound allows at most 3 · 0 − 3 + 3 = 0 edges. The only stable graph is one vertex with legs 1, 2, 3, so <em class="m">M</em><sub>0,3</sub> is a single point.</p>
 
-        <h3><em class="m">M</em><sub>0,4</sub>: three rays</h3>
-        <p>Now at most one edge is allowed. With no edges there is one vertex carrying legs 1, 2, 3, 4: the cone point. With one edge there are two trivalent vertices, and the legs split two and two. There are three ways to do that: 12|34, 13|24 and 14|23. Each gives a ray ℝ<sub>≥0</sub> of edge lengths, and contracting the edge sends each ray's endpoint to the cone point. So <em class="m">M</em><sub>0,4</sub> is three rays glued at a point, and Δ<sub>0,4</sub> is three points. Is <em class="m">M</em><sub>0,4</sub> a graph? Yes: a star <em class="m">K</em><sub>1,3</sub> with infinitely long edges.</p>
+        <h4 class="ex"><em class="m">M</em><sub>0,4</sub>: three rays</h4>
+        <p>Now at most one edge is allowed. With no edges there is one vertex carrying legs 1, 2, 3, 4: the cone point. With one edge there are two trivalent vertices, and the legs split two and two. There are three ways to do that: 12|34, 13|24 and 14|23. Each gives a ray ℝ<sub>≥0</sub> of edge lengths, and contracting the edge sends each ray's endpoint to the cone point. So <em class="m">M</em><sub>0,4</sub> is three rays glued at a point, and Δ<sub>0,4</sub> is three points.</p>
         <div class="space spc lw" data-space="0,4"></div>
 
-        <h3><em class="m">M</em><sub>0,5</sub>: the Petersen graph</h3>
-        <p>Now dim <em class="m">M</em><sub>0,5</sub> = 2, so Δ<sub>0,5</sub> is 1-dimensional. It is a graph. Let's find its vertices and edges.</p>
-        <p><b>Vertices of Δ<sub>0,5</sub> are trees with one edge.</b> One edge splits the legs into two sides, and each side needs at least 2 legs so that both vertices are at least trivalent. So the split is a 2-subset against a 3-subset of {1, …, 5}. Label the tree by its 2-subset {<em class="m">i</em>, <em class="m">j</em>}. There are C(5, 2) = 10 of them.</p>
-        <p><b>Edges of Δ<sub>0,5</sub> are trees with two edges.</b> A trivalent tree with 5 legs has 3 internal vertices and 2 edges: a pair of legs at each end and one leg in the middle. This is a <b>caterpillar</b>. Contracting either edge gives a one-edge tree. If the ends hold the pairs {<em class="m">i</em>, <em class="m">j</em>} and {<em class="m">k</em>, <em class="m">l</em>}, the two contractions are the trees labelled {<em class="m">i</em>, <em class="m">j</em>} and {<em class="m">k</em>, <em class="m">l</em>}. To count them: 5 choices for the middle leg, then 3 ways to split the other four into two pairs, for 15 trees.</p>
-        <p><b>So</b> Δ<sub>0,5</sub> has a vertex for each 2-subset of {1, …, 5}, and {<em class="m">i</em>, <em class="m">j</em>} is adjacent to {<em class="m">k</em>, <em class="m">l</em>} exactly when the two subsets are disjoint. That is the Kneser graph <em class="m">K</em>(5, 2), which is the <b>Petersen graph</b>. Before looking at the answer, try to label it yourself.</p>
+        <h4 class="ex"><em class="m">M</em><sub>0,5</sub>: a graph?</h4>
+        <p>Now dim <em class="m">M</em><sub>0,5</sub> = 2, so Δ<sub>0,5</sub> is 1-dimensional. It is a graph! Let's find its vertices and edges.</p>
+        <p><b>Vertices of Δ<sub>0,5</sub> are trees with one edge.</b> A tree with one edge has one length parameter, so it gives a ray in <em class="m">M</em><sub>0,5</sub>. Slicing the ray at total length 1 leaves a single point: a vertex of Δ<sub>0,5</sub>. So we need to find the trees with one edge. Such a tree has two vertices, and we have to decide how to distribute the legs 1, 2, 3, 4, 5 between them. Each vertex already has one half-edge from the edge, so it needs at least 2 legs to have at least 3 half-edges. With 5 legs, the only way is 2 legs on one side and 3 on the other. So the tree is determined by the pair of legs on its smaller side, and we label it by that pair, for example 12 | 345 or just {1, 2}. There are C(5, 2) = 10 of them.</p>
+        <p><b>Edges of Δ<sub>0,5</sub> are trees with two edges.</b> A tree with two edges has two length parameters ℓ<sub>1</sub>, ℓ<sub>2</sub>, so it gives a quadrant in <em class="m">M</em><sub>0,5</sub>. Slicing the quadrant at ℓ<sub>1</sub> + ℓ<sub>2</sub> = 1 leaves a segment: an edge of Δ<sub>0,5</sub>. Its two endpoints are where ℓ<sub>1</sub> = 0 or ℓ<sub>2</sub> = 0, so they are the two one-edge trees we get by contracting one of the edges. Which trees have two edges? Such a tree has three vertices in a row: two end vertices with one edge each, and a middle vertex with two. Each end vertex needs at least 2 legs and the middle vertex needs at least 1, and 2 + 2 + 1 = 5 uses up all the legs. So there is a pair of legs at each end and one leg in the middle. This is a <b>caterpillar</b>. If the ends hold the pairs {<em class="m">i</em>, <em class="m">j</em>} and {<em class="m">k</em>, <em class="m">l</em>}, contracting one edge gives the tree {<em class="m">i</em>, <em class="m">j</em>} and contracting the other gives the tree {<em class="m">k</em>, <em class="m">l</em>}. So the edge of Δ<sub>0,5</sub> joins {<em class="m">i</em>, <em class="m">j</em>} to {<em class="m">k</em>, <em class="m">l</em>}, two disjoint pairs. To count the caterpillars: 5 choices for the middle leg, then 3 ways to split the other four into two pairs, for 15.</p>
+        <p><b>So</b> Δ<sub>0,5</sub> has a vertex for each 2-subset of {1, …, 5}, and {<em class="m">i</em>, <em class="m">j</em>} is adjacent to {<em class="m">k</em>, <em class="m">l</em>} exactly when the two subsets are disjoint. This graph is the <b>Petersen graph</b>. Before looking at the answer, try to label it yourself.</p>
 
         <figure class="fig" id="w-pet">
           <div class="fig-pair pet">
             <div><svg id="pet-svg" viewBox="0 0 360 340" role="group" aria-label="An unlabelled Petersen graph. Choose a vertex, then a pair."></svg></div>
             <div class="pet-side">
-              <h4>Pairs</h4>
+              <div class="pet-head"><h4 id="pet-chips-h">Trees with one edge</h4><div class="seg-ctl" role="group" aria-label="Show the labels as" id="pet-mode"><button type="button" class="segbtn" data-m="tree" aria-pressed="true">Trees</button><button type="button" class="segbtn" data-m="set" aria-pressed="false">Sets</button></div></div>
               <div class="pet-chips" id="pet-chips" role="group" aria-label="2-subsets of {1,…,5}"></div>
               <div class="pet-score" id="pet-score" aria-live="polite"></div>
               <div class="row">
@@ -354,7 +356,7 @@
               </div>
             </div>
           </div>
-          <figcaption class="fig-cap">Choose a vertex, then a pair. An edge turns solid when its two pairs are disjoint and red when they overlap. When all fifteen edges are solid, the vertices are the one-edge trees and the edges are the caterpillars.</figcaption>
+          <figcaption class="fig-cap">Choose a vertex, then a one-edge tree. Two trees can be joined by an edge when they are the two contractions of a caterpillar, that is, when the pairs of legs on their smaller sides are disjoint. An edge turns solid when its two pairs are disjoint and red when they overlap. Switch to sets to label by the pairs instead. When all fifteen edges are solid, the vertices are the one-edge trees and the edges are the caterpillars.</figcaption>
         </figure>
 
         <p>Each edge of Δ<sub>0,5</sub> is a family of caterpillars. Walking along the edge from {<em class="m">i</em>, <em class="m">j</em>} to {<em class="m">k</em>, <em class="m">l</em>} shrinks one internal edge while the other grows. Drag the point to watch it happen.</p>
@@ -364,7 +366,7 @@
         <ul class="plain-bullets">
           <li>Each vertex {<em class="m">i</em>, <em class="m">j</em>} has C(3, 2) = 3 disjoint partners, so the graph is 3-regular with 10 · 3 / 2 = 15 edges.</li>
           <li>So <em class="m">M</em><sub>0,5</sub> is the cone over the Petersen graph: 15 two-dimensional quadrants, glued in threes along 10 rays.</li>
-          <li>The cycle rank of the Petersen graph is 15 − 10 + 1 = 6 = 3!. In general Δ<sub>0,<em class="m">n</em></sub> is homotopy equivalent to a wedge of (<em class="m">n</em> − 2)! spheres of dimension <em class="m">n</em> − 4. For <em class="m">n</em> = 5 that is 6 circles.</li>
+          <li>The cycle rank of the Petersen graph is 15 − 10 + 1 = 6 = 3!. In general Δ<sub>0,<em class="m">n</em></sub> is homotopy equivalent to a wedge of (<em class="m">n</em> − 2)! spheres of dimension <em class="m">n</em> − 4. For <em class="m">n</em> = 5 that is 6 circles. For <em class="m">n</em> = 6 it is 24 two-dimensional spheres: see Δ<sub>0,6</sub> in the <a href="index.html#g0-n6">explorer</a>.</li>
         </ul>
 
         <h3>Examples with genus</h3>
@@ -773,9 +775,9 @@
   <section class="slide" data-part="3" data-title="Step 2: gluing the spaces together">
     <h2>Step 2: gluing the spaces together</h2>
     <ul class="pts">
-      <li class="step">As ℓ(<em class="m">e</em>) shrinks to 0, the metric graph looks more and more like <em class="m">G</em>/<em class="m">e</em>. Moving continuously should deform the graph continuously.</li>
-      <li class="step">So allow lengths to be 0: close up the orthant to ℝ<span class="ss"><sup><em class="m">E</em>(<em class="m">G</em>)</sup><sub>≥0</sub></span>.</li>
-      <li class="step">Then glue the face {ℓ(<em class="m">e</em>) = 0} of the orthant of <em class="m">G</em> to the orthant of <em class="m">G</em>/<em class="m">e</em>.</li>
+      <li class="step">As ℓ(<em class="m">e</em>) shrinks to 0, the metric graph looks more and more like <em class="m">G</em>/<em class="m">e</em>. So a path in the moduli space along which ℓ(<em class="m">e</em>) shrinks to 0 should arrive in the space of <em class="m">G</em>/<em class="m">e</em>.</li>
+      <li class="step">We construct the moduli space in two steps. First, close up the orthant to ℝ<span class="ss"><sup><em class="m">E</em>(<em class="m">G</em>)</sup><sub>≥0</sub></span> by allowing edge lengths to be 0.</li>
+      <li class="step">Second, glue the orthant of <em class="m">G</em>/<em class="m">e</em> to the face of the orthant of <em class="m">G</em> where ℓ(<em class="m">e</em>) = 0. We call this gluing relation ∼.</li>
     </ul>
   </section>
 
@@ -784,7 +786,7 @@
     <div class="display"><span><i>M</i><sub><i>g</i>,<i>n</i></sub> = </span><span>( <span class="bigop">⊔<small>G</small></span> ℝ<span class="ss"><sup><i>E</i>(<i>G</i>)</sup><sub>≥0</sub></span> / Aut(<i>G</i>) ) / ∼</span></div>
     <ul class="pts">
       <li class="step">One term for each stable graph of type (<em class="m">g</em>, <em class="m">n</em>): the space of that graph from Step 1, with lengths allowed to be 0.</li>
-      <li class="step">∼ glues them by edge contraction: the face ℓ(<em class="m">e</em>) = 0 of the space of <em class="m">G</em> is the space of <em class="m">G</em>/<em class="m">e</em>.</li>
+      <li class="step">∼ is the gluing from Step 2: the space of <em class="m">G</em>/<em class="m">e</em> is glued to the face ℓ(<em class="m">e</em>) = 0 of the space of <em class="m">G</em>.</li>
       <li class="step">Its points are exactly the isomorphism classes of metric stable graphs of type (<em class="m">g</em>, <em class="m">n</em>).</li>
     </ul>
   </section>
@@ -794,6 +796,7 @@
     <ul class="pts">
       <li class="step">One <b>cone point</b>: the vertex of weight <em class="m">g</em> carrying all <em class="m">n</em> legs.</li>
       <li class="step">Each piece is a <b>cone</b>: scaling the lengths of a point by any positive number stays in the piece.</li>
+      <li class="step">The pieces are indexed by graphs, and contraction says which piece is a face of which. The graphs form a <b>poset</b> (a set together with a partial order relation).</li>
       <li class="step">A graph with <em class="m">k</em> edges gives a <em class="m">k</em>-dimensional cone. The largest have dimension 3<em class="m">g</em> − 3 + <em class="m">n</em>.</li>
       <li class="step">Symmetry folds the space: automorphisms that permute edges fold their cone.</li>
     </ul>
@@ -832,7 +835,7 @@
     <ul class="pts">
       <li class="step">At most one edge. With no edges: one vertex with all four legs, the cone point.</li>
       <li class="step">With one edge the legs split two and two: 12|34, 13|24, 14|23.</li>
-      <li class="step">Each gives a ray, and the rays meet at the cone point: a star with three infinite edges.</li>
+      <li class="step">Each gives a ray, and the three rays meet at the cone point.</li>
     </ul>
   </section>
 
@@ -842,27 +845,29 @@
     <div class="slot" data-fig='.space[data-space="0,4"]'></div>
   </section>
 
-  <section class="slide" data-part="4" data-title="M₀,₅: the vertices">
-    <h2><em class="m">M</em><sub>0,5</sub>: the vertices of Δ<sub>0,5</sub></h2>
+  <section class="slide" data-part="4" data-title="M₀,₅: a graph?">
+    <h2><em class="m">M</em><sub>0,5</sub>: a graph?</h2>
     <ul class="pts">
       <li class="step">dim <em class="m">M</em><sub>0,5</sub> = 2, so Δ<sub>0,5</sub> is 1-dimensional. It is a graph!</li>
-      <li class="step">Its vertices are trees with one edge. The edge splits the legs 2 | 3, so label the tree by its 2-subset {<em class="m">i</em>, <em class="m">j</em>}.</li>
-      <li class="step">There are C(5, 2) = 10 of them.</li>
+      <li class="step"><b>Vertices:</b> a tree with one edge has one length, so it gives a ray. Slicing the ray at total length 1 leaves one point: a vertex of Δ<sub>0,5</sub>.</li>
+      <li class="step">To build one, distribute the legs 1, …, 5 between its two vertices. Each vertex already has the edge, so it needs at least 2 legs: the split is 2 | 3.</li>
+      <li class="step">Label the tree by its pair, for example 12 | 345 or {1, 2}. There are C(5, 2) = 10.</li>
     </ul>
   </section>
 
   <section class="slide" data-part="4" data-title="M₀,₅: the edges">
     <h2><em class="m">M</em><sub>0,5</sub>: the edges of Δ<sub>0,5</sub></h2>
     <ul class="pts">
-      <li class="step">Its edges are trees with two edges, <b>caterpillars</b>: a pair of legs at each end and one in the middle. There are 5 · 3 = 15.</li>
-      <li class="step">The caterpillar with ends {<em class="m">i</em>, <em class="m">j</em>} and {<em class="m">k</em>, <em class="m">l</em>} contracts to the trees {<em class="m">i</em>, <em class="m">j</em>} and {<em class="m">k</em>, <em class="m">l</em>}.</li>
-      <li class="step">Adjacent means disjoint: Δ<sub>0,5</sub> is the Kneser graph <em class="m">K</em>(5, 2), the <b>Petersen graph</b>.</li>
+      <li class="step"><b>Edges:</b> a tree with two edges has two lengths, so it gives a quadrant. Slicing at ℓ<sub>1</sub> + ℓ<sub>2</sub> = 1 leaves a segment, whose ends are the two contractions.</li>
+      <li class="step">Three vertices in a row: each end needs 2 legs and the middle needs 1. So a pair at each end and one leg in the middle: a <b>caterpillar</b>. There are 5 · 3 = 15.</li>
+      <li class="step">The caterpillar with ends {<em class="m">i</em>, <em class="m">j</em>} and {<em class="m">k</em>, <em class="m">l</em>} contracts to the trees {<em class="m">i</em>, <em class="m">j</em>} and {<em class="m">k</em>, <em class="m">l</em>}: adjacent means disjoint.</li>
+      <li class="step">This graph is the <b>Petersen graph</b>.</li>
     </ul>
   </section>
 
   <section class="slide interactive" data-part="4" data-title="Your turn: label the Petersen graph">
     <h2>Your turn: label the Petersen graph</h2>
-    <p class="prompt">Choose a vertex, then a pair, so that adjacent pairs are disjoint.</p>
+    <p class="prompt">Choose a vertex, then a tree, so that adjacent trees have disjoint pairs. Switch to sets to label by the pairs instead.</p>
     <div class="slot" data-fig="#w-pet"></div>
   </section>
 
@@ -878,6 +883,7 @@
       <li class="step">Each {<em class="m">i</em>, <em class="m">j</em>} has C(3, 2) = 3 disjoint partners: 3-regular, 10 · 3 / 2 = 15 edges.</li>
       <li class="step"><em class="m">M</em><sub>0,5</sub> is the cone over the Petersen graph: 15 quadrants, glued in threes along 10 rays.</li>
       <li class="step">Cycle rank 15 − 10 + 1 = 6 = 3!. In general Δ<sub>0,<em class="m">n</em></sub> is homotopy equivalent to a wedge of (<em class="m">n</em> − 2)! spheres of dimension <em class="m">n</em> − 4.</li>
+      <li class="step">For <em class="m">n</em> = 5 that is 6 circles. For <em class="m">n</em> = 6 it is 24 two-dimensional spheres: see Δ<sub>0,6</sub> in the <a href="index.html#g0-n6">explorer</a>.</li>
     </ul>
   </section>
 
@@ -992,7 +998,7 @@
 <script src="js/spaces.js?v=7"></script>
 <script src="js/spacepic.js?v=7"></script>
 <script src="js/turntable.js?v=1"></script>
-<script src="js/lecture.js?v=13"></script>
+<script src="js/lecture.js?v=14"></script>
 <script src="js/deck.js?v=2"></script>
 </body>
 </html>

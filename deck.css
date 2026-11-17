@@ -107,6 +107,7 @@ body.presenting { overflow: hidden; }
 .slot table.stab button { width: clamp(52px, 4.4vw, 76px); height: clamp(40px, 3.4vw, 60px); }
 .slot table.stab { font-size: 15px; }
 .slot .qwhy { font-size: 14px; }
+.slot .pet-chips.trees { max-width: 600px; }
 .slot .qbtns .segbtn { font-size: 13.5px; }
 .slot .g2-card { width: clamp(130px, 13vw, 190px); }
 .slot .con-hist button { width: 74px; }

@@ -234,6 +234,20 @@ table.stab button:hover, table.stab button:focus-visible, table.stab button.cur 
 #pet-svg .pe { stroke: var(--edge); stroke-width: 2; }
 #pet-svg .pe.ok { stroke: var(--mat); stroke-width: 3; }
 #pet-svg .pe.bad { stroke: var(--nm); stroke-width: 2.5; stroke-dasharray: 5 4; }
+/* labels drawn as little trees */
+.pet-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; }
+.pet-chips.trees { grid-template-columns: repeat(5, minmax(0, 1fr)); max-width: 440px; }
+.pet-chips.trees button { padding: 2px; }
+.pet-chips.trees svg { display: block; width: 100%; height: auto; }
+.pet-chips button.mine .tr-e, .pet-chips button.mine .tr-l { stroke: var(--paper); }
+.pet-chips button.mine .tr-v, .pet-chips button.mine .tr-t { fill: var(--paper); }
+.tr-e { stroke: var(--ink); stroke-width: 1.8; stroke-linecap: round; }
+.tr-l { stroke: var(--muted); stroke-width: 1.3; stroke-linecap: round; }
+.tr-v { fill: var(--ink); }
+.tr-t { fill: var(--ink); font-family: var(--mono); font-weight: 500; text-anchor: middle; dominant-baseline: central; }
+#pet-svg .pv text.tr-t { font: 500 8.2px var(--mono); }
+/* subsections inside a part, such as the genus-0 examples */
+.part h4.ex { font: 600 19px/1.3 var(--display); letter-spacing: 0; text-transform: none; color: var(--ink); margin-top: 10px; }
 
 /* genus 2 reveal */
 .g2 { display: grid; }

@@ -742,7 +742,7 @@
         <div class="calc">g = (|<i>E</i>| − |<i>V</i>| + 1) + ∑<i>w</i> = (${E} − ${V} + 1) + ${MG.sumW(G)} = ${g}</div>
         ${MD.stabilityHtml(G, { name: (v) => (V === 1 ? "v" : "v" + SUB[v + 1]), swatch: (v) => vcol(st.col[v]) })}
         ${st.msg ? `<div class="move">${st.msg}</div>` : `<p class="note">${E ? "Click an edge to contract it." : ""}</p>`}
-        ${E === 0 ? `<p class="note">No edges left: this is the single vertex of weight ${g}${n ? ` with all ${n} legs` : ""}, the bottom of the poset.</p>` : ""}`;
+        ${E === 0 ? `<p class="note">No edges left: this is the single vertex of weight ${g}${n ? ` with all ${n} legs` : ""}, which every graph of this genus${n ? " and number of legs" : ""} contracts to.</p>` : ""}`;
       hist.innerHTML = S.steps.map((s, i) => `${i ? `<span class="arrow" aria-hidden="true">→</span>` : ""}<button type="button" data-i="${i}" aria-current="${i === S.cur}" aria-label="Step ${i + 1}">${MD.graphSvg(s.G, { w: 84, h: 60, pad: 9, font: 7.5, dot: 2.6, strokeW: 1.3 })}<span>${i === 0 ? "start" : "step " + i}</span></button>`).join("");
       hist.querySelectorAll("button").forEach((b, i) => paint(b, S.steps[i]));
     }
@@ -1189,11 +1189,33 @@
         <p class="note">${spec.kind === "cone" ? `Edge length ${total.toFixed(3)}.` : `Total length ${total.toFixed(3)}.`} This graph has ${E} ${E === 1 ? "edge" : "edges"} and |Aut| = ${autCache.get(idx)}.${L.some((x) => x <= 0) && L.some((x) => x > 0) ? " Edges of length 0 are contracted." : ""}</p>`;
       svg.querySelectorAll("[data-idx]").forEach((x) => x.classList.toggle("sel", +x.dataset.idx === idx));
     }
+    /* In a space made of segments, the point stays on its segment until it comes within VSNAP
+       pixels of an end, where it sits on the vertex; only from there can it move onto another
+       segment. The cone point of a cone is a little stickier. Ends of rays are not vertices. */
+    const segs = spec.cells.every((c) => c.pts.length === 2);
+    const VSNAP = spec.kind === "cone" ? 12 : 6, FAR = 44;
+    const rayEnd = new Set(spec.rays || []);
     drag(svg, {
       move: (p) => {
         const q = tf.from(p);
-        const r = SP.nearest(spec, q, pt.ci, 3 / tf.s);
-        pt = { ci: r.ci, lam: r.lam };
+        if (!segs) {
+          const r = SP.nearest(spec, q, pt.ci, 3 / tf.s);
+          pt = { ci: r.ci, lam: r.lam };
+          update();
+          return;
+        }
+        let r;
+        const cur = SP.nearestInCell(spec, spec.cells[pt.ci], q);
+        if (pt.atV || cur.d * tf.s > FAR) r = SP.nearest(spec, q, null, 0); // free to choose a segment
+        else r = { ci: pt.ci, lam: cur.lam };
+        const cell = spec.cells[r.ci], P = SP.pointAt(spec, cell, r.lam);
+        let atV = null;
+        cell.pts.forEach((name, k) => {
+          if (rayEnd.has(name) || atV) return;
+          const V = spec.verts[name];
+          if (Math.hypot(P[0] - V[0], P[1] - V[1]) * tf.s < VSNAP) { atV = name; r.lam = cell.pts.map((_, j) => (j === k ? 1 : 0)); }
+        });
+        pt = { ci: r.ci, lam: r.lam, atV };
         update();
       },
     });
@@ -1213,10 +1235,34 @@
     const PAIRS = ["12", "13", "14", "15", "23", "24", "25", "34", "35", "45"];
     const SOL = ["12", "34", "15", "23", "45", "35", "25", "24", "14", "13"];
     const disjoint = (a, b) => !a.split("").some((c) => b.includes(c));
-    const pretty = (p) => `{${p[0]},${p[1]}}`;
-    const S = { L: new Array(10).fill(null), sel: 1, msg: "" };
+    const rest = (p) => "12345".split("").filter((c) => !p.includes(c)).join("");
+    const S = { L: new Array(10).fill(null), sel: 1, msg: "", mode: "tree" };
+    const pretty = (p) => (S.mode === "tree" ? `${p} | ${rest(p)}` : `{${p[0]},${p[1]}}`);
     S.L[0] = "12";
-    $("#pet-chips").innerHTML = PAIRS.map((p) => `<button type="button" data-p="${p}">${pretty(p)}</button>`).join("");
+    /* the tree with one edge that has legs p[0], p[1] on its left vertex and the other three on its
+       right vertex, centred at (cx, cy) */
+    function tree(p, cx, cy, k = 1) {
+      const L = [cx - 9 * k, cy], R = [cx + 9 * k, cy];
+      let o = `<line x1="${num(L[0])}" y1="${cy}" x2="${num(R[0])}" y2="${cy}" class="tr-e"/>`;
+      const leg = (V, a, lab) => {
+        const c = Math.cos(a), sn = Math.sin(a);
+        o += `<line x1="${num(V[0])}" y1="${num(V[1])}" x2="${num(V[0] + 12 * k * c)}" y2="${num(V[1] + 12 * k * sn)}" class="tr-l"/>`;
+        o += `<text x="${num(V[0] + 18 * k * c)}" y="${num(V[1] + 18 * k * sn)}" font-size="${num(8.6 * k)}" class="tr-t">${lab}</text>`;
+      };
+      const deg = (d) => (d * Math.PI) / 180;
+      leg(L, deg(212), p[0]); leg(L, deg(148), p[1]);
+      const q = rest(p);
+      leg(R, deg(-56), q[0]); leg(R, deg(0), q[1]); leg(R, deg(56), q[2]);
+      o += `<circle cx="${num(L[0])}" cy="${cy}" r="${num(2.2 * k)}" class="tr-v"/><circle cx="${num(R[0])}" cy="${cy}" r="${num(2.2 * k)}" class="tr-v"/>`;
+      return o;
+    }
+    function chips() {
+      $("#pet-chips").classList.toggle("trees", S.mode === "tree");
+      $("#pet-chips-h").textContent = S.mode === "tree" ? "Trees with one edge" : "Pairs";
+      $("#pet-chips").innerHTML = PAIRS.map((p) => `<button type="button" data-p="${p}" aria-label="${pretty(p)}">${S.mode === "tree" ? `<svg viewBox="0 0 64 40" aria-hidden="true">${tree(p, 31, 20)}</svg>` : pretty(p)}</button>`).join("");
+      $("#pet-mode").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.m === S.mode)));
+    }
+    chips();
     function complete(L) {
       const L2 = L.slice();
       const used = new Set(L2.filter(Boolean));
@@ -1244,7 +1290,14 @@
         o += `<line class="${cls}" x1="${num(pos[a][0])}" y1="${num(pos[a][1])}" x2="${num(pos[b][0])}" y2="${num(pos[b][1])}"/>`;
       });
       pos.forEach(([x, y], v) => {
-        o += `<g class="pv${S.L[v] ? " lab" : ""}${v === S.sel ? " sel" : ""}" data-v="${v}" tabindex="0" role="button" aria-label="Vertex ${v + 1}${S.L[v] ? ", labelled " + pretty(S.L[v]) : ", unlabelled"}" aria-pressed="${v === S.sel}"><circle class="bgc" cx="${num(x)}" cy="${num(y)}" r="20"/><circle class="fc" cx="${num(x)}" cy="${num(y)}" r="20"/><text x="${num(x)}" y="${num(y)}" text-anchor="middle" dominant-baseline="central">${S.L[v] ? S.L[v][0] + "," + S.L[v][1] : ""}</text></g>`;
+        const head = `<g class="pv${S.L[v] ? " lab" : ""}${v === S.sel ? " sel" : ""}" data-v="${v}" tabindex="0" role="button" aria-label="Vertex ${v + 1}${S.L[v] ? ", labelled " + pretty(S.L[v]) : ", unlabelled"}" aria-pressed="${v === S.sel}">`;
+        if (S.mode === "tree") {
+          // a card with a picture of the tree
+          const w = 62, h = 42;
+          o += `${head}<rect class="bgc" x="${num(x - w / 2)}" y="${num(y - h / 2)}" width="${w}" height="${h}" rx="7"/><rect class="fc" x="${num(x - w / 2)}" y="${num(y - h / 2)}" width="${w}" height="${h}" rx="7"/>${S.L[v] ? tree(S.L[v], x - 1, y, 0.95) : `<circle cx="${num(x)}" cy="${num(y)}" r="3.4" class="tr-v"/>`}</g>`;
+        } else {
+          o += `${head}<circle class="bgc" cx="${num(x)}" cy="${num(y)}" r="20"/><circle class="fc" cx="${num(x)}" cy="${num(y)}" r="20"/><text x="${num(x)}" y="${num(y)}" text-anchor="middle" dominant-baseline="central">${S.L[v] ? S.L[v][0] + "," + S.L[v][1] : ""}</text></g>`;
+        }
       });
       svg.innerHTML = o;
       $("#pet-chips").querySelectorAll("button").forEach((b) => {
@@ -1279,6 +1332,14 @@
         const nx = nextEmpty(S.sel);
         S.sel = nx;
       }
+      draw();
+    });
+    $("#pet-mode").addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-m]");
+      if (!b || b.dataset.m === S.mode) return;
+      S.mode = b.dataset.m;
+      S.msg = "";
+      chips();
       draw();
     });
     $("#pet-hint").addEventListener("click", () => {
