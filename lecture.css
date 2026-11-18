@@ -231,6 +231,11 @@ table.stab button:hover, table.stab button:focus-visible, table.stab button.cur 
 #pet-svg .pv:focus { outline: none; }
 #pet-svg .pv:focus-visible .fc { stroke: var(--atom); stroke-width: 3; }
 #pet-svg .pv text { fill: var(--ink); font: 500 13px var(--mono); pointer-events: none; }
+#pet-svg .pv text.q { fill: var(--muted); font: 500 15px var(--mono); }
+#pet-svg .fresh { animation: pet-in 0.6s ease both; }
+@keyframes pet-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { #pet-svg .fresh { animation: none; } }
+.pet-chips button:disabled { cursor: default; }
 #pet-svg .pe { stroke: var(--edge); stroke-width: 2; }
 #pet-svg .pe.ok { stroke: var(--mat); stroke-width: 3; }
 #pet-svg .pe.bad { stroke: var(--nm); stroke-width: 2.5; stroke-dasharray: 5 4; }
@@ -262,7 +267,8 @@ table.stab button:hover, table.stab button:focus-visible, table.stab button.cur 
 .g2-card span.nm { color: var(--ink); font: 13px var(--body); }
 
 /* pinching */
-.pinch-ctl { display: grid; grid-template-columns: repeat(2, max-content); gap: 10px 36px; padding: 12px 16px; border-top: 1px solid var(--rule); font-size: 13px; }
+.pinch-ctl { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 10px 24px; padding: 12px 16px; border-top: 1px solid var(--rule); font-size: 13px; }
+.pinch-sl { display: grid; grid-template-columns: repeat(2, max-content); gap: 10px 36px; }
 .pinch-ctl .pc { display: grid; gap: 4px; }
 .pinch-ctl input { width: 180px; max-width: 100%; margin: 0; accent-color: var(--mat); }
 .swatch { display: inline-block; width: 18px; height: 3px; border-radius: 2px; vertical-align: 3px; margin-right: 8px; }
@@ -312,7 +318,7 @@ table.dict td { font-family: var(--display); font-size: 17px; }
   .prose p, .prose li { font-size: 17px; }
   .g2-row { grid-template-columns: minmax(0, 1fr); }
   .g2-card { width: 128px; }
-  .pinch-ctl { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; }
+  .pinch-sl { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; width: 100%; }
   .pinch-ctl .pc { min-width: 0; }
   .pinch-ctl input { width: 100%; }
 }
@@ -330,3 +336,11 @@ table.dict td { font-family: var(--display); font-size: 17px; }
 .facts ol li::before { content: counter(k); position: absolute; left: 0; top: 2px; width: 26px; height: 26px; border-radius: 50%; background: var(--atom); color: var(--paper); font: 600 14px var(--mono); display: grid; place-items: center; }
 .prose .facts p { font-size: 17px; }
 #w-stab .fig-bar h4 { color: var(--ink); }
+
+/* the unlabelled caterpillar: three vertices in a row, legs ending in blank leaves */
+.cat-fig { margin: 0; }
+.cat-pic { display: block; width: 100%; max-width: 300px; height: auto; }
+.cat-pic .cat-e line { stroke: var(--ink); stroke-width: 2.8; stroke-linecap: round; }
+.cat-pic .cat-l line { stroke: var(--muted); stroke-width: 2; stroke-linecap: round; }
+.cat-pic .cat-leaf circle { fill: var(--paper); stroke: var(--muted); stroke-width: 1.6; }
+.cat-pic .cat-v circle { fill: var(--ink); }

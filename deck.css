@@ -95,7 +95,8 @@ body.presenting { overflow: hidden; }
 .slot #anat-svg, .slot #con-svg svg { max-height: calc(100vh - 360px); }
 .slot .live svg { max-height: calc(100vh - 420px); }
 .slot #pinch-svg { max-height: calc(100vh - 400px); }
-.slot .pinch-ctl { grid-template-columns: repeat(4, max-content); gap: 8px 28px; padding: 8px 16px; }
+.slot .pinch-sl { grid-template-columns: repeat(4, max-content); gap: 8px 28px; }
+.slot .pinch-ctl { padding: 8px 16px; }
 .slot .pinch-ctl input { width: 160px; }
 .slot .anat-data, .slot .con-data, .slot .pet-side, .slot .live .note, .slot .stab-read { font-size: 15px; }
 /* a short formula to keep in view above an interactive figure */
@@ -166,7 +167,7 @@ body.presenting { overflow: hidden; }
 @media (max-width: 760px) {
   .deck-title { display: none; }
   .slide .slot-pair { grid-template-columns: minmax(0, 1fr); }
-  .slot .pinch-ctl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .slot .pinch-sl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .slot .pinch-ctl input { width: 100%; }
   .slot .fig-pair svg, .slot .space .pic svg { max-height: none; }
   .slot .g2 { grid-template-columns: minmax(0, 1fr); }
@@ -178,3 +179,8 @@ body.presenting { overflow: hidden; }
 @media (min-width: 1200px) and (min-height: 700px) {
   .slot .anat-data, .slot .build-data, .slot .con-data, .slot .pet-side, .slot .stab-read, .slot .space .live { zoom: 1.2; }
 }
+
+/* the caterpillar picture inside a bullet, and the QR code on the closing slide */
+.slide .cat-slot { padding-top: 0.4em; }
+.slide .cat-slot .cat-pic { max-width: min(380px, 60vw); }
+.slide.title .end-qr { width: min(46vh, 70vw); height: auto; aspect-ratio: 1; border-radius: 8px; }

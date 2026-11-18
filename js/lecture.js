@@ -1236,9 +1236,13 @@
     const SOL = ["12", "34", "15", "23", "45", "35", "25", "24", "14", "13"];
     const disjoint = (a, b) => !a.split("").some((c) => b.includes(c));
     const rest = (p) => "12345".split("").filter((c) => !p.includes(c)).join("");
-    const S = { L: new Array(10).fill(null), sel: 1, msg: "", mode: "tree" };
+    // Only the first tree and its neighbours are drawn at the start. Each tree placed correctly
+    // reveals its own neighbours, so the Petersen graph appears one piece at a time.
+    const S = { L: new Array(10).fill(null), sel: 1, msg: "", mode: "tree", seen: new Set() };
     const pretty = (p) => (S.mode === "tree" ? `${p} | ${rest(p)}` : `{${p[0]},${p[1]}}`);
-    S.L[0] = "12";
+    const nbrs = (v) => edges.filter(([a, b]) => a === v || b === v).map(([a, b]) => (a === v ? b : a));
+    const start = () => { S.L = new Array(10).fill(null); S.L[0] = "12"; S.sel = 1; S.msg = ""; S.seen = new Set(); };
+    start();
     /* the tree with one edge that has legs p[0], p[1] on its left vertex and the other three on its
        right vertex, centred at (cx, cy) */
     function tree(p, cx, cy, k = 1) {
@@ -1263,11 +1267,11 @@
       $("#pet-mode").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.m === S.mode)));
     }
     chips();
+    // extend the current labels to a full labelling with adjacent trees disjoint, or return null
     function complete(L) {
       const L2 = L.slice();
       const used = new Set(L2.filter(Boolean));
-      const ok = (v, p) => edges.every(([a, b]) => { const o = a === v ? b : b === v ? a : -1; return o < 0 || !L2[o] || disjoint(p, L2[o]); });
-      for (let v = 0; v < 10; v++) if (L2[v] && !ok(v, L2[v])) return null;
+      const ok = (v, p) => nbrs(v).every((o) => !L2[o] || disjoint(p, L2[o]));
       const rec = (v) => {
         if (v === 10) return true;
         if (L2[v]) return rec(v + 1);
@@ -1281,57 +1285,73 @@
       };
       return rec(0) ? L2 : null;
     }
+    const visible = () => {
+      const vis = new Set([0, ...nbrs(0)]);
+      S.L.forEach((p, v) => { if (p) { vis.add(v); nbrs(v).forEach((u) => vis.add(u)); } });
+      return vis;
+    };
+    const placed = () => S.L.filter(Boolean).length;
     function draw() {
+      const vis = visible();
+      const fresh = (k) => (S.seen.has(k) ? "" : " fresh");
       let o = "";
-      let good = 0, bad = 0;
       edges.forEach(([a, b]) => {
-        let cls = "pe";
-        if (S.L[a] && S.L[b]) { if (disjoint(S.L[a], S.L[b])) { cls += " ok"; good++; } else { cls += " bad"; bad++; } }
-        o += `<line class="${cls}" x1="${num(pos[a][0])}" y1="${num(pos[a][1])}" x2="${num(pos[b][0])}" y2="${num(pos[b][1])}"/>`;
+        if (!vis.has(a) || !vis.has(b)) return;
+        const both = S.L[a] && S.L[b];
+        o += `<line class="pe${both ? " ok" : ""}${fresh("e" + a + "-" + b)}" x1="${num(pos[a][0])}" y1="${num(pos[a][1])}" x2="${num(pos[b][0])}" y2="${num(pos[b][1])}"/>`;
       });
       pos.forEach(([x, y], v) => {
-        const head = `<g class="pv${S.L[v] ? " lab" : ""}${v === S.sel ? " sel" : ""}" data-v="${v}" tabindex="0" role="button" aria-label="Vertex ${v + 1}${S.L[v] ? ", labelled " + pretty(S.L[v]) : ", unlabelled"}" aria-pressed="${v === S.sel}">`;
+        if (!vis.has(v)) return;
+        const head = `<g class="pv${S.L[v] ? " lab" : ""}${v === S.sel ? " sel" : ""}${fresh("v" + v)}" data-v="${v}" tabindex="0" role="button" aria-label="Vertex ${v + 1}${S.L[v] ? ", labelled " + pretty(S.L[v]) : ", unlabelled"}" aria-pressed="${v === S.sel}">`;
         if (S.mode === "tree") {
           // a card with a picture of the tree
           const w = 62, h = 42;
-          o += `${head}<rect class="bgc" x="${num(x - w / 2)}" y="${num(y - h / 2)}" width="${w}" height="${h}" rx="7"/><rect class="fc" x="${num(x - w / 2)}" y="${num(y - h / 2)}" width="${w}" height="${h}" rx="7"/>${S.L[v] ? tree(S.L[v], x - 1, y, 0.95) : `<circle cx="${num(x)}" cy="${num(y)}" r="3.4" class="tr-v"/>`}</g>`;
+          o += `${head}<rect class="bgc" x="${num(x - w / 2)}" y="${num(y - h / 2)}" width="${w}" height="${h}" rx="7"/><rect class="fc" x="${num(x - w / 2)}" y="${num(y - h / 2)}" width="${w}" height="${h}" rx="7"/>${S.L[v] ? tree(S.L[v], x - 1, y, 0.95) : `<text x="${num(x)}" y="${num(y)}" text-anchor="middle" dominant-baseline="central" class="q">?</text>`}</g>`;
         } else {
-          o += `${head}<circle class="bgc" cx="${num(x)}" cy="${num(y)}" r="20"/><circle class="fc" cx="${num(x)}" cy="${num(y)}" r="20"/><text x="${num(x)}" y="${num(y)}" text-anchor="middle" dominant-baseline="central">${S.L[v] ? S.L[v][0] + "," + S.L[v][1] : ""}</text></g>`;
+          o += `${head}<circle class="bgc" cx="${num(x)}" cy="${num(y)}" r="20"/><circle class="fc" cx="${num(x)}" cy="${num(y)}" r="20"/><text x="${num(x)}" y="${num(y)}" text-anchor="middle" dominant-baseline="central"${S.L[v] ? "" : ' class="q"'}>${S.L[v] ? S.L[v][0] + "," + S.L[v][1] : "?"}</text></g>`;
         }
       });
       svg.innerHTML = o;
+      vis.forEach((v) => S.seen.add("v" + v));
+      edges.forEach(([a, b]) => { if (vis.has(a) && vis.has(b)) S.seen.add("e" + a + "-" + b); });
       $("#pet-chips").querySelectorAll("button").forEach((b) => {
-        const p = b.dataset.p;
-        b.classList.toggle("used", S.L.includes(p));
-        b.classList.toggle("mine", S.sel >= 0 && S.L[S.sel] === p);
+        const used = S.L.includes(b.dataset.p);
+        b.classList.toggle("used", used);
+        b.disabled = used;
       });
       const score = $("#pet-score");
-      const win = good === 15;
+      const win = placed() === 10;
       score.classList.toggle("win", win);
       score.innerHTML = win
-        ? "<b>All 15 edges join disjoint pairs.</b> The ten vertices are the one-edge trees and the fifteen edges are the caterpillars: this is Δ<sub>0,5</sub>."
-        : `${S.msg ? S.msg + "<br>" : ""}<b>${good}</b> of 15 edges join disjoint pairs${bad ? `, <b>${bad}</b> overlap` : ""}.${S.sel >= 0 ? ` Now labelling the highlighted vertex.` : ""}`;
+        ? "<b>You built Δ<sub>0,5</sub>!</b> Its ten vertices are the one-edge trees and its fifteen edges are the caterpillars. This is the famous <b>Petersen graph</b>."
+        : `${S.msg ? S.msg + "<br>" : ""}<b>${placed()}</b> of 10 trees placed.${S.sel >= 0 ? " Choose the tree for the highlighted vertex." : " Choose a vertex marked ?."}`;
     }
-    const nextEmpty = (from) => { for (let i = 1; i <= 10; i++) { const v = (from + i) % 10; if (!S.L[v]) return v; } return -1; };
-    const choose = (v) => { S.sel = v; S.msg = ""; draw(); };
+    const nextOpen = (from) => {
+      const vis = visible();
+      for (let i = 1; i <= 10; i++) { const v = (from + i) % 10; if (vis.has(v) && !S.L[v]) return v; }
+      return -1;
+    };
+    const choose = (v) => { if (S.L[v]) return; S.sel = v; S.msg = ""; draw(); };
     svg.addEventListener("click", (e) => { const g = e.target.closest(".pv"); if (g) choose(+g.dataset.v); });
     svg.addEventListener("keydown", (e) => {
       const g = e.target.closest(".pv");
       if (g && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); choose(+g.dataset.v); svg.querySelector(`.pv[data-v="${g.dataset.v}"]`)?.focus(); }
     });
+    // why a tree cannot go at vertex v
+    function why(v, p) {
+      const clash = nbrs(v).find((u) => S.L[u] && !disjoint(p, S.L[u]));
+      if (clash !== undefined) return `${pretty(p)} cannot go there: it shares a leg with its neighbour ${pretty(S.L[clash])}, and neighbours must come from one caterpillar, so their pairs are disjoint.`;
+      return `${pretty(p)} is disjoint from the neighbours placed so far, but then the rest of the graph cannot be finished. Look two steps away: two trees that are not neighbours always share a leg.`;
+    }
     $("#pet-chips").addEventListener("click", (e) => {
       const b = e.target.closest("button");
-      if (!b || S.sel < 0) return;
-      const p = b.dataset.p;
+      if (!b || S.sel < 0 || S.L[S.sel]) return;
+      const p = b.dataset.p, v = S.sel;
+      const L2 = S.L.slice(); L2[v] = p;
+      if (!complete(L2)) { S.msg = why(v, p); draw(); return; }
+      S.L[v] = p;
       S.msg = "";
-      if (S.L[S.sel] === p) S.L[S.sel] = null;
-      else {
-        const u = S.L.indexOf(p);
-        if (u >= 0) S.L[u] = null;
-        S.L[S.sel] = p;
-        const nx = nextEmpty(S.sel);
-        S.sel = nx;
-      }
+      S.sel = nextOpen(v);
       draw();
     });
     $("#pet-mode").addEventListener("click", (e) => {
@@ -1343,23 +1363,16 @@
       draw();
     });
     $("#pet-hint").addEventListener("click", () => {
+      const v = S.sel >= 0 ? S.sel : nextOpen(-1);
+      if (v < 0) return;
       const full = complete(S.L);
-      if (!full) { S.msg = "Some of these labels cannot all be right at once. Look for a red edge, or a vertex whose neighbours use up its numbers."; draw(); return; }
-      const v = S.sel >= 0 && !S.L[S.sel] ? S.sel : nextEmpty(-1);
-      if (v < 0) { S.msg = ""; draw(); return; }
       S.L[v] = full[v];
-      S.msg = `Vertex labelled ${pretty(full[v])}. It is disjoint from every labelled neighbour.`;
-      S.sel = nextEmpty(v);
+      S.msg = `Placed ${pretty(full[v])}. It is disjoint from each of its neighbours.`;
+      S.sel = nextOpen(v);
       draw();
     });
-    $("#pet-solve").addEventListener("click", () => {
-      const full = complete(S.L);
-      S.L = full || SOL.slice();
-      S.msg = full ? "" : "Your labels could not be completed, so here is a fresh labelling.";
-      S.sel = -1;
-      draw();
-    });
-    $("#pet-reset").addEventListener("click", () => { S.L = new Array(10).fill(null); S.sel = 0; S.msg = ""; draw(); });
+    $("#pet-solve").addEventListener("click", () => { S.L = complete(S.L) || SOL.slice(); S.sel = -1; S.msg = ""; draw(); });
+    $("#pet-reset").addEventListener("click", () => { start(); draw(); });
     draw();
   }
 
@@ -1468,6 +1481,7 @@
       $("#pinch-note").textContent = (crossed ? "The middle neck and the curve between the holes cross each other, so they cannot both pinch: moving one releases the other. " : "") +
         NOTES[key] + (partly ? " A curve that is only partly pinched has not made a node yet." : "");
     }
+    $("#pinch-reset").addEventListener("click", () => { Object.values(SL).forEach((el) => (el.value = 0)); crossed = false; draw(); });
     Object.keys(SL).forEach((k) => SL[k].addEventListener("input", () => {
       const other = k === "N" ? "M" : k === "M" ? "N" : null;
       if (other && +SL[other].value > 0) { SL[other].value = 0; crossed = true; }
