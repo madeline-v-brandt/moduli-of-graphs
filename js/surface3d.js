@@ -116,6 +116,9 @@ void main() {
   }
 
   function create(canvas) {
+    // never let the drawing buffer set the canvas's size on the page, even if the stylesheet is missing
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
     let gl = null;
     try { gl = canvas.getContext("webgl", { alpha: true, premultipliedAlpha: true, antialias: false }); } catch (err) { gl = null; }
     if (!gl) return null;
@@ -156,7 +159,8 @@ void main() {
 
     function draw(s) {
       const dpr = Math.min(root.devicePixelRatio || 1, 2);
-      const W = Math.max(1, Math.round(canvas.clientWidth * dpr)), H = Math.max(1, Math.round(canvas.clientHeight * dpr));
+      if (!canvas.clientWidth || !canvas.clientHeight) return;
+      const W = Math.min(2400, Math.round(canvas.clientWidth * dpr)), H = Math.min(1600, Math.round(canvas.clientHeight * dpr));
       if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; }
       gl.viewport(0, 0, W, H);
       gl.clearColor(0, 0, 0, 0);

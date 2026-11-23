@@ -1405,7 +1405,7 @@
     // the surface is drawn in space (js/surface3d.js) where WebGL works, and flat in the svg otherwise
     const canvas = $("#pinch-3d");
     const S3 = canvas && window.Surface3D ? window.Surface3D.create(canvas) : null;
-    if (!S3) { if (canvas) canvas.remove(); svg.hidden = false; }
+    if (!S3) { if (canvas) canvas.closest(".pinch-view").remove(); svg.hidden = false; }
     const X = (x) => 260 + 112 * x, Y = (y) => 125 - 112 * y;
     const B = 0.8, HOLE_TOP = 0.1, CX = 0.88, XE = CX + 1, TIP = 0.08;
     const lobe = (x) => { const u = Math.abs(x) - CX; return u * u < 1 ? B * Math.sqrt(1 - u * u) : 0; };

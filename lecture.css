@@ -285,7 +285,9 @@ table.stab button:hover, table.stab button:focus-visible, table.stab button.cur 
 .ovl { text-decoration: overline; text-decoration-thickness: 1px; }
 .vc-back { stroke-dasharray: 3 4; stroke-width: 1.6; }
 .node-dot { fill: var(--nm); }
-#pinch-3d { display: block; width: 100%; aspect-ratio: 520 / 270; cursor: grab; touch-action: none; }
+/* the box sets the size; the canvas fills it, so the size of its drawing buffer never feeds back into the layout */
+.pinch-view { position: relative; width: 100%; aspect-ratio: 520 / 270; }
+#pinch-3d { position: absolute; inset: 0; display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; }
 #pinch-3d.dragging { cursor: grabbing; }
 
 table.dict { border-collapse: collapse; font-size: 15px; min-width: 320px; }
