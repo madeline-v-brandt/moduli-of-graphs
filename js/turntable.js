@@ -8,11 +8,12 @@
   const mul = (A, B) => A.map((r) => [0, 1, 2].map((j) => r[0] * B[0][j] + r[1] * B[1][j] + r[2] * B[2][j]));
   const apply = (R, p) => [0, 1, 2].map((r) => R[r][0] * p[0] + R[r][1] * p[1] + R[r][2] * p[2]);
 
-  /* o: { Rm, spinBtn, speed, draw(), hover(el) -> true if the picture should be redrawn, pick(el or null) } */
+  /* o: { Rm, spin (false to start still), spinBtn, speed, draw(), hover(el) -> true if the picture should be redrawn,
+        pick(el or null) } */
   function turntable(svg, o) {
     const t = { Rm: o.Rm || [[1, 0, 0], [0, 1, 0], [0, 0, 1]] };
     const speed = o.speed || 0.00028;
-    let spinning = !root.matchMedia("(prefers-reduced-motion: reduce)").matches, raf = 0, last = 0, visible = true;
+    let spinning = o.spin !== false && !root.matchMedia("(prefers-reduced-motion: reduce)").matches, raf = 0, last = 0, visible = true;
     const setLabel = () => { if (o.spinBtn) o.spinBtn.textContent = spinning ? "Pause" : "Spin"; };
     function tick(now) {
       raf = 0;

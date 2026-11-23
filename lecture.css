@@ -285,6 +285,8 @@ table.stab button:hover, table.stab button:focus-visible, table.stab button.cur 
 .ovl { text-decoration: overline; text-decoration-thickness: 1px; }
 .vc-back { stroke-dasharray: 3 4; stroke-width: 1.6; }
 .node-dot { fill: var(--nm); }
+#pinch-3d { display: block; width: 100%; aspect-ratio: 520 / 270; cursor: grab; touch-action: none; }
+#pinch-3d.dragging { cursor: grabbing; }
 
 table.dict { border-collapse: collapse; font-size: 15px; min-width: 320px; }
 table.dict th, table.dict td { text-align: left; padding: 7px 18px 7px 0; border-bottom: 1px solid var(--rule); }

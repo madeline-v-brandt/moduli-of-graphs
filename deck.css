@@ -94,7 +94,7 @@ body.presenting { overflow: hidden; }
 .slot .fig-pair svg, .slot .space .pic svg { max-height: calc(100vh - 300px); }
 .slot #anat-svg, .slot #con-svg svg { max-height: calc(100vh - 360px); }
 .slot .live svg { max-height: calc(100vh - 420px); }
-.slot #pinch-svg { max-height: calc(100vh - 400px); }
+.slot #pinch-svg, .slot #pinch-3d { max-height: calc(100vh - 400px); }
 .slot .pinch-sl { grid-template-columns: repeat(4, max-content); gap: 8px 28px; }
 .slot .pinch-ctl { padding: 8px 16px; }
 .slot .pinch-ctl input { width: 160px; }

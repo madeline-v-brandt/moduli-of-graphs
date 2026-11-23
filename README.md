@@ -33,6 +33,7 @@ The site is served by GitHub Pages from the main branch, root folder (Settings �
 - `js/delta06.js`: Δ_{0,6} in space
 - `js/delta13.js`: Δ_{1,3} in space
 - `js/turntable.js`: turning the pictures in space (drag, spin, click)
+- `js/surface3d.js`: the genus 2 surface of the pinching figure, drawn in space with WebGL (the flat drawing in `js/lecture.js` is the fallback)
 - `js/app.js`: the explorer interface
 - `js/lecture.js`: the figures in the lecture notes
 - `deck.css`, `js/deck.js`: presentation mode (the slides themselves are in `lecture.html`, in `<template id="slides">`)

@@ -1402,6 +1402,10 @@
   function pinch() {
     const svg = $("#pinch-svg");
     if (!svg) return;
+    // the surface is drawn in space (js/surface3d.js) where WebGL works, and flat in the svg otherwise
+    const canvas = $("#pinch-3d");
+    const S3 = canvas && window.Surface3D ? window.Surface3D.create(canvas) : null;
+    if (!S3) { if (canvas) canvas.remove(); svg.hidden = false; }
     const X = (x) => 260 + 112 * x, Y = (y) => 125 - 112 * y;
     const B = 0.8, HOLE_TOP = 0.1, CX = 0.88, XE = CX + 1, TIP = 0.08;
     const lobe = (x) => { const u = Math.abs(x) - CX; return u * u < 1 ? B * Math.sqrt(1 - u * u) : 0; };
@@ -1437,8 +1441,31 @@
       LMR: "Three nodes: the theta graph. The surface falls apart into two components of genus 0, and they meet each other at all three nodes.",
     };
     let crossed = false;
-    function draw() {
-      const v = {}; Object.keys(SL).forEach((k) => (v[k] = +SL[k].value / 100));
+    const rgb = (name) => {
+      const h = getComputedStyle(svg).getPropertyValue(name).trim();
+      return /^#[0-9a-f]{6}$/i.test(h) ? [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255) : [0.5, 0.5, 0.5];
+    };
+    let colors = null;
+    const readColors = () => {
+      const panel = rgb("--panel"), mat = rgb("--mat");
+      colors = { base: panel.map((x, i) => x + (mat[i] - x) * 0.45), ink: rgb("--ink"), node: rgb("--nm"), L: rgb("--o1"), M: rgb("--o3"), N: rgb("--o2"), R: rgb("--o5") };
+    };
+    const values = () => { const v = {}; Object.keys(SL).forEach((k) => (v[k] = +SL[k].value / 100)); return v; };
+    let tt = null;
+    const draw3d = () => {
+      const v = values();
+      if (!colors) readColors();
+      S3.draw({ Rm: tt.Rm, v, show: { N: !(v.M > 0), M: !(v.N > 0) }, colors });
+    };
+    if (S3) {
+      const { turntable, rotX, rotY, mul } = window.Turn3D;
+      tt = turntable(canvas, { Rm: mul(rotX(0.5), rotY(-0.3)), spin: false, draw: draw3d, pick() {} });
+      new ResizeObserver(draw3d).observe(canvas);
+      const recolor = () => { colors = null; draw3d(); };
+      window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", recolor);
+      new MutationObserver(recolor).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    }
+    function drawSurfaceSvg(v) {
       const f = (x) => lobe(x) * (1 - v.N * Math.exp(-((x / 0.34) ** 2)));
       const dL = (f(-CX) - HOLE_TOP) * v.L, dR = (f(CX) - HOLE_TOP) * v.R;
       const top = (x) => f(x) - dL * Math.exp(-(((x + CX) / 0.3) ** 2)) - dR * Math.exp(-(((x - CX) / 0.3) ** 2));
@@ -1474,6 +1501,10 @@
       o += ring(-CX, HOLE_TOP, top(-CX), "vc-handle");
       o += ring(CX, HOLE_TOP, top(CX), "vc-rhandle");
       svg.innerHTML = o;
+    }
+    function draw() {
+      const v = values();
+      if (S3) draw3d(); else drawSurfaceSvg(v);
       const key = ["L", "M", "N", "R"].filter((k) => v[k] >= 1).join("");
       const D = DUAL[key];
       $("#pinch-graph").innerHTML = MD.graphSvg(D.G, { w: 260, h: 170, pad: 30, font: 13, dot: 5, strokeW: 2.6, edgeColors: (e) => COL[D.tags[e]], label: "The dual graph" });
